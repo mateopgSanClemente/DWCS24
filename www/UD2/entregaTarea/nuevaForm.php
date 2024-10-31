@@ -14,30 +14,31 @@
         <div class="row">
             <!--menu-->
             <?php include 'menu.php'; ?>
-            
+            <div class="col">
             <!--Formulario-->
             <!--Mi idea inicial era añadir el atributo required a algunos de los campos del formulario, pero lo eliminé con el fin de validarlos a través del fichero nueva.php y las funciones del fichero utils.php-->
-            <form class="mb-5" action="nueva.php" method="post">
-                <div class="mb-3">
-                    <label class="form-label">Id tarea:</label>
-                    <!--Podría acotar el rango de números válidos para este campo-->
-                    <input class="form-control" type="number" name="id_tarea">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Nombre:</label>
-                    <input class="form-control" type="text" name="nombre_tarea">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Estado:</label>
-                    <select class="form-select" name="estado_tarea">
-                        <option value="" selected>Selecciona un estado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En proceso">En proceso</option>
-                        <option value="Completada">Completada</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar</button>
-            </form>
+                <form class="mb-5" action="nueva.php" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Id tarea:</label>
+                        <!--Podría acotar el rango de números válidos para este campo-->
+                        <input class="form-control" type="number" name="id_tarea">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre:</label>
+                        <input class="form-control" type="text" name="nombre_tarea">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado:</label>
+                        <select class="form-select" name="estado_tarea">
+                            <option value="" selected>Selecciona un estado</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En proceso">En proceso</option>
+                            <option value="Completada">Completada</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+            </div>
         </div>
     </div>
     
