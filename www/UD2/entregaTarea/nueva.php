@@ -49,6 +49,10 @@
                     $nombre_tarea = $_POST['nombre_tarea'];
                     $estado_tarea = $_POST['estado_tarea'];
 
+                    //Simula guarda la nueva tarea en caso de que sea correcta
+                    //OJO! La página solo puedo guardar una sola nueva tarea. Al recargarse el array vuelve a su valor original de prueba.
+                    guardar_tarea ($id_tarea, $nombre_tarea, $estado_tarea);
+
                     // Inicializar un array para errores
                     $errores = [];
 
