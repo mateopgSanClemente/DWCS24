@@ -7,12 +7,12 @@
                 </a>
             </li>
             <li>
-                <a class="nav-link" href="">
-                    Mi Tarea
+                <a class="nav-link" href="nueva.php">
+                    Mis tareas
                 </a>
             </li>
             <li>
-                <a class="nav-link" href="">
+                <a class="nav-link" href="nuevaForm.php">
                     Nueva tarea
                 </a>
             </li>

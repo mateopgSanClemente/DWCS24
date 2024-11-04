@@ -78,4 +78,22 @@
         // Si pasa todas las validaciones
         return true;
     }
+
+    //Guardar una tarea de forma simulada (se añade al array). Deberá hacer uso de las función de filtrado para no guardar información no válida y devolver true simulando que se guarda o false si no se valida algún campo. Recibirá los 3 campos y creará un array clave-valor para la tarea, que almacenará en el array global.
+    function guardar_tarea ($id, $nombre, $estado) {
+        if (comprobar_campo($id) && comprobar_campo ($nombre) && comprobar_campo ($estado)) {
+            //Crear un array con los valores de los campos
+            $nuevo_array = array (
+                "id_tarea" => $id,
+                "nombre_tarea" => $nombre,
+                "estado_tarea" => $estado
+            );
+            //Introducir el nuevo array en el array global $array_tareas
+            global $array_tareas;
+            $array_tareas[] = $nuevo_array;
+            return true;
+        } else {
+            return false;
+        }
+    }
 ?>
