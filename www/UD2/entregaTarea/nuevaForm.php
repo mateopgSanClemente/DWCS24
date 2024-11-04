@@ -24,6 +24,7 @@
                         <input class="form-control" type="number" name="id_tarea">
                     </div>
                     <div class="mb-3">
+                        <!-- Podría poner un mínimo y un máximo de caracteres para este campo -->
                         <label class="form-label">Nombre:</label>
                         <input class="form-control" type="text" name="nombre_tarea">
                     </div>
