@@ -45,4 +45,11 @@
             echo "</tr>";
         }
     };
+
+    function filtrar_contenido ($campo) {
+        $campo = trim ($campo);
+        $campo = stripslashes ($campo);
+        $campo = htmlspecialchars ($campo);
+        return $campo;
+    }
 ?>
