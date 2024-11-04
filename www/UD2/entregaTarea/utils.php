@@ -46,10 +46,36 @@
         }
     };
 
-    function filtrar_contenido ($campo) {
-        $campo = trim ($campo);
-        $campo = stripslashes ($campo);
-        $campo = htmlspecialchars ($campo);
-        return $campo;
+    //Filtrar el contenido de un texto para que no contenga caracteres especiales, espacios en blanco duplicados, etc. Recibe la variable y la devuelve filtrada.
+    function filtrar_contenido ($texto) {
+        $texto = trim ($texto);
+        $texto = stripslashes ($texto);
+        $texto = htmlspecialchars ($texto);
+        return $texto;
+    }
+
+    //Comprobar que un texto contiene información de texto válida, devolviendo true si se cumplen todos los requisitos o false si no es así. Deberá filtrar con la función anterior previamente antes de comprobar si es válido.
+    function comprobar_campo ($campo) {
+        $campo = filtrar_contenido ($campo);
+        // Comprobar que el campo no está vacío
+        if (empty($campo)) {
+            return false;
+        }
+        
+        // Longitud mínima y máxima, por probar
+        /*
+        if (strlen($campo) < 3 || strlen($campo) > 100) {
+            return false;
+        }
+        */
+        
+        /* Comprobar si el campo solo contiene letras, números, y espacios
+        if (!preg_match('/^[a-zA-Z0-9\s]+$/', $campo)) {
+            return false;
+        }
+        */
+        
+        // Si pasa todas las validaciones
+        return true;
     }
 ?>
