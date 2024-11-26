@@ -64,19 +64,37 @@
             </aside>
             <!-- Layout -->
             <main class="col-md-9 main-content">
-                <h2 class="mb-4">Sobre nuestra tienda</h2>
-                <p class="descripcion">
-                    Bienvenidos a la genuina e inigualable <strong>Tienda de Jabones PEPINO</strong>, los jabones más pepino de Compostela, un espacio dedicado a ofrecerte jabones, obviamente.
-                    Tenemos una amplia gama de jabones a la venta con distribución tanto nacional a nivel España como internacional.
-                    Disponemos de productos artesanales de la más alta calidad y otros que no tanto, algunos más democráticos que otros.
-                </p>
-                <p class="descripcion">   
-                    Cada uno de nuestros productos está elaborado con ingredientes naturales, cuidando cada detalle para ofrecerte una experiencia única de cuidado personal, porque como comprenderás no te vamos a vender un jabón que huela mal.
-                </p>
-                <h2 class="mb-4">Sobre la administración de usuarios</h2>
-                <p class="descripcion">
-                    Al grano, utiliza la barra lateral de la izquierda para realizar distintas acción respecto a los usuarios y la base de datos. Desde esta podrás <strong>INICIAR LA BASE DE DATOS ,MODIFICAR, ELIMINAR, REGISTRAR Y LISTAR</strong> a los usuarios usuario.
-                </p>
+                <?php
+                    include_once ("utils_bases_datos.php");
+
+                    //Crear base de datos
+                    $conexion = conectar("db", "root", "test", null);
+
+                    $creacion_base_datos = crear_base_datos ($conexion);
+
+                    if ($creacion_base_datos[0] === false)
+                    {
+                        echo '<div class="alert alert-warning" role="alert">' . $creacion_base_datos[1] . '</div>';
+                    }
+                    else if ($creacion_base_datos[0] === true)
+                    {
+                        echo '<div class="alert alert-success" role="alert">' . $creacion_base_datos[1] . '</div>';
+                    }
+
+                    //Crear tabla 'clientes'
+                    $conexion = conectar();
+                    
+                    $tabla_usuarios = crear_tabla($conexion);
+
+                    if ($tabla_usuarios[0] === true)
+                    {
+                        echo '<div class="alert alert-success" role="alert">' . $tabla_usuarios[1] . '</div>';
+                    }
+                    else if ($tabla_usuarios[0] === false)
+                    {
+                        echo '<div class="alert alert-warning" role="alert">' . $tabla_usuarios[1] . '</div>';
+                    }
+                ?>
             </main>
         </div>
     </div>
