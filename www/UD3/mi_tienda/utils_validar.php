@@ -38,8 +38,9 @@
         */
 
         //Para los campos que pretender ser una cadena de caracteres solo se permitiran caracteres alfabéticos, seguido de un espacio opcional y otro conjunto de caracteres igual al primero, también opcional
-        
-        if (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ])?$"))
+        //¿Realmente necesito comprobar que el campo no es un número si ya lo estoy haciendo a través de la expresión regular?
+        //TODO: R
+        if (!is_numeric($campo) && preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$/", $campo))
         {
             return true;
         } 
@@ -47,9 +48,10 @@
         if (is_numeric($campo))
         {
             //Convierto el numero que esta como un tipo string a un tipo numérico
-            $numero = intval($campo);
+            //$numero = intval($campo);
+            // ^ No es necesario ya que php puede tratar la cadena como un número al utilizar operadores comparativos.
             //Valido el valor del numero
-            if ($numero >= 18 && $numero <= 130) {
+            if ($campo >= 18 && $campo <= 130) {
                 return true;
             }
         }

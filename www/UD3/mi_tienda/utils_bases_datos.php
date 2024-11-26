@@ -39,7 +39,7 @@
                 return [false, "La base de datos 'tienda' ya existe."];
             }
 
-            $sql = "CREATE DATABASE IF NOT EXISTS tienda;";
+            $sql = "CREATE DATABASE IF NOT EXISTS `tienda`;";
 
             if ($conexion->query($sql))
             {
@@ -89,13 +89,13 @@
                 return [false, "La tabla 'clientes' ya existe."];
             }
 
-            $sql = "CREATE TABLE IF NOT EXISTS clientes (
-                id INT(6) NOT NULL AUTO_INCREMENT,
-                nombre VARCHAR(50) NOT NULL,
-                apellido VARCHAR(100) NOT NULL,
-                edad INT(6) NOT NULL,
-                provincia VARCHAR(50) NOT NULL,
-                PRIMARY KEY (id)
+            $sql = "CREATE TABLE IF NOT EXISTS `tienda` . `clientes` (
+                `id` INT(6) NOT NULL AUTO_INCREMENT,
+                `nombre` VARCHAR(50) NOT NULL,
+                `apellido` VARCHAR(100) NOT NULL,
+                `edad` INT(6) NOT NULL,
+                `provincia` VARCHAR(50) NOT NULL,
+                PRIMARY KEY (`id`)
                 );";
         
             if ($conexion->query($sql))
@@ -106,6 +106,31 @@
             {
                 return [false, "No fue posible crear la tabla 'clientes'."];
             }
+        }
+        catch (mysqli_sql_exception $e)
+        {
+            return [false, $e->getMessage()];
+        }
+        finally
+        {
+            cerrar_conexion($conexion);
+        }
+    }
+
+    /**
+     * Función para insertar un nuevo usuario en la tabla clientes
+     * 
+     */
+    function insertar_cliente ($conexion, $nombre, $apellidos, $edad, $provincia)
+    {
+        try
+        {
+            $stmt = $conexion->prepare("INSERT INTO clientes (nombre, apellido, edad, provincia) VALUES (?,?,?,?)");
+            $stmt->bind_param("ssis", $nombre, $apellidos, $edad, $provincia);
+
+            $stmt->execute();
+
+            return [true, "Usuario creado correctamente."];
         }
         catch (mysqli_sql_exception $e)
         {
