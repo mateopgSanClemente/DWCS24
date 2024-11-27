@@ -56,10 +56,8 @@
                 <h5 class="text-center">Menú</h5>
                 <ul class="list-group">
                     <li class="list-group-item"><a href="iniciar.php">Iniciar base de datos</a></li>
-                    <li class="list-group-item"><a href="registrar.html">Registrar Usuario</a></li>
-                    <li class="list-group-item"><a href="listar.html">Listar Usuarios</a></li>
-                    <li class="list-group-item"><a href="modificar.html">Modificar Usuario</a></li>
-                    <li class="list-group-item"><a href="eliminar.html">Eliminar Usuario</a></li>
+                    <li class="list-group-item"><a href="registrar.php">Registrar Usuario</a></li>
+                    <li class="list-group-item"><a href="listar.php">Listar Usuarios</a></li>
                 </ul>
             </aside>
             <!-- Layout -->
@@ -75,7 +73,7 @@
                 </p>
                 <h2 class="mb-4">Sobre la administración de usuarios</h2>
                 <p class="descripcion">
-                    Al grano, utiliza la barra lateral de la izquierda para realizar distintas acción respecto a los usuarios y la base de datos. Desde esta podrás <strong>INICIAR LA BASE DE DATOS ,MODIFICAR, ELIMINAR, REGISTRAR Y LISTAR</strong> a los usuarios usuario.
+                    Al grano, utiliza la barra lateral de la izquierda para realizar distintas acción respecto a los usuarios y la base de datos. Desde esta podrás <strong>INICIAR LA BASE DE DATOS, MODIFICAR, ELIMINAR, REGISTRAR Y LISTAR</strong> a los usuarios.
                 </p>
             </main>
         </div>
@@ -83,7 +81,7 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2024 Tienda de Jabones. Todos los derechos reservados.</p>
+        <p>&copy; 2024 Tienda de Jabones Pepino. Todos los derechos reservados.</p>
         <a href="index.php" class="btn btn-primary">Página principal</a>
     </footer>
     <!-- Bootstrap JS -->
