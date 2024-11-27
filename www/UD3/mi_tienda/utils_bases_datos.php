@@ -165,4 +165,21 @@
             cerrar_conexion($conexion);
         }
     }
+
+    function eliminar_cliente ($conexion, $id)
+    {   try
+        {
+            $sql = "DELETE FROM clientes WHERE id = $id;";
+            $conexion->query($sql);
+            return [true, "El cliente con id $id se eliminó correctamente."];
+        }
+        catch (mysqli_sql_exception $e)
+        {
+            return [false, $e->getMessage()];
+        }
+        finally
+        {
+            cerrar_conexion($conexion);
+        }
+    }
 ?>
