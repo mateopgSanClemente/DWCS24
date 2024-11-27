@@ -56,54 +56,27 @@
         <!-- Main Content -->
         <main class="col-md-9 main-content">
 
-            <!-- Listar Usuarios -->
-            <section id="listar" class="mb-4">
-                <h2>Listar Usuarios</h2>
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Edad</th>
-                            <th>Provincia</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                            require_once("utils_bases_datos.php");
+            <!-- Eliminar Usuario -->
+            <section id="eliminar" class="mb-4">
+                <h2>Eliminar Usuario</h2>
+                
+                    <?php
+                        require_once("utils_bases_datos.php");
+                        $conexion = conectar();
+                        $id_usuario = $_GET['id'];
+                        $resultado_eliminar = eliminar_cliente($conexion, $id_usuario);
+                        //TODO: Indicar la información sobre el usuario eliminado y si se eliminó correctamente.
+                        if ($resultado_eliminar[0])
+                        {
+                            echo ('<div class="alert alert-success" role="alert">' . $resultado_eliminar[1] . '</div>');
+                        }
+                        else if (!$resultado_eliminar[0])
+                        {
+                            echo ("<div class='aler alert-warning'>" . $resultado_eliminar[1] . "</div>");
+                        }
+                    ?>
 
-                            $conexion = conectar();
-
-                            $resultados = listar_cliente($conexion);
-
-                            if($resultados[0] === true)
-                            {
-                                $lista = $resultados[1];
-
-                                foreach ($lista as $fila)
-                                {
-                                    echo "<tr>";
-                                    foreach ($fila as $columna => $dato)
-                                    {
-                                        echo "<td>" . $dato . "</td>";
-                                    }
-
-                                    print_r($fila);
-                                    echo "<td>";
-                                    echo "<a href='modificar.php?id='" . $fila['id'] . "' class='btn btn-primary btn-sm me-2'>Editar</a>";
-                                    echo "<a href='eliminar.php?id=" . $fila['id'] . "' class='btn btn-danger btn-sm'>Eliminar</a>";
-                                    echo "</td>";
-                                    echo "</tr>";
-                                }
-
-                            }
-                        ?>
-                    </tbody>
-                </table>
             </section>
-
         </main>
     </div>
 </div>
