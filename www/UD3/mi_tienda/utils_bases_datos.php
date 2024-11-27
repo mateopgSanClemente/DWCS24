@@ -141,4 +141,28 @@
             cerrar_conexion($conexion);
         }
     }
+
+    function listar_cliente ($conexion)
+    {
+        try
+        {
+            /**
+             * Otra forma de hacerlo sería:
+             * SELECT * FROM clientes;
+             */
+            $sql = "SELECT id, nombre, apellido, edad, provincia FROM clientes;";
+
+            $resultados = $conexion->query($sql);
+
+            return [true, $resultados->fetch_all(MYSQLI_ASSOC)];
+        }
+        catch (mysqli_sql_exception $e)
+        {
+            return [false, $e->getMessage()];
+        }
+        finally
+        {
+            cerrar_conexion($conexion);
+        }
+    }
 ?>

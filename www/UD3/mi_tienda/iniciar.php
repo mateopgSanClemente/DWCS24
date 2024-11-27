@@ -56,10 +56,8 @@
                 <h5 class="text-center">Menú</h5>
                 <ul class="list-group">
                     <li class="list-group-item"><a href="iniciar.php">Iniciar base de datos</a></li>
-                    <li class="list-group-item"><a href="registrar.html">Registrar Usuario</a></li>
-                    <li class="list-group-item"><a href="listar.html">Listar Usuarios</a></li>
-                    <li class="list-group-item"><a href="modificar.html">Modificar Usuario</a></li>
-                    <li class="list-group-item"><a href="eliminar.html">Eliminar Usuario</a></li>
+                    <li class="list-group-item"><a href="registrar.php">Registrar Usuario</a></li>
+                    <li class="list-group-item"><a href="listar.php">Listar Usuarios</a></li>
                 </ul>
             </aside>
             <!-- Layout -->
