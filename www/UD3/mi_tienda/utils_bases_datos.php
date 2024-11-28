@@ -166,12 +166,16 @@
         }
     }
 
+    /**
+     * Función para eliminar un cliente.
+     */
     function eliminar_cliente ($conexion, $id)
     {   try
         {
             $sql = "DELETE FROM clientes WHERE id = $id;";
             $conexion->query($sql);
-            return [true, "El cliente con id $id se eliminó correctamente."];
+
+            return [true, "El cliente con id $id y se eliminó correctamente."];
         }
         catch (mysqli_sql_exception $e)
         {
@@ -181,5 +185,28 @@
         {
             cerrar_conexion($conexion);
         }
+    }
+
+    /** 
+     * Función para modificar un cliente.
+    */
+    function modificar_cliente ($conexion, $id, $nombre, $apellidos, $edad, $provincia)
+    {
+        try
+        {
+            $sql = "UPDATE clientes SET nombre = ?, apellido = ?, edad = ?, provincia = ? WHERE id = ?";
+            $stmt = $conexion->prepare($sql);
+
+            $stmt->bind_param("ssisi", $nombre, $apellidos, $edad, $provincia, $id);
+
+            $stmt->execute();
+
+            return [true, "Usuario actualizado."];
+        }
+        catch (mysqli_sql_exception $e)
+        {
+            return [false, $e->getMessage()];
+        }
+
     }
 ?>
