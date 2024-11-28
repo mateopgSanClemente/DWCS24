@@ -81,7 +81,7 @@
                             <option value="ourense">Ourense</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Registrar</button>
+                    <button type="submit" class="btn btn-success">Registrar</button>
                 </form>
             </section>
         </main>

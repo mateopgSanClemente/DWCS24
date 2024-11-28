@@ -50,8 +50,6 @@
                 <li class="list-group-item"><a href="iniciar.php">Iniciar base de datos</a></li>
                 <li class="list-group-item"><a href="registrar.php">Registrar Usuario</a></li>
                 <li class="list-group-item"><a href="listar.php">Listar Usuarios</a></li>
-                <li class="list-group-item"><a href="modificar.html">Modificar Usuario</a></li>
-                <li class="list-group-item"><a href="eliminar.html">Eliminar Usuario</a></li>
             </ul>
         </aside>
 
@@ -60,19 +58,33 @@
 
             <!-- Modificar Usuario -->
             <section id="modificar" class="mb-4">
-                <h2>Modificar Usuario</h2>
-                <form>
+                <h2 class="mb-4">Modificar Usuario</h2>
+                <?php
+                    echo "<div class='alert alert-warning' role='alert'>Modificando el usuario: " . $_GET['nombre'] . " " . $_GET['apellido'] . "</div>";
+                ?>
+                <h2 class="mb-4">Formulario</h2>
+                <form method="post" action=<?php echo "validar_modificar.php?id=" . $_GET['id'] . "\""?>>
                     <div class="mb-3">
-                        <label for="edit-id" class="form-label">ID de Usuario</label>
-                        <input type="text" class="form-control" id="edit-id" placeholder="ID del usuario" required>
+                        <label for="nombre" class="form-label">Nuevo Nombre de Usuario</label>
+                        <input name="nombre" type="text" class="form-control" id="nombre" placeholder="Nuevo nombre de usuario" required>
                     </div>
                     <div class="mb-3">
-                        <label for="edit-username" class="form-label">Nuevo Nombre de Usuario</label>
-                        <input type="text" class="form-control" id="edit-username" placeholder="Nuevo nombre de usuario">
+                        <label for="apellidos" class="form-label">Nuevos Apellidos de Usuario</label>
+                        <input name="apellidos" type="text" class="form-control" id="apellidos" placeholder="Nuevos apellidos de usuario" required>
                     </div>
                     <div class="mb-3">
-                        <label for="edit-email" class="form-label">Nuevo Correo Electrónico</label>
-                        <input type="email" class="form-control" id="edit-email" placeholder="nuevo@ejemplo.com">
+                        <label for="edad" class="form-label">Nueva Edad de Usuario</label>
+                        <input name="edad" type="number" class="form-control" id="edad" placeholder="Nueva edad de usuario" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="provincia" class="form-label" class="form-label">Nueva Provincia de Usuario</label>
+                        <select name="provincia" id="provincia" class="form-select" required>
+                            <option value="" disabled selected>Selecciona una provincia</option>
+                            <option value="pontevedra">Pontevedra</option>
+                            <option value="a corunha">A Coruña</option>
+                            <option value="lugo">Lugo</option>
+                            <option value="ourense">Ourense</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-success">Guardar Cambios</button>
                 </form>

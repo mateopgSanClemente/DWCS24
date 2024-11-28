@@ -59,4 +59,39 @@
         //En caso de no pasar ninguna de las validaciones
         return false;
     }
+
+    /**
+     * Función que valida los campos del formulario para modificar
+     */
+    //TODO: Crear una función que valide los campos. En caso de que estos estén vacios, NO modificará el valor en la base de datos.
+    /*
+    function comprobar_campo_modificar($campo)
+    {
+        $campo = test_input($campo);
+        
+                //Para los campos que pretender ser una cadena de caracteres solo se permitiran caracteres alfabéticos, seguido de un espacio opcional y otro conjunto de caracteres igual al primero, también opcional
+        //¿Realmente necesito comprobar que el campo no es un número si ya lo estoy haciendo a través de la expresión regular?
+        //TODO: R
+
+        if (isset($campo) || preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$/", $campo))
+        {
+            return true;
+        } 
+        
+        if (isset($campo) || is_numeric($campo))
+        {
+            //Convierto el numero que esta como un tipo string a un tipo numérico
+            //$numero = intval($campo);
+            // ^ No es necesario ya que php puede tratar la cadena como un número al utilizar operadores comparativos.
+            //Valido el valor del numero
+            if ($campo >= 18 && $campo <= 130) {
+                return true;
+            }
+        }
+
+        //En caso de no pasar ninguna de las validaciones
+        return false;
+        
+    }
+    */
 ?>
