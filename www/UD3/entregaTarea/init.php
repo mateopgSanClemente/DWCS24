@@ -8,14 +8,16 @@
             <?php
                 include 'menu.php';
             ?>
-            <main class="col-md-9 main-content">
-                    <h2 class="pt-4 pb-2 mb-3 border-bottom">Estado de la base de datos 'tareas' y la tabla 'usuarios'</h2>
+            <main class="col-md-9 col-sm-12 main-content">
+                    <h2 class="pt-4 pb-2 mb-3 border-bottom">Conexión</h2>
                     <?php
                         require_once("utils_base_datos.php");
 
                         $conexion = conectar("db", "root", "test", null);
 
                         $resultado_base_datos = crear_base_datos ($conexion);
+
+                        echo "<h3 class='pt-4 pb-2 mb-3 border-bottom'>Estado de la <b>base de datos</b></h3>";
 
                         if ($resultado_base_datos[0] === false)
                         {
@@ -28,7 +30,9 @@
 
                         $conexion = conectar();
 
-                        $resultado_tabla_usuarios = crear_tabla($conexion);
+                        $resultado_tabla_usuarios = crear_tabla_usuario($conexion);
+                        
+                        echo "<h3 class='pt-4 pb-2 mb-3 border-bottom'>Estado de la <b>tabla usuarios</b></h3>";
 
                         if ($resultado_tabla_usuarios[0] === true)
                         {
@@ -38,10 +42,24 @@
                         {
                             echo "<div class='alert alert-warning'>" . $resultado_tabla_usuarios[1] . "</div>";
                         }
+
+                        $conexion = conectar();
+
+                        $resultado_tabla_tareas = crear_tabla_tareas($conexion);
+
+                        echo "<h3 class='pt-4 pb-2 mb-3 border-bottom'>Estado de la <b>tabla tareas</b></h3>";
+
+                        if($resultado_tabla_tareas[0] === true)
+                        {
+                            echo ("<div class='alert alert-success' role='alert'>" . $resultado_tabla_tareas[1] . "</div>");
+                        }
+                        elseif ($resultado_tabla_tareas[0] === false)
+                        {
+                            echo ("<div class='alert alert-warning' role='alert'>") . $resultado_tabla_tareas[1] . "</div>";
+                        }
                     ?>
             </main>
         </div>
-
     </div>
     <!-- footer -->
     <?php include 'footer.php'; ?>
