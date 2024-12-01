@@ -205,6 +205,7 @@
     }
 
     //PDO
+
     /**
      * Establece una conexión con una base de datos MySQL utilizando PDO.
      *
@@ -224,7 +225,7 @@
      */
     function conectar_PDO ($host="db", $db="tareas", $username="root", $pass="test",)
     {
-        //TODO: Verificar que las varia de configuración sean válidas
+        //TODO: Verificar que las variables de configuración sean válidas
         $conexion = null;
 
         try
@@ -233,7 +234,7 @@
 
             $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            return [true, "Se efectuó la conexión con la base de datos '$db'."];
+            return [$conexion, "Se efectuó la conexión con la base de datos '$db'."];
         }
         catch (PDOException $e)
         {
@@ -247,4 +248,45 @@
             }
         }
     }
+
+    /**
+     * Obtiene una lista de usuarios de la base de datos.
+     *
+     * @param PDO $conexion Una instancia de la conexión PDO.
+     * @return array [bool, mixed] Retorna un array donde el primer elemento es un booleano que indica el éxito 
+     *                              (true si se obtuvieron datos, false en caso de error) y el segundo elemento 
+     *                              es el resultado de la consulta o un mensaje de error.
+     */
+    function seleccionar_usuarios(PDO $conexion)
+    {
+        try
+        {   
+            // Preparar y ejecutar la consulta SQL
+            $stmt = $conexion->prepare("SELECT `id`, `username`, `nombre`, `apellidos` FROM `usuarios`;");
+            $stmt->execute();
+
+            // Obtener resultados
+            $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Verificar si hay datos
+            if (empty($usuarios))
+            {
+                return [false, "No se encontraron usuarios en la base de datos."];
+            }
+            
+            foreach($usuarios as $usuario)
+            {
+                foreach($usuario as $dato_usuario)
+                {
+                    $dato_usuario = htmlspecialchars_decode($dato_usuario);
+                }
+            }
+            return [true, $usuarios];
+        } catch (PDOException $e)
+        {
+            // Manejar la excepción
+            return [false, "Error al obtener los usuarios: " . $e->getMessage()];
+        }
+    }
+
 ?>
