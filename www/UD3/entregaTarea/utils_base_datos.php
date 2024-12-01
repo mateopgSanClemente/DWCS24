@@ -8,7 +8,7 @@
      * @param string $db nombre de la base de datos con la que se quiere realizar la conexión
      * @return mysqli objeto mysqli que representa la conexión a la base de datos
      */
-    function conectar ($host = "db", $user = "root", $pass = "test", $db = "tareas")
+    function conectar_mysqli ($host = "db", $user = "root", $pass = "test", $db = "tareas")
     {
         //Crea conexión
         $conexion = new mysqli ($host, $user, $pass, $db);
@@ -23,6 +23,8 @@
         return $conexion;
     }
     
+    //mysqli orientado a objetos
+
     /**
      * Crea una base de datos llamada 'tareas' si no existe.
      *
@@ -48,18 +50,18 @@
 
             if ($resultado_comprobacion && $resultado_comprobacion->num_rows > 0)
             {
-                return [false, "La base de datos 'tareas' ya existe."];
+                return [false, "La base de datos <b>'tareas'</b> ya existe."];
             }
 
             $sql = "CREATE DATABASE IF NOT EXISTS `tareas`;";
 
             if ($conexion->query($sql))
             {
-                return [true, "Base de datos 'tareas' creada correctamente."];
+                return [true, "Base de datos <b>'tareas'</b> creada correctamente."];
             }
             else
             {
-                return [false, "No se pudo crear la base de datos 'tareas'."];
+                return [false, "No se pudo crear la base de datos <b>'tareas'</b>."];
             }
             return $base_datos;
         }
@@ -111,7 +113,7 @@
 
             if ($resultado && $resultado->num_rows > 0)
             {
-                return [false, "La tabla 'usuarios' ya existe."];
+                return [false, "La tabla <b>'usuarios'</b> ya existe."];
             }
 
             $sql = "CREATE TABLE IF NOT EXISTS `tareas` . `usuarios` (
@@ -125,11 +127,11 @@
         
             if ($conexion->query($sql))
             {
-                return [true, "La tabla 'usuarios' se creo correctamente."];
+                return [true, "La tabla <b>'usuarios'</b> se creo correctamente."];
             }
             else
             {
-                return [false, "No fue posible crear la tabla 'usuarios'."];
+                return [false, "No fue posible crear la tabla <b>'usuarios'</b>."];
             }
         }
         catch (mysqli_sql_exception $e)
@@ -168,7 +170,7 @@
 
             if($resultado && $resultado->num_rows > 0)
             {
-                return [false, "La tabla 'tareas' ya existe"];
+                return [false, "La tabla <b>'tareas'</b> ya existe"];
             }
 
             //Crear la tabla tareas y vincularla a la tabla usuarios mediante una clave foranea
@@ -184,11 +186,11 @@
 
             if ($conexion->query($sql) === true)
             {
-                return [true, "La tabla 'tareas' se creo correctamente."];
+                return [true, "La tabla <b>'tareas'</b> se creo correctamente."];
             }
             else
             {
-                return [false, "No fue posible crear la tabla 'tareas'."];
+                return [false, "No fue posible crear la tabla <b>'tareas'</b>."];
             }
 
         }
@@ -202,5 +204,47 @@
         }
     }
 
-    
+    //PDO
+    /**
+     * Establece una conexión con una base de datos MySQL utilizando PDO.
+     *
+     * Esta función intenta conectarse a una base de datos MySQL con los parámetros proporcionados.
+     * Si la conexión tiene éxito, devuelve un array indicando el estado de la conexión.
+     * Si ocurre un error, captura la excepción y devuelve un mensaje descriptivo.
+     *
+     * @param string $host      El nombre del host o dirección IP del servidor de la base de datos. Por defecto, "db".
+     * @param string $db        El nombre de la base de datos a la que conectarse. Por defecto, "tareas".
+     * @param string $username  El nombre de usuario para la conexión. Por defecto, "root".
+     * @param string $pass      La contraseña para la conexión. Por defecto, "test".
+     *
+     * @return array [bool, string] Un array donde el primer elemento indica si la conexión fue exitosa 
+     *                              (true para éxito, false para error) y el segundo es un mensaje descriptivo.
+     *
+     * @throws PDOException Si ocurre un error durante la conexión, se lanza una excepción.
+     */
+    function conectar_PDO ($host="db", $db="tareas", $username="root", $pass="test",)
+    {
+        //TODO: Verificar que las varia de configuración sean válidas
+        $conexion = null;
+
+        try
+        {
+            $conexion = new PDO("mysql:host=$host;dbname=$db", $username, $pass);
+
+            $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            return [true, "Se efectuó la conexión con la base de datos '$db'."];
+        }
+        catch (PDOException $e)
+        {
+            return [false, "Error a la hora de conectar con la base de datos: " . $e->getMessage()];
+        }
+        finally
+        {
+            if($conexion)
+            {
+                $conexion = null;
+            }
+        }
+    }
 ?>
