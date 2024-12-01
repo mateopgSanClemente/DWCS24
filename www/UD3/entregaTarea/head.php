@@ -13,9 +13,16 @@
             text-align: center;
             padding: 10px;
             border-top: 1px solid #ddd;
-            position: relative;
+            position: fixed;
             bottom: 0;
             width: 100%;
+        }
+        
+        body {
+            height: 100%;
+        }
+        .main-content {
+            padding-bottom: 100px;
         }
     </style>
 </head>
