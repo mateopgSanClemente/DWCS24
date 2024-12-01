@@ -1,19 +1,19 @@
 <?php include_once ("head.php"); ?>
 <body>
     <!--header-->
-    <?php include_once 'header.php';?>
+    <?php include_once ('header.php');?>
     <div class="container-fluid d-flex flex-column">
         <div class="row">
             <!--menu-->
             <?php
-                include 'menu.php';
+                include_once ('menu.php');
             ?>
             <main class="col-md-9 col-sm-12 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Conexión</h2>
                     <?php
-                        require_once("utils_base_datos.php");
+                        require_once("mysqli.php");
 
-                        $conexion = conectar("db", "root", "test", null);
+                        $conexion = conectar_mysqli("db", "root", "test", null);
 
                         $resultado_base_datos = crear_base_datos ($conexion);
 
@@ -28,7 +28,7 @@
                             echo "<div class='alert alert-success' role='alert'>" . $resultado_base_datos[1] . "</div>";
                         }
 
-                        $conexion = conectar();
+                        $conexion = conectar_mysqli();
 
                         $resultado_tabla_usuarios = crear_tabla_usuario($conexion);
                         
@@ -43,7 +43,7 @@
                             echo "<div class='alert alert-warning'>" . $resultado_tabla_usuarios[1] . "</div>";
                         }
 
-                        $conexion = conectar();
+                        $conexion = conectar_mysqli();
 
                         $resultado_tabla_tareas = crear_tabla_tareas($conexion);
 
@@ -62,6 +62,6 @@
         </div>
     </div>
     <!-- footer -->
-    <?php include 'footer.php'; ?>
+    <?php include ('footer.php'); ?>
 </body>
 </html>

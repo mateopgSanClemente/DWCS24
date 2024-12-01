@@ -7,9 +7,9 @@
             <!-- menu -->
             <?php include_once("menu.php"); ?>
             <main class="col-md-9 main-content">
-                <h2 class="border-bottom">Lista de Usuarios</h2>
+                <h2 class="border-bottom pt-4 pb-2 mb-3">Lista de Usuarios</h2>
                 <?php
-                    require_once("utils_base_datos.php");
+                    require_once("pdo.php");
                     list($conexion, $mensaje_estado_conexion) = conectar_PDO();
 
                     if($conexion === false)

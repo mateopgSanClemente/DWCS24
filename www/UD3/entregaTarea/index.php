@@ -1,12 +1,12 @@
 <?php include_once("head.php"); ?>
 <body>
-    <!--header-->
-    <?php include_once 'header.php';?>
+    <!-- header -->
+    <?php include_once ('header.php');?>
     <div class="container-fluid d-flex flex-column">
         <div class="row">
-            <!--menu-->
+            <!-- menu -->
             <?php
-                include 'menu.php';
+                include_once('menu.php');
             ?>
             <main class="col-md-9 main-content">
                 <div class="pt-4 pb-2 mb-3 border-bottom">
@@ -18,6 +18,6 @@
 
     </div>
     <!-- footer -->
-    <?php include 'footer.php'; ?>
+    <?php include_once ('footer.php'); ?>
 </body>
 </html>
