@@ -1,29 +1,29 @@
 <?php
     /**
-     * Establece una conexión con una base de datos MySQL utilizando mysqli y comprueba si ha habido algún error.
+     * Establece una conexión a la base de datos MySQL utilizando MySQLi.
      * 
-     * @param string $host Host donde se encuentra el servidor mysql
-     * @param string $user nombre del usuario para conectarse al sevidor mysql
-     * @param string $pass contraseña para entrar en el servidor mysql
-     * @param string $db nombre de la base de datos con la que se quiere realizar la conexión
-     * @return mysqli objeto mysqli que representa la conexión a la base de datos
+     * @param string $host Dirección del servidor MySQL. Por defecto, "db".
+     * @param string $user Nombre de usuario de la base de datos. Por defecto, "root".
+     * @param string $pass Contraseña del usuario. Por defecto, "test".
+     * @param string $db Nombre de la base de datos. Por defecto, "tareas".
+     * 
+     * @return mysqli Devuelve una instancia de conexión MySQLi si es exitosa.
+     * 
+     * @throws Exception Si no se puede establecer la conexión, lanza una excepción con detalles del error.
      */
-    function conectar_mysqli ($host = "db", $user = "root", $pass = "test", $db = "tareas")
+    function conectar_mysqli($host = "db", $user = "root", $pass = "test", $db = "tareas")
     {
-        //Crea conexión
-        $conexion = new mysqli ($host, $user, $pass, $db);
+        // Crear la conexión
+        $conexion = new mysqli($host, $user, $pass, $db);
 
-        //Comprobar conexión
-        if ($conexion->connect_errno)
-        {
-            die("Fallo en la conexión: " . $conexion->connect_error . "Con número: " . $conexion->connect_errno);
+        // Comprobar si la conexión fue exitosa
+        if ($conexion->connect_errno) {
+            throw new Exception("Error al conectar a la base de datos: (" . $conexion->connect_errno . ") " . $conexion->connect_error);
         }
-        
-        //Devuelve la conexión
+
+        // Retornar la conexión activa
         return $conexion;
     }
-    
-    //mysqli orientado a objetos
 
     /**
      * Crea una base de datos llamada 'tareas' si no existe.
@@ -68,10 +68,6 @@
         catch (mysqli_sql_exception $e)
         {
             return [false, $e->getMessage()];
-        }
-        finally
-        {
-            cerrar_conexion($conexion);
         }
     }
 
@@ -138,10 +134,6 @@
         {
             return [false, $e->getMessage()];
         }
-        finally
-        {
-            cerrar_conexion($conexion);
-        }
     }
 
     /**
@@ -198,9 +190,42 @@
         {
             return [false, $e->getMessage()];
         }
-        finally
+    }
+
+    /**
+     * Obtiene todas las tareas de la tabla `tareas`.
+     * 
+     * Esta función ejecuta una consulta SQL para seleccionar todas las filas 
+     * de la tabla `tareas` y devuelve los resultados como un array asociativo.
+     * 
+     * @param mysqli $conexion Instancia de la conexión MySQLi.
+     * 
+     * @return array Un array que contiene:
+     *               - bool: `true` si la operación fue exitosa, `false` si hubo un error.
+     *               - mixed: Un array asociativo con los resultados si fue exitoso, 
+     *                        o un mensaje de error si falló.
+     */
+    function seleccionar_tareas($conexion)
+    {
+        try
         {
-            cerrar_conexion($conexion);
+            // Consulta SQL para seleccionar todas las tareas
+            $sql = "SELECT id, titulo, descripcion, estado, id_usuario FROM tareas";
+
+            $resultados = $conexion->query($sql);
+
+            // Verificar si la consulta devolvió resultados
+            if ($resultados->num_rows == 0) {
+                return [false, "No se encontraron tareas en la base de datos."];
+            }
+
+            // Retornar los resultados como un array asociativo
+            return [true, $resultados->fetch_all(MYSQLI_ASSOC)];
+        }
+        catch (mysqli_sql_exception $e)
+        {
+            // Capturar errores y retornar un mensaje claro
+            return [false, "Error al obtener las tareas: " . $e->getMessage()];
         }
     }
 ?>
