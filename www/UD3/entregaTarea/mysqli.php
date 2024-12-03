@@ -239,4 +239,24 @@
             return [false, "Error al obtener las tareas: " . $e->getMessage()];
         }
     }
+
+    function agregar_tarea($conexion, $titulo, $descripcion, $estado, $id_usuario)
+    {
+        try
+        {   
+            //Preparar la consulta
+            $conexion->store_result();
+            $stmt = $conexion->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?,?,?,?)");
+            $stmt->bind_param("sssi", $titulo, $descripcion, $estado, $id_usuario);
+            $stmt->execute();
+            //Cerrar conexión
+            
+
+            return [true, ("La tarea '$titulo' con estado '$estado' se agregó correctamente.")];
+        }
+        catch (mysqli_sql_exception $e)
+        {
+            return [false, "Error a la hora de agregar la tarea: " . $e->getMessage()];
+        }
+    }
 ?>
