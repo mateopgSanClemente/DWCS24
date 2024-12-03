@@ -5,6 +5,7 @@
           
         <div class='container-fluid d-flex flex-column'>
             <div class="row">
+                <!-- menu -->
                 <?php include_once("menu.php");?>
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Registrar Usuario</h2>

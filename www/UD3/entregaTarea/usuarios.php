@@ -1,6 +1,6 @@
 <?php include_once("head.php"); ?>
 <body>
-        <!-- header -->
+    <!-- header -->
     <?php include_once("header.php");?>
     <div class="container-fluid d-flex flex-column">
         <div class="row">
@@ -30,7 +30,7 @@
                                 <thead class='table-dark'>
                                     <tr>
                                         <!-- Tener en cuenta el atributo scope para tecnologías de asistencia como lectores de pantalla -->
-                                        <th scope='col'>ID</th>
+                                        <th scope='col'>ID Usuarios</th>
                                         <th scope='col'>Username</th>
                                         <th scope='col'>Nombre</th>
                                         <th scope='col'>Apellidos</th>
