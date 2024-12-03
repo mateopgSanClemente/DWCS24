@@ -9,6 +9,8 @@
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Estado del registro de usuario</h2>
                     <?php
+                    try
+                    {
                         require_once("utils.php");
                         //Recoger los resultados en variables
                         $username = $_POST["username"];
@@ -20,29 +22,14 @@
                         $error = false;
                         $mensaje_error = [];
                         //Validar los resultados
-                        if(!validar_usuario($username))
-                        {
-                            $error = true;
-                            $mensaje_error[] = "El campo 'Username' no puede estar vacío y debe contener un máximo de 50 caracteres.";
-                        }
+                        //TODO: Validar correctamente los usuarios!! Los mensajes no se imprimen correctamente
+                        list($error, $mensaje_error) = validar_usuario($username, $nombre, $apellidos, $contrasena);
 
-                        if(!validar_usuario($nombre))
+                        if($error)
                         {
-                            $error = true;
-                            $mensaje_error[] = "El campo 'Nombre' no puede estar vacío y debe contener un máximo de 50 caracteres.";
+                            echo "<div class='alert alert-warning'>" . $mensaje_error . "</div>";
                         }
-                        if(!validar_usuario($apellidos))
-                        {
-                            $error = true;
-                            $mensaje_error[] = "El campo 'Apellidos' no puede estar vacío y debe contener un máximo de 100 caracteres.";
-                        }
-                        if(!validar_usuario($contrasena))
-                        {
-                            $error = true;
-                            $mensaje_error[] = "El campo 'Contraseña' no puede estar vacío y debe contener un máximo de 100 caracteres.";
-                        }
-
-                        if(!$error)
+                        else
                         {
                             require_once("pdo.php");
                             //Filtrar los resultados
@@ -75,6 +62,15 @@
                                 }
                             }
                         }
+                    }
+                    catch (PDOException $e)
+                    {
+                        echo "<div class='alert alert-warning'>Error: " . $e . "</div>";
+                    }
+                    finally
+                    {
+                        $conexion = null;
+                    }
                     ?>
                 </main>
             </div>
