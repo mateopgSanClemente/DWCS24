@@ -170,7 +170,7 @@
         try
         {
             // Preparar la consulta para seleccionar datos del usuario
-            $stmt = $conexion->prepare("SELECT username, nombre, apellidos FROM usuarios WHERE id = :id");
+            $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena FROM usuarios WHERE id = :id");
             
             // Establecer el modo de recuperación de datos (por defecto, fetch as array)
             $stmt->setFetchMode(PDO::FETCH_ASSOC);  // Mejor usar PDO::FETCH_ASSOC para obtener los resultados como un array asociativo.
@@ -186,6 +186,7 @@
                 return [false, "No se encontró ningún usuario con id = " . $id];
             } else {
                 // Si existe, devolver los datos del usuario
+                //TODO: APLICAR htmlspecialchars_decode() ANTES DE DEVOLVER LA FUNCIÓN! Me habría ahorrado trabajo.
                 return [true, $usuario];
             }
         }
@@ -196,4 +197,57 @@
         }
     }
     
+    /**
+     * Modifica los datos de un usuario en la base de datos.
+     *
+     * @param PDO $conexion Conexión activa a la base de datos mediante PDO.
+     * @param int $id ID del usuario que se desea modificar.
+     * @param string $username Nuevo valor para el campo 'username'.
+     * @param string $nombre Nuevo valor para el campo 'nombre'.
+     * @param string $apellidos Nuevo valor para el campo 'apellidos'.
+     * @param string $contrasena Nuevo valor para el campo 'contrasena', encriptado si corresponde.
+     *
+     * @return array Un array con dos elementos:
+     *               - boolean: `true` si la modificación fue exitosa, `false` en caso contrario.
+     *               - string: Mensaje descriptivo del resultado de la operación.
+     */
+    function modificar_usuario ($conexion, $id, $username, $nombre, $apellidos, $contrasena)
+    {
+        try {
+            // Crear la consulta preparada
+            $sql = "UPDATE usuarios 
+                    SET username = :username, 
+                        nombre = :nombre, 
+                        apellidos = :apellidos, 
+                        contrasena = :contrasena 
+                    WHERE id = :id";
+    
+            $stmt = $conexion->prepare($sql);
+    
+            // Vincular los parámetros
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
+            $stmt->bindParam(':contrasena', $contrasena, PDO::PARAM_STR);
+    
+            // Ejecutar la consulta
+            $stmt->execute();
+    
+            // Verificar cuántas filas fueron afectadas
+            if ($stmt->rowCount() > 0) {
+                return [true, "El usuario con ID $id se ha actualizado correctamente."];
+            } else {
+                return [false, "No se realizaron cambios en el usuario con ID $id."];
+            }
+        } catch (PDOException $e) {
+            // Manejar errores de forma segura
+            return [false, "Error al actualizar el usuario: " . $e->getMessage()];
+        }
+        finally
+        {
+            if ($conexion)
+                $conexion = null;
+        }
+    }
 ?>
