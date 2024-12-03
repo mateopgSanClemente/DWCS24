@@ -25,7 +25,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="estado">Estado</label>
-                            <select class="form-select" name="estado" id="tarea">
+                            <select class="form-select" name="estado" id="estado">
                                 <option value="" selected disabled>Selecciona un estado</option>
                                 <option value="Pendiente">Pendiente</option>
                                 <option value="En proceso">En proceso</option>
@@ -34,7 +34,7 @@
                         </div>
                         <!-- Seleccionar usuario: se verá el username pero se vinculará a su id -->
                         <div class="mb-3">
-                            <label class="form-label" for="estado">Seleccionar usuario</label>                            
+                            <label class="form-label" for="usuario">Seleccionar usuario</label>                            
                                 <!-- Generar las opciones de select de forma dinámica -->
                                 <?php
                                     //Generar conexión
