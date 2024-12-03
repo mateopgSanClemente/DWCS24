@@ -34,6 +34,7 @@
                                         <th scope='col'>Username</th>
                                         <th scope='col'>Nombre</th>
                                         <th scope='col'>Apellidos</th>
+                                        <th scope='col'>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>";
@@ -44,7 +45,9 @@
                                 foreach($usuario as $dato_usuario)
                                 {
                                     echo "<td>" . $dato_usuario . "</td>";
-                                }                
+                                }
+                                echo "<td>";
+                                echo "<a href='editaUsuarioForm.php?id=" . $usuario['id'] . "' class='btn btn-success btn-sm me-2'>Editar</a>";
                                 echo "</tr>";
                             }
                             echo "</tbody></table>";
