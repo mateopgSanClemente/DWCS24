@@ -9,7 +9,6 @@
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Estado de la eliminación de usuario</h2>
                     <?php
-                        require_once("pdo.php");
                         //Crear y comprobar conecxion
                         require_once ("pdo.php");
                         
