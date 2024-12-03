@@ -66,18 +66,68 @@
      * @return bool  Retorna un booleano que indica el éxito de la validación
      *               (true si se validó correctamente el campo, false en caso de error)
      */
-    function validar_usuario ($campo)
+    function validar_usuario ($username, $nombre, $apellidos, $contrasena)
     {
-        //Limpio la entrada
-        $campo = test_input($campo);
-
-        if(!empty($campo) && strlen($campo) <= 100)
-        {
-            return true;
+        // Validar campos
+        $errores = [];
+        // Validar `username`: No vacío y máximo de 50 caracteres
+        if (empty($username) || strlen($username) > 50) {
+            $errores[] = "El campo 'username' es obligatorio y no puede exceder los 50 caracteres.";
         }
-        else
+
+        // Validar `nombre`: No vacío y máximo de 50 caracteres
+        if (empty($nombre) || strlen($nombre) > 50) {
+            $errores[] = "El campo 'nombre' es obligatorio y no puede exceder los 50 caracteres.";
+        }
+
+        // Validar `apellidos`: No vacío y máximo de 100 caracteres
+        if (empty($apellidos) || strlen($apellidos) > 100) {
+            $errores[] = "El campo 'apellidos' es obligatorio y no puede exceder los 100 caracteres.";
+        }
+
+        // Validar `contrasena`: No vacío y máximo de 100 caracteres
+        if (empty($contrasena) || strlen($contrasena) > 100) {
+            $errores[] = "El campo 'contraseña' es obligatorio y no puede exceder los 100 caracteres.";
+        }
+        
+        //Si hay errores, devolverlos
+        if(!empty($errores))
         {
-            return false;
+            return [true, implode(' ', $errores)];
+        }
+    }
+
+    /*Función para validar tareas
+    */
+    function validar_tarea ($titulo, $descripcion, $estado, $id_usuario)
+    {
+        // Validar campos
+        $errores = [];
+        
+        // Validar título
+        if (empty($titulo) || strlen($titulo) > 50) {
+            $errores[] = "El título es obligatorio y no debe exceder los 50 caracteres.";
+        }
+        
+        // Validar descripción (puede ser nula)
+        if (!is_null($descripcion) && strlen($descripcion) > 250) {
+            $errores[] = "La descripción no debe exceder los 250 caracteres.";
+        }
+        
+        // Validar estado
+        $estados_validos = ['Pendiente', 'En proceso', 'Completada'];
+        if (empty($estado) || !in_array($estado, $estados_validos)) {
+            $errores[] = "El estado es obligatorio y debe ser uno de los siguientes: " . implode(', ', $estados_validos) . ".";
+        }
+        
+        // Validar id_usuario
+        if (empty($id_usuario) || !is_numeric($id_usuario)) {
+            $errores[] = "El ID del usuario es obligatorio y debe ser un número entero válido.";
+        }
+        
+        // Si hay errores, devolverlos
+        if (!empty($errores)) {
+            return [true, implode(' ', $errores)];
         }
     }
     
