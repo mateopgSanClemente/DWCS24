@@ -22,16 +22,16 @@
                         }
                         else
                         {
-                            //Seleccionar el usuario
+                            //Seleccionar el usuario original
                             list($comprobacion, $resultado_consulta) = seleccionar_usuario_id($conexion, $id);
 
                             if(!$comprobacion)
                             {
-                                echo $resultado_consulta;
+                                echo ("<div class='alert alert-warning' role='alert'>" . $resultado_consulta) . "</div>";
                             }
                             else
                             {
-                                //Recuperados los datos los guardo en variables y los descodifica
+                                //Recuperados los datos los guardo en variables y los descodifico
                                 $username = htmlspecialchars_decode($resultado_consulta["username"]);
                                 $nombre = htmlspecialchars_decode($resultado_consulta["nombre"]);
                                 $apellidos = htmlspecialchars_decode($resultado_consulta["apellidos"]);
@@ -40,22 +40,22 @@
 
                     ?>
                     <section>
-                        <form action="nuevoUsuario.php" method="post">
+                        <form action="editaUsuario.php?id=<?php echo $id; ?>" method="post">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control" name="username" id="username" placeholder="<?php echo $username; ?>" required>
+                                <input type="text" class="form-control" name="username" id="username" placeholder="<?php echo $username; ?>">
                             </div>
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" name="nombre" id="nombre" placeholder="<?php echo $nombre; ?>" required>
+                                <input type="text" class="form-control" name="nombre" id="nombre" placeholder="<?php echo $nombre; ?>">
                             </div>
                             <div class="mb-3">
                                 <label for="apellidos" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" name="apellidos" id="apellidos" placeholder="<?php echo $apellidos; ?>" required>
+                                <input type="text" class="form-control" name="apellidos" id="apellidos" placeholder="<?php echo $apellidos; ?>">
                             </div>
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
-                                <input type="text" class="form-control" name="contrasena" id="apellidos" placeholder="Nueva contraseña del usuario" required>
+                                <input type="text" class="form-control" name="contrasena" id="apellidos" placeholder="Nueva contraseña del usuario">
                             </div>
                             <button type="submit" class="btn btn-success mb-3">Registrar</button>
                         </form>
