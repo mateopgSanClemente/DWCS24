@@ -329,4 +329,30 @@
         }
     }
     
+    /**
+     * Función para eliminar tareas
+     */
+    function eliminar_tarea ($conexion, $id_tarea)
+    {
+        try {
+            //Preparar la sentencia sql para eliminar la tarea
+            $sql = "DELETE FROM tareas WHERE id = ?";
+            $stmt = $conexion->prepare($sql);
+        
+            //Vincular parámetros
+            $stmt->bind_param("i", $id_tarea);
+    
+            //Ejecutar la consulta
+            $stmt->execute();
+    
+            // Verificar cuántas filas fueron afectadas
+            if ($stmt->affected_rows > 0) {
+                return [true, "La tarea con ID $id_tarea se eliminó correctamente."];
+            } else {
+                return [false, "No se encontró ninguna tarea con ID $id_tarea para eliminar."];
+            }
+        } catch (mysqli_sql_exception $e) {
+            return [false, "Error al eliminar la tarea: " . $e->getMessage()];
+        }
+    }
 ?>
