@@ -140,4 +140,60 @@
             }
         }
     }
+
+    /**
+     * Recupera los datos de un usuario desde la base de datos utilizando su ID.
+     *
+     * Esta función busca un usuario de la tabla 'usuarios' mediante su identificador único (ID). Si el usuario existe, se devuelven sus datos (nombre, apellidos y username). Si no se encuentra, se devuelve un mensaje indicando que no se encontró el usuario.
+     *
+     * @param PDO    $conexion Conexión PDO a la base de datos.
+     * @param int    $id       ID del usuario que se desea recuperar.
+     *
+     * @return array Un array con dos elementos:
+     *               - El primer elemento es un booleano (`true` si el usuario fue encontrado, `false` en caso contrario).
+     *               - El segundo elemento es un mensaje indicando el estado de la operación. Si el usuario existe, devuelve los datos del usuario; de lo contrario, indica que no se encontró el usuario.
+     *
+     * @throws PDOException Si ocurre un error al ejecutar la consulta SQL.
+     *
+     * @example
+     * list($exito, $resultado) = seleccionar_usuario_id($conexion, 123);
+     * if ($exito) {
+     *     // Mostrar los datos del usuario
+     *     echo "Usuario encontrado: " . $resultado['username'];
+     * } else {
+     *     // Mostrar el mensaje de error
+     *     echo $resultado;
+     * }
+     */
+    function seleccionar_usuario_id($conexion, $id)
+    {
+        try
+        {
+            // Preparar la consulta para seleccionar datos del usuario
+            $stmt = $conexion->prepare("SELECT username, nombre, apellidos FROM usuarios WHERE id = :id");
+            
+            // Establecer el modo de recuperación de datos (por defecto, fetch as array)
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);  // Mejor usar PDO::FETCH_ASSOC para obtener los resultados como un array asociativo.
+            
+            // Ejecutar la consulta
+            $stmt->execute(['id' => $id]);
+    
+            // Recuperar la primera fila de resultados
+            $usuario = $stmt->fetch();
+    
+            // Verificar si se encontró un usuario con ese ID
+            if (!$usuario) {
+                return [false, "No se encontró ningún usuario con id = " . $id];
+            } else {
+                // Si existe, devolver los datos del usuario
+                return [true, $usuario];
+            }
+        }
+        catch (PDOException $e)
+        {
+            // Si ocurre un error con la consulta, devolver el mensaje de error
+            return [false, "Error al obtener los datos del usuario: " . $e->getMessage()];
+        }
+    }
+    
 ?>
