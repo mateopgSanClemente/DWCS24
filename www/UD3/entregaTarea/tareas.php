@@ -36,7 +36,7 @@
                                         <th scope='col'>Titulo</th>
                                         <th scope='col'>Descripción</th>
                                         <th scope='col'>Estado</th>
-                                        <th scope='col'>ID Usuario</th>
+                                        <th scope='col'>Username</th>
                                         <th scope='col'>Acciones</th>
                                     </tr>
                                 </thead>
