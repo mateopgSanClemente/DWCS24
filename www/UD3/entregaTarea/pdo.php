@@ -251,8 +251,23 @@
         }
     }
 
+
+
     /**
-     * Funcion para elimnar un usuario
+     * Elimina un usuario de la base de datos según su ID.
+     * 
+     * Esta función verifica primero si el usuario existe en la base de datos.
+     * Si el usuario es encontrado, se procede a eliminarlo. Si no se encuentra 
+     * el usuario, se devuelve un mensaje de error.
+     * 
+     * @param PDO $conexion Conexión activa a la base de datos mediante PDO.
+     * @param int $id ID del usuario que se desea eliminar.
+     * 
+     * @return array Un array que contiene:
+     *               - bool: Indica si la operación fue exitosa (true) o fallida (false).
+     *               - string: Mensaje explicativo del resultado de la operación.
+     * 
+     * @throws PDOException Si ocurre un error en la consulta a la base de datos.
      */
     function eliminar_usuario ($conexion, $id)
     {

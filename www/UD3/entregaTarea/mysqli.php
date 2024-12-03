@@ -240,6 +240,9 @@
         }
     }
 
+    /**
+     * Función para agregar tareas
+     */
     function agregar_tarea($conexion, $titulo, $descripcion, $estado, $id_usuario)
     {
         try
@@ -256,7 +259,74 @@
         }
         catch (mysqli_sql_exception $e)
         {
-            return [false, "Error a la hora de agregar la tarea: " . $e->getMessage()];
+            return [false, ("Error a la hora de agregar la tarea: " . $e->getMessage())];
         }
     }
+
+    /**
+     * Función para modificar usuario
+     */
+    function modificar_tarea($conexion, $id_tarea, $titulo, $descripcion, $estado, $id_usuario)
+    {
+        try
+        {
+            //Crear consulta preparada
+            $sql = "UPDATE tareas
+                    SET titulo = ?,
+                    descripcion = ?,
+                    estado = ?,
+                    id_usuario = ?
+                    WHERE id = ?";
+            $stmt = $conexion->prepare($sql);
+            $stmt->bind_param("sssii", $titulo, $descripcion, $estado, $id_usuario, $id_tarea);
+            $stmt->execute();
+
+            return [true, ("La tarea '$titulo' con estado '$estado' se modificó correctamente.")];
+        }
+        catch (mysqli_sql_exception $e)
+        {
+            return [false, ("Error a la hora de agregar la tarea: " . $e->getMessage())];
+        }
+    }
+
+    /**
+     * Selecciona una tarea por su id
+     */
+    function seleccionar_tarea_id($conexion, $id_tarea)
+    {
+        try
+        {
+            //Consulta sql para selecionar una tarea por su id
+            $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
+            FROM tareas
+            INNER JOIN usuarios
+            ON tareas.id_usuario = usuarios.id
+            WHERE tareas.id = ?;";
+
+            //Consulta preparada
+            $stmt = $conexion->prepare($sql);
+
+            //Vincular parámetro
+            $stmt->bind_param("i", $id_tarea);
+            $stmt->execute();
+
+            //Obtener resultado
+            $resultado = $stmt->get_result();
+
+            //Verificar resultados
+            if($resultado->num_rows > 0)
+            {
+                return [true, $resultado->fetch_assoc()];
+            }
+            else
+            {
+                return [false, "No se encontró ninguna tarea con ID $id_tarea."];
+            }
+        }
+        catch (mysqli_sql_exception $e)
+        {
+            return [false, "Error: $e"];
+        }
+    }
+    
 ?>
