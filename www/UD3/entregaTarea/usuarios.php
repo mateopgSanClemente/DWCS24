@@ -48,6 +48,8 @@
                                 }
                                 echo "<td>";
                                 echo "<a href='editaUsuarioForm.php?id=" . $usuario['id'] . "' class='btn btn-success btn-sm me-2'>Editar</a>";
+                                echo "<a href='borraUsuario.php?id=" . $usuario['id'] . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
+                                echo "</td>";
                                 echo "</tr>";
                             }
                             echo "</tbody></table>";

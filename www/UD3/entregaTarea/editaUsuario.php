@@ -101,7 +101,6 @@
                                     }
 
                                     //Realizar la consulta y comprobar que esta se realizo correctamente.
-                                    //TODO: Modificar los usuarios, no crearlos
                                     list($comprobacion, $resultado) = modificar_usuario($conexion, $id, $username, $nombre, $apellidos, $contrasena);
                                     if($comprobacion)
                                     {

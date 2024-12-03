@@ -151,7 +151,7 @@
      *
      * @return array Un array con dos elementos:
      *               - El primer elemento es un booleano (`true` si el usuario fue encontrado, `false` en caso contrario).
-     *               - El segundo elemento es un mensaje indicando el estado de la operación. Si el usuario existe, devuelve los datos del usuario; de lo contrario, indica que no se encontró el usuario.
+     *               - El segundo elemento es un mem nsaje indicando el estado de la operación. Si el usuario existe, devuelve los datos del usuario; de lo contrario, indica que no se encontró el usuario.
      *
      * @throws PDOException Si ocurre un error al ejecutar la consulta SQL.
      *
@@ -247,6 +247,54 @@
         finally
         {
             if ($conexion)
+                $conexion = null;
+        }
+    }
+
+    /**
+     * Funcion para elimnar un usuario
+     */
+    function eliminar_usuario ($conexion, $id)
+    {
+        try
+        {
+            //Verificar que el usuario existe
+            // Preparar la consulta para seleccionar datos del usuario
+            $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena FROM usuarios WHERE id = :id");
+            
+            // Establecer el modo de recuperación de datos (por defecto, fetch as array)
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);  // Mejor usar PDO::FETCH_ASSOC paraobtener los resultados como un array asociativo.
+             
+            // Ejecutar la consulta
+            $stmt->execute(['id' => $id]);
+     
+            // Recuperar la primera fila de resultados
+            $usuario = $stmt->fetch();
+            $stmt->closeCursor();
+            // Verificar si se encontró un usuario con ese ID
+            if (!$usuario)
+            {
+                return [false, "No se encontró ningún usuario con id = " . $id];
+            }
+            else 
+            {
+                //Eliminar
+                //Sentencia SQL
+                $sql = "DELETE FROM usuarios WHERE id = :id";
+                $stmt = $conexion->prepare($sql);
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
+                
+                return [true, "El usuario " . $usuario['nombre'] . $usuario['apellidos'] . " se eliminó correctamente."];
+            }
+        }
+        catch (PDOException $e)
+        {
+            return [false, "Se produjo un error en la eliminación del usuario: " . $e];
+        }
+        finally
+        {
+            if($conexion)
                 $conexion = null;
         }
     }
