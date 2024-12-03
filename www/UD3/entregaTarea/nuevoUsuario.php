@@ -41,8 +41,6 @@
                             $error = true;
                             $mensaje_error[] = "El campo 'Contraseña' no puede estar vacío y debe contener un máximo de 100 caracteres.";
                         }
-                        //Depurar
-                        print_r($_POST);
 
                         if(!$error)
                         {
@@ -73,7 +71,7 @@
                                 }
                                 else
                                 {
-                                    echo ("<div class='alert alert-warning'>" . "<b>" . $resultado . "</b>" . "</div>");
+                                    echo ("<div class='alert alert-warning'>" . $resultado . "</div>");
                                 }
                             }
                         }
