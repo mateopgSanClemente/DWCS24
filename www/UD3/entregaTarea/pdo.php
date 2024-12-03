@@ -254,63 +254,45 @@
 
 
     /**
-     * Elimina un usuario de la base de datos según su ID.
-     * 
-     * Esta función verifica primero si el usuario existe en la base de datos.
-     * Si el usuario es encontrado, se procede a eliminarlo. Si no se encuentra 
-     * el usuario, se devuelve un mensaje de error.
-     * 
-     * @param PDO $conexion Conexión activa a la base de datos mediante PDO.
-     * @param int $id ID del usuario que se desea eliminar.
-     * 
-     * @return array Un array que contiene:
-     *               - bool: Indica si la operación fue exitosa (true) o fallida (false).
-     *               - string: Mensaje explicativo del resultado de la operación.
-     * 
-     * @throws PDOException Si ocurre un error en la consulta a la base de datos.
+     * Función para eliminar usuarios y sus tareas asociadas
      */
-    function eliminar_usuario ($conexion, $id)
+    function eliminar_usuario($conexion, $id)
     {
-        try
-        {
-            //Verificar que el usuario existe
-            // Preparar la consulta para seleccionar datos del usuario
+        try {
+            // Verificar que el usuario existe
             $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena FROM usuarios WHERE id = :id");
-            
-            // Establecer el modo de recuperación de datos (por defecto, fetch as array)
-            $stmt->setFetchMode(PDO::FETCH_ASSOC);  // Mejor usar PDO::FETCH_ASSOC paraobtener los resultados como un array asociativo.
-             
-            // Ejecutar la consulta
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);  // Usamos PDO::FETCH_ASSOC para obtener resultados como array asociativo.
             $stmt->execute(['id' => $id]);
-     
-            // Recuperar la primera fila de resultados
+    
+            // Recuperar la información del usuario
             $usuario = $stmt->fetch();
             $stmt->closeCursor();
-            // Verificar si se encontró un usuario con ese ID
-            if (!$usuario)
-            {
+    
+            // Verificar si se encontró el usuario
+            if (!$usuario) {
                 return [false, "No se encontró ningún usuario con id = " . $id];
-            }
-            else 
-            {
-                //Eliminar
-                //Sentencia SQL
-                $sql = "DELETE FROM usuarios WHERE id = :id";
-                $stmt = $conexion->prepare($sql);
-                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                $stmt->execute();
+            } else {
+                // Eliminar las tareas asociadas al usuario antes de eliminar al usuario
+                $sql_tareas = "DELETE FROM tareas WHERE id_usuario = :id";
+                $stmt_tareas = $conexion->prepare($sql_tareas);
+                $stmt_tareas->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt_tareas->execute();
                 
-                return [true, "El usuario " . $usuario['nombre'] . $usuario['apellidos'] . " se eliminó correctamente."];
+                // Eliminar el usuario
+                $sql_usuario = "DELETE FROM usuarios WHERE id = :id";
+                $stmt_usuario = $conexion->prepare($sql_usuario);
+                $stmt_usuario->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt_usuario->execute();
+    
+                return [true, "El usuario " . $usuario['nombre'] . " " . $usuario['apellidos'] . " y todas sus tareas se eliminaron correctamente."];
             }
-        }
-        catch (PDOException $e)
-        {
-            return [false, "Se produjo un error en la eliminación del usuario: " . $e];
-        }
-        finally
-        {
-            if($conexion)
+        } catch (PDOException $e) {
+            return [false, "Se produjo un error en la eliminación del usuario: " . $e->getMessage()];
+        } finally {
+            // Cerrar la conexión
+            if ($conexion) {
                 $conexion = null;
+            }
         }
     }
 ?>
