@@ -24,7 +24,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
-                                <input type="text" class="form-control" name="contrasena" id="apellidos" placeholder="Contraseña del usuario" required>
+                                <input type="text" class="form-control" name="contrasena" id="apellidos" placeholder="Contraseña del usuario">
                             </div>
                             <button type="submit" class="btn btn-success mb-3">Registrar</button>
                         </form>
