@@ -210,7 +210,10 @@
         try
         {
             // Consulta SQL para seleccionar todas las tareas
-            $sql = "SELECT id, titulo, descripcion, estado, id_usuario FROM tareas";
+            $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
+            FROM tareas
+            INNER JOIN usuarios
+            ON tareas.id_usuario = usuarios.id;";
 
             $resultados = $conexion->query($sql);
 
@@ -219,8 +222,16 @@
                 return [false, "No se encontraron tareas en la base de datos."];
             }
 
-            // Retornar los resultados como un array asociativo
-            return [true, $resultados->fetch_all(MYSQLI_ASSOC)];
+            // Retornar los resultados como un array asociativo y lo decodifica
+            $conjunto_tareas = $resultados->fetch_all(MYSQLI_ASSOC);
+            foreach($resultados as $tarea)
+            {
+                foreach($tarea as $dato_tarea)
+                {
+                    $dato_tarea = htmlspecialchars_decode($dato_tarea);
+                }
+            }
+            return [true, $conjunto_tareas];
         }
         catch (mysqli_sql_exception $e)
         {
