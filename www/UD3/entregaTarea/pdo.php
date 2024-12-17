@@ -297,30 +297,55 @@
     }
 
     //Función para seleccionar las tareas en función de su usuario y su estado
-    function seleccionar_tarea_username_estado($conexion, $id_usuario, $estado)
+    function seleccionar_tarea_username_estado($conexion, $id_usuario, $estado=null)
     {
         try
         {   
-            //Consulta sql
-            $stmt = $conexion->prepare("SELECT id, titulo, descripcion, estado FROM tareas
-            WHERE id_usuario = :id_usuario AND estado = :estado");
-            //Seleccionar como deben ser retornados lo datos
-            $stmt->setFetchMode(PDO::FETCH_ASSOC);
-            //Vincular los parámetros
-            $stmt->bindParam(":id_usuario", $id_usuario);
-            $stmt->bindParam(":estado", $estado);
-            //Ejecutar consulta
-            $stmt->execute();
-            //Recuperar resultado
-            $tareas = $stmt->fetchAll();
-            //Comprobar que se encontró alguna tarea
-            if(!empty($tareas))
+            if(isset($estado))
             {
-                return [true, $tareas];
+                $stmt = $conexion->prepare("SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
+                FROM tareas
+                INNER JOIN usuarios
+                ON tareas.id_usuario = usuarios.id
+                WHERE tareas.id_usuario = :id_usuario AND tareas.estado = :estado");
+                //Seleccionar como deben ser retornados lo datos
+                $stmt->setFetchMode(PDO::FETCH_ASSOC);
+                //Vincular los parámetros
+                $stmt->bindParam(":id_usuario", $id_usuario);
+                $stmt->bindParam(":estado", $estado);
+                //Ejecutar consulta
+                $stmt->execute();
+                //Recuperar resultado
+                $tareas = $stmt->fetchAll();
+                //Comprobar que se encontró alguna tarea
+                if(!empty($tareas))
+                {
+                    return [true, $tareas];
+                }
+                else
+                {
+                    return [false, "No se encontraron tareas para el usuario y el estado especificado."];
+                }
             }
             else
             {
-                return [false, "No se encontraron tareas para el usuario y el estado especificado."];
+                $stmt = $conexion->prepare("SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
+                FROM tareas
+                INNER JOIN usuarios
+                ON tareas.id_usuario = usuarios.id
+                WHERE id_usuario = :id_usuario");
+                $stmt->setFetchMode(PDO::FETCH_ASSOC);
+                $stmt->bindParam(":id_usuario", $id_usuario);
+                $stmt->execute();
+                $tareas = $stmt->fetchAll();
+                if(!empty($tareas))
+                {
+                    return [true, $tareas];
+                }
+                else
+                {
+                    return [false, "No se encontraron tareas para el usuario con id '". $id_usuario . "'."];
+                }
             }
         }
         catch (PDOException $e)
