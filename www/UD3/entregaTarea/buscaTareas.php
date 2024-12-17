@@ -15,7 +15,33 @@
                                 <label for="username" class="form-label">Username</label>
                                 <?php
                                     include_once("pdo.php");
-                                    //TODO: Generar de forma dinámica los usuarios que se pueden seleccionar a partir de los datos de la tabla.
+                                    //Conexión PDO
+                                    list($PDO_con, $mensaje_estado_conexión) = conectar_PDO();
+                                    //Comprobar conexión PDO
+                                    if($PDO_con === false)
+                                    {
+                                        echo "<div class='alert alert-warning'>" . $mensaje_estado_conexión . "</div>";
+                                    }
+                                    else
+                                    {
+                                        //Seleccionar usuarios
+                                        list($comprobacion, $resultado) = seleccionar_usuarios($PDO_con);
+                                        //Comprobar que los datos se seleccionaron correctamente
+                                        if(!$comprobacion)
+                                        {
+                                            echo "<div class='alert alert-warning'>" . $resultado . "</div>";
+                                        }
+                                        else
+                                        {
+                                            echo "<select class='form-select' name='username' id='username'>";
+                                            echo "<option value='' selected disabled>Selecciona un usuario</option>";
+                                            foreach($resultado as $usuario)
+                                            {
+                                                echo "<option value='" . $usuario['id'] . "'>" . $usuario["username"] . "</option>";
+                                            }
+                                            echo "</select>";
+                                        }
+                                    }
                                 ?>
                             </div>
                             <div class="mb-3">
