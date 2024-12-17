@@ -295,4 +295,37 @@
             }
         }
     }
+
+    //Función para seleccionar las tareas en función de su usuario y su estado
+    function seleccionar_tarea_username_estado($conexion, $id_usuario, $estado)
+    {
+        try
+        {   
+            //Consulta sql
+            $stmt = $conexion->prepare("SELECT id, titulo, descripcion, estado FROM tareas
+            WHERE id_usuario = :id_usuario AND estado = :estado");
+            //Seleccionar como deben ser retornados lo datos
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            //Vincular los parámetros
+            $stmt->bindParam(":id_usuario", $id_usuario);
+            $stmt->bindParam(":estado", $estado);
+            //Ejecutar consulta
+            $stmt->execute();
+            //Recuperar resultado
+            $tareas = $stmt->fetchAll();
+            //Comprobar que se encontró alguna tarea
+            if(!empty($tareas))
+            {
+                return [true, $tareas];
+            }
+            else
+            {
+                return [false, "No se encontraron tareas para el usuario y el estado especificado."];
+            }
+        }
+        catch (PDOException $e)
+        {
+            return [false, "Se produjo un error a la hora de seleccionar las tareas en base a su estado y su usuario: " . $e->getMessage()] ;
+        }
+    }
 ?>
