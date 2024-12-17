@@ -53,6 +53,7 @@
                                     <option value="Completada">Completada</option>
                                 </select>
                             </div>
+                            <button type="submit" class="btn btn-success mb-3">Buscar</button>
                         </form>
                     </section>
                 </main>
