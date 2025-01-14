@@ -63,6 +63,7 @@
      * Valida los campos del formulario para el registro de usuarios.
      * 
      * @param string $campo Campo del furmulario para el registro de usuarios.
+     * @param string 
      * @return bool  Retorna un booleano que indica el éxito de la validación
      *               (true si se validó correctamente el campo, false en caso de error)
      */

@@ -108,7 +108,7 @@
                     $nombre = test_input($nombre);
                     $apellido = test_input($apellido);
                     $edad = test_input($edad);
-                    $provincia = test_input($provincia);
+                    $provincia = test_input($provincia);          
                     $resultado = modificar_cliente($conexion, $id, $nombre, $apellido, $edad, $provincia);
 
                     if ($resultado[0] === true)

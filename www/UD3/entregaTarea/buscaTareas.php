@@ -33,7 +33,7 @@
                                         }
                                         else
                                         {
-                                            echo "<select class='form-select' name='username' id='username'>";
+                                            echo "<select class='form-select' name='username' id='username' required>";
                                             echo "<option value='' selected disabled>Selecciona un usuario</option>";
                                             foreach($resultado as $usuario)
                                             {
