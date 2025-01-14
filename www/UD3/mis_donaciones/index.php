@@ -16,7 +16,7 @@
                 include_once "menu.php";
             ?>
             <!-- MAIN -->
-            <main class="col-md-9 main-content">
+            <main class="col-md-8 main-content">
                 <div class="pt-4 pb-2 mb-3 border-bottom">
                     <h2>Sobre mí</h2>
                 </div>
