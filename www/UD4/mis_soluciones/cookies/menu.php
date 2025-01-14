@@ -9,5 +9,6 @@
         <li class="list-group-item"><a class="nav-link" href="usuarios.php">Listar usuarios</a></li>
         <li class="list-group-item"><a class="nav-link" href="nuevaForm.php">Nueva tarea</a></li>
         <li class="list-group-item"><a class="nav-link" href="tareas.php">Listar tareas</a></li>
+        <li class="list-group-item"><a class="nav-link" href="buscaTareas.php">Buscar tareas de usuario</a></li>
     </ul>
 </aside>
