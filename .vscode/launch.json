@@ -9,6 +9,7 @@
             "type": "php",
             "request": "launch",
             "port": 9003,
+            //Necesario en caso de usar Docker
             "pathMappings": {
                 "/var/www/html": "${workspaceFolder}/www"
               }

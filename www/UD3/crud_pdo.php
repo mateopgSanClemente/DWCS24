@@ -53,7 +53,7 @@ if ($conPDO) {
         echo "Se insertaron datos correctametne. <br>";
 
     }
-    catch(PDOExcetion $e) {
+    catch(PDOException $e) {
         if ($conPDO != null) $conPDO->rollback();
         echo $sql . "<br>" . $e->getMessage() . '<br>';
     }
@@ -81,7 +81,7 @@ if ($conPDO) {
 
         echo 'Los datos fueron insertados <br>';
     }
-    catch(PDOExcetion $e){
+    catch(PDOException $e){
         echo 'Fallo en INSERT: ' . $e->getMessage();
     }
 
