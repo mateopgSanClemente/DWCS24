@@ -19,23 +19,40 @@
                     <h2>Sobre mí</h2>
                 </div>
                 <p>Mi nombre es <b>Mateo Pastor González</b> y estoy cursando la asignatura <b>DWCS</b>.</p>
-                <div class="pt-4 pb-2 mb-3 border-bottom">
-                    <h2>Variables de entorno</h2>
-                </div>
-                <p><?php echo $_ENV["MYSQL_USER"];?></p>
-                <p><?php echo $_ENV["MYSQL_PASSWORD"];?></p>
-                <p><?php echo $_ENV["MYSQL_ROOT_PASSWORD"];?></p>
-                
                 <?php
-                    include_once ("pdo.php");
+                    include_once "pdo.php";
+                    // Crear conexión PDO
                     $conexion_PDO = conexion_PDO();
+                    // Crear base de datos
+                    $resulado_crear_db = crear_db($conexion_PDO);
+                    //Cerrar conexión
+                    $conexion_PDO = null;
+
+                    // Crear conexíon PDO a la base de datos 'donacion'
+                    $conexion_PDO = conexion_PDO("donacion");
+                    // Crear tabla donantes
+                    $resultado_tabla_donantes = crear_tabla_donantes($conexion_PDO);
+                    
+                    // Crear tabla historico
+                    $resultado_tabla_historico = crear_tabla_historico($conexion_PDO);
+
+                    // Crear tabla administradores
+                    $resultado_tabla_administradores = crear_tabla_administradores($conexion_PDO);
+                    // Mostrar los resultados de la creación de la bd y la tabla en la página
+                    echo "<div class='alert alert-warning' role='alert'>" . $resulado_crear_db . "</div>";
+                    echo "<div class='alert alert-warning' role='alert'>" . $resultado_tabla_donantes . "</div>";
+                    echo "<div class='alert alert-warning' role='alert'>" . $resultado_tabla_historico . "</div>";
+                    echo "<div class='alert alert-warning' role='alert'>" . $resultado_tabla_administradores . "</div>";
                 ?>
             </main>
         </div>
+        <div class="row">
+        <!-- FOOTER -->
+        <?php
+            include_once "footer.php";
+        ?>
+        </div>
     </div>
-    <!-- FOOTER -->
-    <?php
-        include_once "footer.php";
-    ?>
+
 </body>
 </html>
