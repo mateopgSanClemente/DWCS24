@@ -6,7 +6,8 @@
             <h2>Menú Lateral</h2>
         </div>
         <ul class="nav flex-column">
-            <li class="list-group-item"><a class="nav-link" href="index.html">Página principal</a></li>
+            <li class="list-group-item"><a href="index.php" class="nav-link">Página principal</a></li>
+            <li class="list-group-item"><a href="registrar_donantes_form.php" class="nav-link">Registrar donante</a></li>
         </ul>
     </aside>
 </div>
