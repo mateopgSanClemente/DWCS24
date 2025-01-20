@@ -8,6 +8,7 @@
         <ul class="nav flex-column">
             <li class="list-group-item"><a href="index.php" class="nav-link">Página principal</a></li>
             <li class="list-group-item"><a href="registrar_donantes_form.php" class="nav-link">Registrar donante</a></li>
+            <li class="list-group-item"><a href="listar_donantes.php" class="nav-link">Listar donantes</a></li>
         </ul>
     </aside>
 </div>
