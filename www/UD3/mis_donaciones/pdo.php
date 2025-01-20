@@ -1,7 +1,8 @@
 <?php
     
     /**
-     * TODO: Documentación.
+     * TODO: - Documentación.
+     *       - Cambiar el mensaje de error del bloque catch por $e->getMessage().
      */
     function conexion_PDO($db_name="", $host="db", $db_usuario="root", $db_pass="test"){
         // Variables de entorno
@@ -18,6 +19,10 @@
         }
     }
 
+    /**
+     * TODO: - Documentación
+     *       - Cambiar el mensaje de error del bloque catch por $e->getMessage().
+     */
     function crear_db($con_PDO){
         try{
             // Comprobar si la base de datos existe. Preparamos y ejecutamos la consulta
@@ -43,7 +48,8 @@
     }
 
     /**
-     * TODO: Documentación
+     * TODO: - Documentación
+     *       - Cambiar el mensaje de error del bloque catch por $e->getMessage().
      */
     function crear_tabla_donantes($con_PDO){
         try{
@@ -63,9 +69,9 @@
                 nombre VARCHAR(100) NOT NULL,
                 apellidos VARCHAR(150) NOT NULL,
                 edad INTEGER UNSIGNED NOT NULL CHECK (edad >= 18),
-                `grupo sanguineo` ENUM('0-', '0+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+') NOT NULL,
-                `codigo postal` CHAR(5) NOT NULL,
-                `telefono movil` CHAR(9) NOT NULL,
+                grupo_sanguineo ENUM('0-', '0+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+') NOT NULL,
+                codigo_postal CHAR(5) NOT NULL,
+                telefono_movil CHAR(9) NOT NULL,
                 CONSTRAINT pk_donantes PRIMARY KEY (id)
             );";
             $con_PDO->exec($sql);
@@ -76,7 +82,8 @@
     }
 
     /**
-     * TODO: Documentación
+     * TODO: - Documentación
+     *       - Cambiar el mensaje de error del bloque catch por $e->getMessage().
      */
     function crear_tabla_historico($con_PDO){
         try{
@@ -89,19 +96,19 @@
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
             $resultado_comprobacion = $stmt->fetchAll();
             if(count($resultado_comprobacion) >= 1){
-                return "La tabla 'historicos' ya exixste.";
+                return "La tabla 'historico' ya exixste.";
             }
             $sql = "CREATE TABLE historico (
-                `id historico` INTEGER NOT NULL,
-                `id donante` INTEGER NOT NULL,
-                `fecha donacion` DATE NOT NULL,
+                id_historico INTEGER NOT NULL,
+                id_donante INTEGER NOT NULL,
+                fecha_donacion DATE NOT NULL,
                 /**
                  *  Genera automaticamente la fecha de la próxima donación mediante un campo GENERATED:
                  *  DATE GENERATED ALWAYS AS (DATE_ADD(`fecha donacion`, INTERVAL 4 MONTH)) STORED
                  */
-                `proxima donacion` DATE NOT NULL,
-                CONSTRAINT pk_historico PRIMARY KEY (`id historico`),
-                CONSTRAINT fk_historico_donantes FOREIGN KEY (`id donante`) REFERENCES donantes(id)
+                proxima_donacion DATE NOT NULL,
+                CONSTRAINT pk_historico PRIMARY KEY (id_historico),
+                CONSTRAINT fk_historico_donantes FOREIGN KEY (id_donante) REFERENCES donantes(id)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE
             );";
@@ -111,7 +118,11 @@
             return "Se produjo un error en la creación de la tabla 'donantes': $e"; 
         }
     }
-
+    
+    /**
+     * TODO: - Documentación
+     *       - Cambiar el mensaje de error del bloque catch por $e->getMessage().
+     */
     function crear_tabla_administradores($con_PDO){
         try{
             // Comprobar si la tabla administradores existe
@@ -125,15 +136,38 @@
                 return "La tabla 'administradores' ya existe.";
             }
             $sql = "CREATE TABLE administradores(
-                `id admin` INTEGER UNSIGNED NOT NULL,
-                `nombre de usuario` VARCHAR(50) NOT NULL,
-                `pass` VARCHAR(200) NOT NULL,
-                CONSTRAINT pk_administradores PRIMARY KEY (`id admin`)
+                id_admin INTEGER UNSIGNED NOT NULL,
+                nombre_administrador VARCHAR(50) NOT NULL,
+                pass VARCHAR(200) NOT NULL,
+                CONSTRAINT pk_administradores PRIMARY KEY (id_admin)
             );";
             $con_PDO->exec($sql);
             return "La tabla 'administradores se creó con éxito.";
         }catch(PDOException $e){
             return "Se produjo un error en la creación de la tabla 'administradores': $e";
+        }
+    }
+
+    /**
+     * TODO: Documentación
+     */
+    function insertar_donante($con_PDO, $nombre_donante, $apellido_donante, $edad_donante, $grupo_sanguineo, $codigo_postal, $telefono_movil){
+        try{
+            // Llevar a cabo una consulta preparada
+            $sql = "INSERT INTO donantes(nombre, apellidos, edad, grupo_sanguineo, codigo_postal, telefono_movil)
+            VALUES (:nombre, :apellido, :edad, :grupo, :codigo, :telefono);";
+            $stmt = $con_PDO->prepare($sql);
+            $stmt->execute([
+                ":nombre" => $nombre_donante,
+                "apellido" => $apellido_donante,
+                ":edad" => $edad_donante,
+                ":grupo" => $grupo_sanguineo,
+                ":codigo" => $codigo_postal,
+                ":telefono" => $telefono_movil
+            ]);
+            return [true, $con_PDO->lastInsertId()];
+        }catch(PDOException $e){
+            return [false, $e->getMessage()];
         }
     }
 ?>
