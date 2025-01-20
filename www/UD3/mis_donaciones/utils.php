@@ -34,7 +34,7 @@
             $array_errores[] = "El campo 'nombre' no debe contener más de 100 caracteres.";
         }
         // Caracteres permitidos
-        if(!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s-']/", $nombre_donante)){
+        if(!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-']+$/", $nombre_donante)){
             $array_errores[] = "El campo 'nombre' solo puede contener caracteres de la 'a' a la 'z', espacios y guiones.";
         }
 
@@ -48,7 +48,7 @@
             $array_errores[] = "El campo 'apellido' no debe contener más de 100 caracteres.";
         }
         // Caracteres permitidos
-        if(!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s-']/", $nombre_donante)){
+        if(!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-']+$/", $nombre_donante)){
             $array_errores[] = "El campo 'apellido' solo puede contener caracteres de la 'a' a la 'z', espacios y guiones.";
         }
 
@@ -62,7 +62,7 @@
             $array_errores[] = "El campo 'edad' debe ser un número.";
         }
         // Comprobar que la edad es mayor a 18.
-        if(!$edad_donante >= 18){
+        if($edad_donante < 18){
             $array_errores[] = "El campo 'edad' debe ser mayor a 18.";
         }
 
@@ -78,6 +78,7 @@
         foreach ($array_grupo_sanguineo as $grupo_valido){
             if($grupo_sanguineo === $grupo_valido){
                 $validar_grupo = true;
+                break;
             }
         }
         if($validar_grupo === false){
@@ -100,14 +101,14 @@
             $array_errores[] = "El campo 'teléfono' es obligatorio.";
         }
         // Comprobar que solo recoge números y como máximo 9 caracteres
-        if(!preg_grep("/^\d{9}$/", $telefono_movil)){
+        if(!preg_match("/^\d{9}$/", $telefono_movil)){
             $array_errores[] = "El teléfono móvil solo puede contener números y un máximo de 9 caracteres.";
         }
 
         if(empty($array_errores)){
             return true;
         } else {
-            return [false, $array_errores];
+            return $array_errores;
         }
     }
 ?>
