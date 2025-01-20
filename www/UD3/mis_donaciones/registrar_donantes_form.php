@@ -18,21 +18,21 @@
             ?>
             <!-- MAIN -->
              <!-- Hay algunos aspectos del formulario que podría restringir desde el fichero html,
-              voy a hacerlo mediante validación por funciones -->
+             voy a hacerlo mediante php-->
             <main class="col-md-8 main-content">
                 <h2 class="pt-4 pb-2 mb-3 border-bottom">Registro de donante</h2>
-                <form action="registrar_usuario.php" method="POST">
+                <form action="registrar_donantes.php" method="POST">
                     <div class="mb-3">
                         <label for="nombre_donante" class="form-label">Nombre:</label>
                         <input type="text" class="form-control" name="nombre_donante" id="nombre_donante" placeholder="Nombre del donante" required>
                     </div>
                     <div class="mb-3">
                         <label for="apellido_donante" class="form-label">Apellidos:</label>
-                        <input type="text" class="form-control" name="apellido_donante" id="apellidos_donante" placeholder="Apellidos del donante" requiered>
+                        <input type="text" class="form-control" name="apellido_donante" id="apellido_donante" placeholder="Apellidos del donante" requiered>
                     </div>
                     <div class="mb-3">
                         <label for="edad_donante" class="form-label">Edad:</label>
-                        <input type="number" class="form-control" name="edad_donante" id="edad_donante" required>
+                        <input type="number" class="form-control" name="edad_donante" id="edad_donante" min="0" required>
                     </div>
                     <div class="mb-3">
                         <label for="grupo_sanguineo" class="form-label">Grupo sanguineo:</label>
@@ -56,6 +56,7 @@
                         <label for="telefono_movil" class="form-label">Teléfono móvil:</label>
                         <input type="text" class="form-control" name="telefono_movil" id="telefono_movil" required>
                     </div>
+                    <button type="submit" class="btn btn-success mb-3">Registrar</button>
                 </form>
             </main>
         </div>
