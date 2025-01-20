@@ -170,4 +170,21 @@
             return [false, $e->getMessage()];
         }
     }
+
+    /**
+     * TODO: - Documentación
+     */
+    function seleccionar_info_donantes(PDO $con_PDO){
+        try{
+            $sql = "SELECT * FROM donantes;";
+            // Método query() para consultas SELECT donde no tenemos parámetros
+            $stmt = $con_PDO->query($sql);
+            // Formato en el que queremos el array de datos
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            // Devolver el resultado
+            return [true, $stmt->fetchAll()];
+        }catch(PDOException $e){
+            return [false, $e->getMessage()];
+        }
+    }
 ?>
