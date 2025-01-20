@@ -1,5 +1,8 @@
 <?php
 
+    /**
+     * TODO: - Documentación
+     */
     function test_input($input){
         $input = trim ($input);
         $input = stripcslashes ($input);
@@ -7,7 +10,7 @@
         return $input;
     }
     /**
-     * 
+     * TODO: - Documentación
      */
     function validar_donante(array $datos_donante){
         // Guardar los datos del donante en variables
