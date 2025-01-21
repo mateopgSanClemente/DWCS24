@@ -15,7 +15,7 @@
             $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $con;
         }catch (PDOException $e) {
-            return "Fallo en la conexión: $e"; 
+            return "Fallo en la conexión: " . $e->getMessage(); 
         }
     }
 
@@ -99,7 +99,7 @@
                 return "La tabla 'historico' ya exixste.";
             }
             $sql = "CREATE TABLE historico (
-                id_historico INTEGER NOT NULL,
+                id_historico INTEGER AUTO_INCREMENT,
                 id_donante INTEGER NOT NULL,
                 fecha_donacion DATE NOT NULL,
                 /**
@@ -165,7 +165,7 @@
                 ":codigo" => $codigo_postal,
                 ":telefono" => $telefono_movil
             ]);
-            return [true, $con_PDO->lastInsertId()];
+            return [true, strval($con_PDO->lastInsertId())];
         }catch(PDOException $e){
             return [false, $e->getMessage()];
         }
@@ -198,13 +198,16 @@
             // Calcular la fecha de la próxiam donación (4 meses depués, formato YYYY-MM-DD)
             $fecha_proxima_donacion = date("Y-m-d", strtotime("+4 month", strtotime($fecha_donacion)));
             // Consulta sql
-            $sql = "INSERT INTO historico (id_donante, fecha_donacion, proxima_donacion) VALUES (:id_donante, $fecha_donacion, $fecha_proxima_donacion);";
+            $sql = "INSERT INTO historico (id_donante, fecha_donacion, proxima_donacion) VALUES (:id_donante, :fecha_donacion, :fecha_proxima_donacion);";
             // Preparar
             $stmt = $con_PDO->prepare($sql);
             $stmt->bindParam(":id_donante", $id_donante);
+            $stmt->bindParam(":fecha_donacion", $fecha_donacion);
+            $stmt->bindParam(":fecha_proxima_donacion", $fecha_proxima_donacion);
             $stmt->execute();
+            return [true, strval($con_PDO->lastInsertId())];
         }catch(PDOException $e){
-            return $e->getMessage();
+            return [false, $e->getMessage()];
         }
     }
 ?>
