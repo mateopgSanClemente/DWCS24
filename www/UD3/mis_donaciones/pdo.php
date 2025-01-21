@@ -210,4 +210,30 @@
             return [false, $e->getMessage()];
         }
     }
+
+    /**
+     * TODO:
+     * - Documentacion
+     */
+    function eliminar_donante(PDO $con_PDO, $id_donante){
+        try{
+            // Sentencia SQL
+            $sql = "DELETE FROM donantes WHERE donantes.id = :id_donante;";
+            // Consulta preparada
+            $stmt = $con_PDO->prepare($sql);
+            // Vincular parámetro
+            $stmt->bindParam(":id_donante", $id_donante, PDO::PARAM_INT);
+            // Ejecutar consulta
+            $stmt->execute();
+            // Verificar que la eliminación se realizó correctamente
+            if($stmt->rowCount() > 0){
+                // Retornar mensaje de confirmación
+                return [true, "El donante con ID $id_donante se eliminó correctamente."];
+            }else{
+                return [false, "No sé encontró un donante con ID: $id_donante"];
+            }
+        }catch(PDOException $e){
+            return [false, "Ocurrio un error en la eliminación del donante: " . $e->getMessage()];
+        }
+    }
 ?>
