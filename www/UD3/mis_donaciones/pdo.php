@@ -187,4 +187,24 @@
             return [false, $e->getMessage()];
         }
     }
+
+    /**
+     * TODO: - Documentación
+     */
+    function insertar_historico(PDO $con_PDO, $id_donante){
+        try{
+            // Obtener fecha actual (formato YYYY-MM-DD)
+            $fecha_donacion = date("Y-m-d");
+            // Calcular la fecha de la próxiam donación (4 meses depués, formato YYYY-MM-DD)
+            $fecha_proxima_donacion = date("Y-m-d", strtotime("+4 month", strtotime($fecha_donacion)));
+            // Consulta sql
+            $sql = "INSERT INTO historico (id_donante, fecha_donacion, proxima_donacion) VALUES (:id_donante, $fecha_donacion, $fecha_proxima_donacion);";
+            // Preparar
+            $stmt = $con_PDO->prepare($sql);
+            $stmt->bindParam(":id_donante", $id_donante);
+            $stmt->execute();
+        }catch(PDOException $e){
+            return $e->getMessage();
+        }
+    }
 ?>
