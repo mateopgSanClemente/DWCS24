@@ -53,7 +53,7 @@
                                     echo "<td>$dato</td>";
                                 }
                                 echo "<td>
-                                        <a class='btn btn-success btn-sm me-2'>Realizar donación</a>
+                                        <a href='registrar_historico.php?id_donante=" . $usuario['id'] . "' class='btn btn-success btn-sm me-2'>Registrar donación</a>
                                         <a class='btn btn-warning btn-sm me-2'>Listar donaciones</a>
                                         <a class='btn btn-danger btn-sm me-2'>Eliminar donante</a>
                                     </td>
@@ -70,5 +70,9 @@
             </main>
         </div>
     </div>
+    <!-- FOOTER -->
+    <?php
+    include_once "footer.php";
+    ?>
 </body>
 </html>
