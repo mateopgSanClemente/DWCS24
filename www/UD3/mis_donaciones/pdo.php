@@ -242,7 +242,7 @@
      * - Documentación
      * - La página debe mostrar un encabezado con nombre, apellido, edad y grupo sanguíneo y todos los datos de tus donaciones ordenados por fecha decreciente.
      */
-    function listar_info_donaciones(PDO $con_PDO, $id_donante){
+    function seleccionar_historico_donante(PDO $con_PDO, $id_donante){
         try{
             // Sentencia SQL
             $sql = "SELECT donantes.nombre, donantes.apellidos, donantes.edad, donantes.grupo_sanguineo, historico.fecha_donacion, historico.proxima_donacion
