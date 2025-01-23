@@ -236,4 +236,35 @@
             return [false, "Ocurrio un error en la eliminación del donante: " . $e->getMessage()];
         }
     }
+
+    /**
+     * TODO:
+     * - Documentación
+     * - La página debe mostrar un encabezado con nombre, apellido, edad y grupo sanguíneo y todos los datos de tus donaciones ordenados por fecha decreciente.
+     */
+    function listar_info_donaciones(PDO $con_PDO, $id_donante){
+        try{
+            // Sentencia SQL
+            $sql = "SELECT donantes.nombre, donantes.apellidos, donantes.edad, donantes.grupo_sanguineo, historico.fecha_donacion, historico.proxima_donacion
+            FROM donantes
+            INNER JOIN historico
+            ON donantes.id = historico.id_donante
+            WHERE donantes.id = :id_donante
+            ORDER BY historico.fecha_donacion;";
+            // Consulta preparada
+            $stmt = $con_PDO->prepare($sql);
+            // Vincular parámetros
+            $stmt->bindParam(":id_donante", $id_donante);
+            // Ejecutar consulta
+            $stmt->execute();
+            // Fetch mode 
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            // Recoger resultados
+            $resultado_consulta = $stmt->fetchAll();
+            // Retornar
+            return [true, $resultado_consulta];
+        }catch(PDOException $e){
+            return [false, $e->getMessage()];
+        }
+    }
 ?>
