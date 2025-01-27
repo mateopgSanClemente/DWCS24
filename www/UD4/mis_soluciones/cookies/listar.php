@@ -53,8 +53,6 @@
                                     {
                                         echo "<td>" . $dato . "</td>";
                                     }
-
-                                    print_r($fila);
                                     echo "<td>";
                                     echo "<a href='modificar.php?id=" . $fila['id'] . "&nombre=" . $fila['nombre'] . "&apellido=" . $fila['apellido'] . "' class='btn btn-primary btn-sm me-2'>Editar</a>";
                                     echo "<a href='eliminar.php?id=" . $fila['id'] . "' class='btn btn-danger btn-sm'>Eliminar</a>";
