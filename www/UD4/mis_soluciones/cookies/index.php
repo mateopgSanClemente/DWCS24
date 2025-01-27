@@ -1,10 +1,13 @@
+<?php
+    require_once "cookies.php";
+    $nVisitas = contarVisitaCookie();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <?php
     include_once "head.php";
 ?>
 <body>
-
     <!-- Header -->
     <?php
         include_once "header.php";
@@ -17,7 +20,6 @@
             ?>
             <?php
                 // Recoger el valor de la cookie "idioma".
-                require_once "cookies.php";
                 // Guardar el idioma predeterminado para la cookie "idioma" en caso de que
                 // no se haya establecido previamente
                 if(isset($_COOKIE["idioma"])){
@@ -29,14 +31,18 @@
                         case "gallego":
                             $mensajeEncabezado = "Páxina principal";
                             $mensajeBienvenida = "Benvido a páxina da nosa tenda.";
+                            $mensajeVisitas = "Número de visitas: " . $nVisitas;
                             break;
                         case "castellano":
                             $mensajeEncabezado = "Página principal";
                             $mensajeBienvenida = "Bienvenido a la página princial de nuestra tienda.";
+                            $mensajeVisitas = "Número de visitas: " . $nVisitas;
                             break;
                         case "ingles":
                             $mensajeEncabezado = "Main page";
                             $mensajeBienvenida = "Welcome to the main page of our shop.";
+                            $mensajeVisitas = "Number of visualizations: " . $nVisitas;
+
                             break;
                     }
                 } else {
@@ -49,14 +55,16 @@
             ?>
             <!-- Layout -->
             <main class="col-md-9 main-content">
-                <h2 class="mb-4"><?php echo $mensajeEncabezado; ?></h2>
+                <h2 class="mb-4"><?php echo $mensajeEncabezado;?></h2>
                 <p class="descripcion">
-                    <?php echo $mensajeBienvenida; ?>
+                    <?php echo $mensajeBienvenida;?>
+                </p>
+                <p class="visitas">
+                    <?php echo $mensajeVisitas;?>
                 </p>
             </main>
         </div>
     </div>
-
     <!-- Footer -->
     <?php
         include_once "footer.php";
