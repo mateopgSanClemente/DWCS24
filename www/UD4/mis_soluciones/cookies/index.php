@@ -15,20 +15,43 @@
             <?php
                 include_once "nav_menu.php";
             ?>
+            <?php
+                // Recoger el valor de la cookie "idioma".
+                require_once "cookies.php";
+                // Guardar el idioma predeterminado para la cookie "idioma" en caso de que
+                // no se haya establecido previamente
+                if(isset($_COOKIE["idioma"])){
+                    // Muestra un mensaje de bienvenida y de página principal en función del idioma almacenado en la cookie.
+                    $idioma = $_COOKIE["idioma"];
+                    $mensajeBienvenida = "";
+                    $mensajeEncabezado = "";
+                    switch ($idioma) {
+                        case "gallego":
+                            $mensajeEncabezado = "Páxina principal";
+                            $mensajeBienvenida = "Benvido a páxina da nosa tenda.";
+                            break;
+                        case "castellano":
+                            $mensajeEncabezado = "Página principal";
+                            $mensajeBienvenida = "Bienvenido a la página princial de nuestra tienda.";
+                            break;
+                        case "ingles":
+                            $mensajeEncabezado = "Main page";
+                            $mensajeBienvenida = "Welcome to the main page of our shop.";
+                            break;
+                    }
+                } else {
+                    // Selecciona el idioma predeterminado que será el gallego
+                    seleccionarIdiomaCookie();
+                    $mensajeEncabezado = "Páxina principal";
+                    $mensajeBienvenida = "Benvido a páxina da nosa tenda.";
+                }
+
+            ?>
             <!-- Layout -->
             <main class="col-md-9 main-content">
-                <h2 class="mb-4">Sobre nuestra tienda</h2>
+                <h2 class="mb-4"><?php echo $mensajeEncabezado; ?></h2>
                 <p class="descripcion">
-                    Bienvenidos a la genuina e inigualable <strong>Tienda de Jabones PEPINO</strong>, los jabones más pepino de Compostela, un espacio dedicado a ofrecerte jabones, obviamente.
-                    Tenemos una amplia gama de jabones a la venta con distribución tanto nacional a nivel España como internacional.
-                    Disponemos de productos artesanales de la más alta calidad y otros que no tanto, algunos más democráticos que otros.
-                </p>
-                <p class="descripcion">   
-                    Cada uno de nuestros productos está elaborado con ingredientes naturales, cuidando cada detalle para ofrecerte una experiencia única de cuidado personal, porque como comprenderás no te vamos a vender un jabón que huela mal.
-                </p>
-                <h2 class="mb-4">Sobre la administración de usuarios</h2>
-                <p class="descripcion">
-                    Al grano, utiliza la barra lateral de la izquierda para realizar distintas acción respecto a los usuarios y la base de datos. Desde esta podrás <strong>INICIAR LA BASE DE DATOS, MODIFICAR, ELIMINAR, REGISTRAR Y LISTAR</strong> a los usuarios.
+                    <?php echo $mensajeBienvenida; ?>
                 </p>
             </main>
         </div>
