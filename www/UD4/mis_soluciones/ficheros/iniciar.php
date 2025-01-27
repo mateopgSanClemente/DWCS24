@@ -46,6 +46,20 @@
                     {
                         echo '<div class="alert alert-warning" role="alert">' . $tabla_usuarios[1] . '</div>';
                     }
+
+                    // Crear tabla 'productos'
+                    $conexion = conectar();
+                    
+                    $tabla_productos = crear_tabla_productos($conexion);
+
+                    if ($tabla_productos[0] === true)
+                    {
+                        echo '<div class="alert alert-success" role="alert">' . $tabla_prodctos[1] . '</div>';
+                    }
+                    else if ($tabla_productos[0] === false)
+                    {
+                        echo '<div class="alert alert-warning" role="alert">' . $tabla_productos[1] . '</div>';
+                    }
                 ?>
             </main>
         </div>

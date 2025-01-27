@@ -151,7 +151,7 @@
                 return [false, "No fue posible crear la tabla 'productos'."];
             }
         }
-        catch (mysqli_sql_exception $e)
+        catch (mysqli_sql_exception $e) 
         {
             return [false, $e->getMessage()];
         }
@@ -160,7 +160,7 @@
             cerrar_conexion($conexion);
         }
     }
-    
+
     /**
      * Función para insertar un nuevo usuario en la tabla clientes
      * 
