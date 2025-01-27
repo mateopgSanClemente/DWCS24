@@ -33,19 +33,20 @@
      * Registra y actualiza la cookie "idioma" para seleccionar el idioma
      * en el cual se mostrará la página.
      * 
-     * @param string $idioma Idioma de la página.
+     * @param string $idioma Idioma de la página. Su valor por defecto es "gallego".
      * @return boolean Devuelve true si la cookie se guardó correctamente y false
      * si no.
      */
-    function seleccionarIdiomaCookie(string $idioma){
+    function seleccionarIdiomaCookie(string $idioma = "gallego"){
         // Lista de idioma válidos
         $idiomaValido = ["gallego", "castellano", "ingles"];
         // Validar si el idioma es válido
         if (in_array(strtolower($idioma), $idiomaValido)){
             // Establecer el valor para la cookie
-            setcookie("idioma", $idioma, 86400 * 10, "/");
+            setcookie("idioma", $idioma, time() + (86400 * 10), "/");
             // Mostrar que el valor de la cookie se guardó correctamente
             return true;
         }
         return false;
     }
+?>
