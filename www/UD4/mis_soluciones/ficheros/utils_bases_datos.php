@@ -117,50 +117,6 @@
         }
     }
 
-    /** Función para crear la tabla productos
-     * 
-     */
-    function crear_tabla_productos($conexion){
-        try 
-        {
-            //Verificar si la tabla ya existe
-            $sqlCheck = "SHOW TABLES LIKE 'productos';";
-            $resultado = $conexion->query($sqlCheck);
-
-            if ($resultado && $resultado->num_rows > 0)
-            {
-                return [false, "La tabla 'productos' ya existe."];
-            }
-
-            $sql = "CREATE TABLE IF NOT EXISTS `tienda` . `productos` (
-                `id` INT(6) NOT NULL AUTO_INCREMENT,
-                `nombre` VARCHAR(50) NOT NULL,
-                `descripcion` VARCHAR(100) NOT NULL,
-                `precio` FLOAT NOT NULL,
-                `unidades` INT(6) NOT NULL,
-                `foto` BLOB NOT NULL,
-                PRIMARY KEY (`id`)
-                );";
-        
-            if ($conexion->query($sql))
-            {
-                return [true, "La tabla 'productos' se creo correctamente."];
-            }
-            else
-            {
-                return [false, "No fue posible crear la tabla 'productos'."];
-            }
-        }
-        catch (mysqli_sql_exception $e) 
-        {
-            return [false, $e->getMessage()];
-        }
-        finally
-        {
-            cerrar_conexion($conexion);
-        }
-    }
-
     /**
      * Función para insertar un nuevo usuario en la tabla clientes
      * 
@@ -251,6 +207,72 @@
         {
             return [false, $e->getMessage()];
         }
+    }
 
+    /** Función para crear la tabla productos
+     * 
+     */
+    function crear_tabla_productos($conexion){
+        try 
+        {
+            //Verificar si la tabla ya existe
+            $sqlCheck = "SHOW TABLES LIKE 'productos';";
+            $resultado = $conexion->query($sqlCheck);
+
+            if ($resultado && $resultado->num_rows > 0)
+            {
+                return [false, "La tabla 'productos' ya existe."];
+            }
+
+            $sql = "CREATE TABLE IF NOT EXISTS `tienda` . `productos` (
+                `id` INT(6) NOT NULL AUTO_INCREMENT,
+                `nombre` VARCHAR(50) NOT NULL,
+                `descripcion` VARCHAR(100) NOT NULL,
+                `precio` FLOAT NOT NULL,
+                `unidades` INT(6) NOT NULL,
+                `foto` BLOB NOT NULL,
+                PRIMARY KEY (`id`)
+                );";
+        
+            if ($conexion->query($sql))
+            {
+                return [true, "La tabla 'productos' se creo correctamente."];
+            }
+            else
+            {
+                return [false, "No fue posible crear la tabla 'productos'."];
+            }
+        }
+        catch (mysqli_sql_exception $e) 
+        {
+            return [false, $e->getMessage()];
+        }
+    }
+    /**
+     * Función para insertar nuevos productos
+     */
+    function insertar_producto(mysqli $conexion, $nombre, $descripcion, $precio, $unidades, $foto){
+        try {
+            $sql = "INSERT INTO productos (nombre, descripcion, precio, unidades, foto) VALUES (?, ?, ?, ?, ?);";
+            $stmt = $conexion->prepare($sql);
+            
+            // Validar que la preparación fue exitosa
+            if (!$stmt) {
+                throw new mysqli_sql_exception ("Ocurrió un error en la preparación de la consulta: " . $conexion->error);
+            }
+
+            // Asignar las variables y enviar binarios
+            $stmt->bind_param(("ssdib"), $nombre, $descripcion, $precio, $unidades, $foto);
+            
+            // Enviar los binarios para la columna foto, se usa el método send_long_data para evitar problemas con el tamaño del fichero.
+            $stmt->send_long_data(4, $foto);
+
+            //Ejecutar la consulta
+            $stmt->execute();
+            
+            return [true, "Produco agregado correctamente."];
+        } catch (mysqli_sql_exception $e) {
+            return [false, $e->getMessage()];
+        }
     }
 ?>
