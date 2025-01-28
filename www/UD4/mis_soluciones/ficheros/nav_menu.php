@@ -5,5 +5,6 @@
         <li class="list-group-item"><a href="registrar.php">Registrar Usuario</a></li>
         <li class="list-group-item"><a href="listar.php">Listar Usuarios</a></li>
         <li class="list-group-item"><a href="seleccionar_idioma.php">Seleccionar Idioma</a></li>
+        <li class="list-group-item"><a href="introducir_producto.php">Introducir producto</a></li>
     </ul>
 </aside>
