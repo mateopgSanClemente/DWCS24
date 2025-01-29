@@ -49,9 +49,14 @@
                                         // Verificar que la inserción se hizo correctamente
                                         if ($verificar_insertar){
                                             echo "<div class='alert alert-success' role='alert'>" . $resultado_insertar . "</div>";
+                                            
+                                            // Recupero la foto del último producto añadido
+                                            echo "<img src='mostrar_foto.php' class='img-fluid rounded shadow mx-auto d-block'>";
                                         } else {
                                             echo "<div class='alert alert-warning' role='alert'>" . $resultado_insertar . "</div>";
                                         }
+
+                                        cerrar_conexion($con_mysqli);
                                     } else {
                                         echo "<div class='alert alert-warning' role='alert'>La imagen no se pudo subir correctamente.</div>";
                                     }
