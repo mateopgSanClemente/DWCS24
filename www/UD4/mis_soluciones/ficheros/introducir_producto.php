@@ -15,7 +15,7 @@
             
             <main class="col-md-9 main-content">
                 <h2 class="mb-4">Introducir producto</h2>
-                <form method="post" action="" enctype="multipart/form-data">
+                <form method="post" action="validar_producto.php" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="nombre_producto" class="form-label">Nombre de producto</label>
                         <input type="text" name="nombre_producto" class="form-control" id="nombre_producto" placeholder="Nombre de producto" required>
