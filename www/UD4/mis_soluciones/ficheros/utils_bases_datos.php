@@ -269,8 +269,30 @@
 
             //Ejecutar la consulta
             $stmt->execute();
-            
+
             return [true, "Produco agregado correctamente."];
+        } catch (mysqli_sql_exception $e) {
+            return [false, $e->getMessage()];
+        }
+    }
+
+    function recuperar_foto (mysqli $conexion) {
+        try {
+            $sql = "SELECT foto FROM productos ORDER BY id DESC LIMIT 1";
+            $stmt = $conexion->prepare($sql);
+
+            if(!$stmt){
+                throw new mysqli_sql_exception("Ocurrió un error en la preparación de la consulta: " . $conexion->error);
+            }
+            $stmt->execute();
+
+            $stmt->bind_result($foto);
+
+            if($stmt->fetch()) {
+                return [true, $foto];
+            } else {
+                return [false, "No se encontró la foto en la base de datos."];
+            }
         } catch (mysqli_sql_exception $e) {
             return [false, $e->getMessage()];
         }
