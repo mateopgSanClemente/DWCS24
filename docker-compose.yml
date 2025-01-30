@@ -15,6 +15,8 @@ services:
             - persistent:/var/lib/mysql
         networks:
             - default
+        env_file:
+            - .env
     www:
         build: .
         ports: 
@@ -32,6 +34,8 @@ services:
             MYSQL_USER: ${MYSQL_USER_WEB}
             MYSQL_PASSWORD: ${MYSQL_PASSWORD_WEB}
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD_WEB}
+        env_file:
+            - -env
     phpmyadmin:
         image: phpmyadmin:5.2.1
         links: 
@@ -42,5 +46,7 @@ services:
             MYSQL_USER: ${MYSQL_USER_WEB}
             MYSQL_PASSWORD: ${MYSQL_PASSWORD_WEB}
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD_WEB}
+        env_file:
+            - .env
 volumes:
     persistent:
