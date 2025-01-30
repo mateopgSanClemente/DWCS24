@@ -1,28 +1,52 @@
 <?php
     /**
-     * Establece una conexión a la base de datos MySQL utilizando MySQLi.
+     * Establece una conexión a la base de datos MySQL utilizando las credenciales de las variables de entorno.
      * 
-     * @param string $host Dirección del servidor MySQL. Por defecto, "db".
-     * @param string $user Nombre de usuario de la base de datos. Por defecto, "root".
-     * @param string $pass Contraseña del usuario. Por defecto, "test".
-     * @param string $db Nombre de la base de datos. Por defecto, "tareas".
+     * Esta función intenta conectar con la base de datos usando las credenciales definidas en las
+     * variables de entorno. Si la base de datos no existe, la función no genera un error, sino
+     * que permite seguir trabajando con la conexión para que se pueda crear la base de datos
+     * en un paso posterior si fuera necesario.
      * 
-     * @return mysqli Devuelve una instancia de conexión MySQLi si es exitosa.
-     * 
-     * @throws Exception Si no se puede establecer la conexión, lanza una excepción con detalles del error.
+     * @return array Devuelve un array con la siguiente información:
+     *   - 'success' (bool): Indica si la conexión fue exitosa o no.
+     *   - 'conexion' (mysqli|null): El objeto de conexión mysqli si fue exitosa, null en caso contrario.
+     *   - 'error' (string): Mensaje de error si la conexión falló, vacío si fue exitosa.
      */
-    function conectar_mysqli($host = "db", $user = "root", $pass = "test", $db = "tareas")
-    {
-        // Crear la conexión
-        $conexion = new mysqli($host, $user, $pass, $db);
+    function conectar_mysqli() {   
+        try {
+            // Obtener las credenciales de la base de datos desde las variables de entorno
+            $host = getenv("MYSQL_HOST") ?: "db"; // "db" es el nombre del servicio en docker-compose, la variable de entorno MYSQL_HOST no está configurada
+            $user = getenv("MYSQL_USER_WEB") ?: "root";
+            $password = getenv("MYSQL_PASSWORD_WEB") ?: "test";
+            $db = getenv("MYSQL_DATABASE_TAREA_UD4") ?: ""; // Puede que la base de dato no haya sido creada todavía. Si no está configurada se guarda una cadena vacía en la variable.
+            
+            // Configurar mysqli para lanzar excepciones automáticamente y no tener que usar connect_errno manualmente. Evita errores silenciosos.
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+            
+            // Crear la conexión
+            $conexion_mysqli = new mysqli($host, $user, $password);
 
-        // Comprobar si la conexión fue exitosa
-        if ($conexion->connect_errno) {
-            throw new Exception("Error al conectar a la base de datos: (" . $conexion->connect_errno . ") " . $conexion->connect_error);
+            // Asegurar una codificación adecuada de caracteres
+            $conexion_mysqli->set_charset("utf8mb4");
+
+            // Compruebo que la base de datos existe
+            $sql_check = "SHOW DATABASE LIKE ?;";
+            $stmt = $conexion_mysqli->prepare($sql_check);
+            $stmt->bind_param("s", $db);
+            $stmt->execute();
+
+            $comprobar_db = $stmt->get_result();
+
+            if ($comprobar_db && $comprobar_db->num_rows > 0) {
+                // En caso de que exista, me conecto a esta base de datos
+                $conexion_mysqli->select_db($db);
+            }
+
+            // Devolver la instancia del objeto mysqli en caso de que no exista la base de datos
+            return ["success" => true, "conexion" => $conexion_mysqli, "error" => ""];
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "conexion" => null, "error" => $e->getMessage()];
         }
-
-        // Retornar la conexión activa
-        return $conexion;
     }
 
     /**
