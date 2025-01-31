@@ -157,22 +157,18 @@
      *
      * @param mysqli $conexion Objeto de conexión a MySQL.
      * 
-     * @return array Retorna un array donde:
-     *               - El primer elemento es un booleano: `true` si la tabla se creó correctamente,
-     *                 o `false` si ya existe o ocurrió un error.
-     *               - El segundo elemento es un mensaje descriptivo del resultado.
+     * @return array Devuelve un array con la siguiente información:
+     *               - 'success' (bool): Indica si la tabla se creó correctamente.
+     *               - 'mensaje' (string): Mensaje de éxito o erro.
      */
-    function crear_tabla_tareas ($conexion)
-    {
-        try
-        {   
+    function crear_tabla_tareas (mysqli $conexion_mysqli) {
+        try {   
             //Comprobar si la tabla 'tareas' ya existe
             $sql_check = "SHOW TABLES LIKE 'tareas';";
-            $resultado = $conexion->query($sql_check);
+            $resultado = $conexion_mysqli->query($sql_check);
 
-            if($resultado && $resultado->num_rows > 0)
-            {
-                return [false, "La tabla <b>'tareas'</b> ya existe"];
+            if($resultado && $resultado->num_rows > 0) {
+                return ["success" => false, "mensaje" => "La tabla 'tareas' ya existe"];
             }
 
             //Crear la tabla tareas y vincularla a la tabla usuarios mediante una clave foranea
@@ -182,23 +178,22 @@
                 `descripcion` VARCHAR(250),
                 `estado` VARCHAR(50),
                 `id_usuario` INT,
-                PRIMARY KEY (`id`),
-                FOREIGN KEY (`id_usuario`) REFERENCES `usuarios`(`id`)
+                CONSTRAINT pk_tareas PRIMARY KEY (`id`),
+                CONSTRAINT fk_tareas_usuarios FOREIGN KEY (`id_usuario`) REFERENCES `usuarios`(`id`)
+                ON UPDATE CASCADE
+                ON DELETE CASCADE
             );";
 
-            if ($conexion->query($sql) === true)
-            {
-                return [true, "La tabla <b>'tareas'</b> se creo correctamente."];
+            if ($conexion_mysqli->query($sql) === true) {
+                return ["success" => true, "mensaje" => "La tabla 'tareas' se creo correctamente."];
             }
-            else
-            {
-                return [false, "No fue posible crear la tabla <b>'tareas'</b>."];
-            }
+
+            return ["success" => false, "mensaje" => "No fue posible crear la tabla 'tareas'."];
 
         }
         catch(mysqli_sql_exception $e)
         {
-            return [false, $e->getMessage()];
+            return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
 
