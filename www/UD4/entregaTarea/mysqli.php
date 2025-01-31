@@ -11,6 +11,8 @@
      *   - 'success' (bool): Indica si la conexión fue exitosa o no.
      *   - 'conexion' (mysqli|null): El objeto de conexión mysqli si fue exitosa, null en caso contrario.
      *   - 'error' (string): Mensaje de error si la conexión falló, vacío si fue exitosa.
+     * 
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
     function conectar_mysqli() {   
         try {
@@ -57,9 +59,11 @@
      * la base de datos no se cree si ya está definida en el servidor.
      *
      * @param mysqli $conexion_mysqli Objeto de conexión a MySQL.
-     * @return array Devuelve un array con la siguiente información: 
+     * @return array Devuelve un array asociativo con la siguiente información: 
      *               - 'success' (bool): Indica si la base de datos se creó correctamente.
      *               - 'mensaje' (string): Mensaje de éxito o error.
+     * 
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */ 
     function crear_base_datos (mysqli $conexion_mysqli) {
         try {
@@ -111,9 +115,11 @@
      *
      * @param mysqli $conexion Objeto de conexión a MySQL.
      * 
-     * @return array Devuelve un array con la siguiente información:
+     * @return array Devuelve un array asociativo con la siguiente información:
      *               - 'success' (bool): Indica si la tabla se creó correctamente.          
      *               - 'mensaje' (string): Mensaje de éxito o error.
+     * 
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
     function crear_tabla_usuario (mysqli $conexion_mysqli) {
         try {
@@ -157,9 +163,11 @@
      *
      * @param mysqli $conexion Objeto de conexión a MySQL.
      * 
-     * @return array Devuelve un array con la siguiente información:
+     * @return array Devuelve un array asociativo con la siguiente información:
      *               - 'success' (bool): Indica si la tabla se creó correctamente.
      *               - 'mensaje' (string): Mensaje de éxito o erro.
+     * 
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
     function crear_tabla_tareas (mysqli $conexion_mysqli) {
         try {   
@@ -198,50 +206,44 @@
     }
 
     /**
-     * Obtiene todas las tareas de la tabla `tareas`.
+     * Selecciona todas las tareas de la base de datos junto con el nombre de usuario del creador.
+     *
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
      * 
-     * Esta función ejecuta una consulta SQL para seleccionar todas las filas 
-     * de la tabla `tareas` y devuelve los resultados como un array asociativo.
-     * 
-     * @param mysqli $conexion Instancia de la conexión MySQLi.
-     * 
-     * @return array Un array que contiene:
-     *               - bool: `true` si la operación fue exitosa, `false` si hubo un error.
-     *               - mixed: Un array asociativo con los resultados si fue exitoso, 
-     *                        o un mensaje de error si falló.
+     * @return array Devuelve un array asociativo con la siguiente información
+     *     - "success" (bool) Indica si la operación fue exitosa.
+     *     - "datos" (array|null) Lista de tareas en caso de éxito.
+     *     - "mensaje" (string|null) Mensaje de error en caso de fallo.
+     *
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
-    function seleccionar_tareas($conexion)
-    {
-        try
-        {
+    function seleccionar_tareas(mysqli $conexion_mysqli) {
+        try {
             // Consulta SQL para seleccionar todas las tareas
             $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
             FROM tareas
             INNER JOIN usuarios
             ON tareas.id_usuario = usuarios.id;";
 
-            $resultados = $conexion->query($sql);
+            $resultados = $conexion_mysqli->query($sql);
 
             // Verificar si la consulta devolvió resultados
-            if ($resultados->num_rows == 0) {
-                return [false, "No se encontraron tareas en la base de datos."];
+            if (!$resultados || $resultados->num_rows === 0) {
+                return ["success" => false, "mensaje" => "No se encontraron tareas en la base de datos."];
             }
 
-            // Retornar los resultados como un array asociativo y lo decodifica
+            // Obtener los resultados como un array asociativo.
             $conjunto_tareas = $resultados->fetch_all(MYSQLI_ASSOC);
-            foreach($resultados as $tarea)
-            {
-                foreach($tarea as $dato_tarea)
-                {
-                    $dato_tarea = htmlspecialchars_decode($dato_tarea);
-                }
-            }
-            return [true, $conjunto_tareas];
-        }
-        catch (mysqli_sql_exception $e)
-        {
+            // Decodificar caracteres especiales en los valores del array
+            $conjunto_tareas = array_map(function($tareas){
+                // Las funciones nativas de PHP pueden pasarse como una cadena de caracteres a la función array_map
+                return array_map("htmlspecialchars_decode", $tareas);
+            }, $conjunto_tareas);
+
+            return ["success" => true, "datos" => $conjunto_tareas];
+        } catch (mysqli_sql_exception $e) {
             // Capturar errores y retornar un mensaje claro
-            return [false, "Error al obtener las tareas: " . $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error al obtener las tareas: " . $e->getMessage()];
         }
     }
 
