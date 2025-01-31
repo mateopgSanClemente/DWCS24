@@ -248,25 +248,41 @@
     }
 
     /**
-     * Función para agregar tareas
+     * Agrega una nueva tarea a la base de datos.
+     *
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
+     * @param string $titulo Título de la tarea.
+     * @param string $descripcion Descripción de la tarea.
+     * @param string $estado Estado de la tarea (Debe ser "Pendiente", "En proceso" o "Completada").
+     * @param int $id_usuario ID del usuario al que se asigna la tarea.
+     *
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      - 'success' (bool) : true si se agregó correctamente, false en caso de error.
+     *      - 'mensaje' (string) : información sobre la ejecución de la función.
+     *
+     * @throws mysqli_sql_exception Si ocurre un error al ejecutar la consulta.
      */
-    function agregar_tarea($conexion, $titulo, $descripcion, $estado, $id_usuario)
-    {
-        try
-        {   
-            //Preparar la consulta
-            $conexion->store_result();
-            $stmt = $conexion->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?,?,?,?)");
-            $stmt->bind_param("sssi", $titulo, $descripcion, $estado, $id_usuario);
-            $stmt->execute();
-            //Cerrar conexión
-            
+    function agregar_tarea(mysqli $conexion_mysqli, string $titulo, string $descripcion, string $estado, int $id_usuario) {
+        try {           
 
-            return [true, ("La tarea '$titulo' con estado '$estado' se agregó correctamente.")];
-        }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, ("Error a la hora de agregar la tarea: " . $e->getMessage())];
+            // Validar que el estado sea correcto.
+            $estados_validos = ["Pendiente", "En proceso", "Completada"];   
+            if (in_array($estado, $estados_validos, true)) {
+
+                //Preparar la consulta
+                $stmt = $conexion_mysqli->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?,?,?,?)");
+                $stmt->bind_param("sssi", $titulo, $descripcion, $estado, $id_usuario);
+                $stmt->execute();  
+
+                // Cerrar la consulta preparada para liberar recursos
+                $stmt->close();
+
+                return ["success" => true, "mensaje" => ("La tarea '$titulo' con estado '$estado' se agregó correctamente.")];
+            } else {
+                return ["success" => false, "mensaje" => "El estado recibido por parámetro no es correcto."];
+            }
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje" => ("Error a la hora de agregar la tarea: " . $e->getMessage())];
         }
     }
 
