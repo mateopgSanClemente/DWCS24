@@ -64,16 +64,19 @@
     function crear_base_datos (mysqli $conexion_mysqli) {
         try {
             // Comprobar que la base de datos no existe
-            // La siguiente comprobación no es necesaria ya que se usa la sentencia CREATE DATA BASE IF NOT EXISTS, que ya evita problemas en caso de que la base de datos no exista
-            // $sql_check = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tareas'"; // También se podría utilizar la sentencia SQL: SHOW DATABASE LIKE base_datos
-            /*
+            /* La siguiente comprobación no es necesaria ya que se usa la sentencia CREATE DATA BASE IF NOT EXISTS, 
+             * que ya evita problemas en caso de que la base de datos no exista, de todas formas muestra
+             * de forma más amigable la información en caso de que la tabla 'tareas' ya exista.
+             */
+             $sql_check = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tareas'"; // También se podría utilizar la sentencia SQL: SHOW DATABASE LIKE base_datos
+            
             $resultado_comprobacion = $conexion_mysqli->query($sql_check);
 
             if ($resultado_comprobacion && $resultado_comprobacion->num_rows > 0)
             {
                 return ["success" => false, "mensaje" => "La base de datos 'tareas' ya existe."];
             }
-            */
+            
 
             $sql = "CREATE DATABASE IF NOT EXISTS `tareas` DEFAULT CHARACTER SET utf8mb4;";
             
@@ -108,47 +111,40 @@
      *
      * @param mysqli $conexion Objeto de conexión a MySQL.
      * 
-     * @return array Retorna un array donde:
-     *               - El primer elemento es un booleano: `true` si la tabla se creó correctamente,
-     *                 o `false` si ya existe o ocurrió un error.
-     *               - El segundo elemento es un mensaje descriptivo del resultado.
-     * 
-     * @throws mysqli_sql_exception Captura excepciones relacionadas con MySQL.
+     * @return array Devuelve un array con la siguiente información:
+     *               - 'success' (bool): Indica si la tabla se creó correctamente.          
+     *               - 'mensaje' (string): Mensaje de éxito o error.
      */
-    function crear_tabla_usuario ($conexion)
-    {
-        try 
-        {
+    function crear_tabla_usuario (mysqli $conexion_mysqli) {
+        try {
             //Verificar si la tabla ya existe
-            $sql_check = "SHOW TABLES LIKE 'usuarios';";
-            $resultado = $conexion->query($sql_check);
+            $sql_check = "SHOW TABLES LIKE usuarios;";
+            $resultado = $conexion_mysqli->query($sql_check);
 
-            if ($resultado && $resultado->num_rows > 0)
-            {
-                return [false, "La tabla <b>'usuarios'</b> ya existe."];
+            if ($resultado && $resultado->num_rows > 0) {
+                return ["success" => false, "mensaje" => "La tabla 'usuarios' ya existe."];
             }
 
-            $sql = "CREATE TABLE IF NOT EXISTS `tareas` . `usuarios` (
+            $sql = "CREATE TABLE IF NOT EXISTS `tareas`.`usuarios` (
                 `id` INT(6) NOT NULL AUTO_INCREMENT,
                 `username` VARCHAR(50) NOT NULL,
                 `nombre` VARCHAR(50) NOT NULL,
                 `apellidos` VARCHAR(100) NOT NULL,
                 `contrasena` VARCHAR(100) NOT NULL,
-                PRIMARY KEY (`id`)
+                CONSTRAINT pk_usuarios PRIMARY KEY (`id`)
                 );";
         
-            if ($conexion->query($sql))
+            if ($conexion_mysqli->query($sql))
             {
-                return [true, "La tabla <b>'usuarios'</b> se creo correctamente."];
+                return ["success" => true, "mensaje" => "La tabla 'usuarios' se creo correctamente."];
             }
             else
             {
-                return [false, "No fue posible crear la tabla <b>'usuarios'</b>."];
+                return ["success" => false, "mensaje" => "No fue posible crear la tabla 'usuarios'."];
             }
         }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, $e->getMessage()];
+        catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
 
@@ -165,8 +161,6 @@
      *               - El primer elemento es un booleano: `true` si la tabla se creó correctamente,
      *                 o `false` si ya existe o ocurrió un error.
      *               - El segundo elemento es un mensaje descriptivo del resultado.
-     * 
-     * @throws mysqli_sql_exception Captura excepciones relacionadas con MySQL.
      */
     function crear_tabla_tareas ($conexion)
     {
