@@ -21,6 +21,7 @@
             $db = getenv("MYSQL_DATABASE_TAREA_UD4") ?: ""; // Puede que la base de dato no haya sido creada todavía. Si no está configurada se guarda una cadena vacía en la variable.
             
             // Configurar mysqli para lanzar excepciones automáticamente y no tener que usar connect_errno manualmente. Evita errores silenciosos.
+            // https://www.php.net/manual/en/mysqli-driver.report-mode.php
             mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
             
             // Crear la conexión
@@ -50,60 +51,51 @@
     }
 
     /**
-     * Crea una base de datos llamada 'tareas' si no existe.
+     * Crea la base de datos 'tareas' si no existe.
      *
-     * Esta función verifica si la base de datos 'tareas' ya está creada consultando 
-     * el esquema `INFORMATION_SCHEMA`. Si la base de datos no existe, se intenta 
-     * crear. Si ya existe o ocurre un error, retorna un mensaje adecuado.
+     * Esta función utiliza la sentencia `CREATE DATABASE IF NOT EXISTS` para asegurarse de que 
+     * la base de datos no se cree si ya está definida en el servidor.
      *
-     * @param mysqli $conexion Objeto de conexión a MySQL.
-     * 
-     * @return array Retorna un array donde:
-     *               - El primer elemento es un booleano: `true` si la base de datos se creó correctamente,
-     *                 o `false` si ya existe o ocurrió un error.
-     *               - El segundo elemento es un mensaje descriptivo del resultado.
-     * 
-     * @throws mysqli_sql_exception Captura excepciones relacionadas con MySQL.
-     */
-    function crear_base_datos ($conexion)
-    {
+     * @param mysqli $conexion_mysqli Objeto de conexión a MySQL.
+     * @return array Devuelve un array con la siguiente información: 
+     *               - 'success' (bool): Indica si la base de datos se creó correctamente.
+     *               - 'mensaje' (string): Mensaje de éxito o error.
+     */ 
+    function crear_base_datos (mysqli $conexion_mysqli) {
         try {
-            //Comprobar que la base de datos no existe
-            $sql_check = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tareas'";
-            $resultado_comprobacion = $conexion->query($sql_check);
+            // Comprobar que la base de datos no existe
+            // La siguiente comprobación no es necesaria ya que se usa la sentencia CREATE DATA BASE IF NOT EXISTS, que ya evita problemas en caso de que la base de datos no exista
+            // $sql_check = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tareas'"; // También se podría utilizar la sentencia SQL: SHOW DATABASE LIKE base_datos
+            /*
+            $resultado_comprobacion = $conexion_mysqli->query($sql_check);
 
             if ($resultado_comprobacion && $resultado_comprobacion->num_rows > 0)
             {
-                return [false, "La base de datos <b>'tareas'</b> ya existe."];
+                return ["success" => false, "mensaje" => "La base de datos 'tareas' ya existe."];
+            }
+            */
+
+            $sql = "CREATE DATABASE IF NOT EXISTS `tareas` DEFAULT CHARACTER SET utf8mb4;";
+            
+            if ($conexion_mysqli->query($sql)) {
+                return ["success" => true, "mensaje" => "Base de datos 'tareas' creada correctamente."];
             }
 
-            $sql = "CREATE DATABASE IF NOT EXISTS `tareas`;";
-
-            if ($conexion->query($sql))
-            {
-                return [true, "Base de datos <b>'tareas'</b> creada correctamente."];
-            }
-            else
-            {
-                return [false, "No se pudo crear la base de datos <b>'tareas'</b>."];
-            }
-            return $base_datos;
-        }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, $e->getMessage()];
+            // Si la consulta falla devuelve un mensaje de error, pero realmente llega a ejecutarse esta línea??
+            return ["success" => false, "mensaje" => "No se pudo crear la base de datos: " . $conexion_mysqli->error];
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
 
     /**
-     * Función para cerrar la conexión con la base de datos.
+     * Cierra la conexión con la base de datos.
      * @param mysqli objeto mysqli que representa la conexión a la base de datos.
      */
-    function cerrar_conexion ($conexion)
-    {
-        if (isset($conexion))
+    function cerrar_conexion (mysqli $conexion_mysqli) {
+        if (isset($conexion_mysqli))
         {
-            $conexion -> close();
+            $conexion_mysqli -> close();
         }
     }
 
