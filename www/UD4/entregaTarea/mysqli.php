@@ -287,28 +287,51 @@
     }
 
     /**
-     * Función para modificar usuario
+     * Modifica una tarea existente en la base de datos.
+     *
+     * @param mysqli $conexion Conexión a la base de datos.
+     * @param int $id_tarea ID de la tarea a modificar.
+     * @param string $titulo Nuevo título de la tarea.
+     * @param string $descripcion Nueva descripción de la tarea.
+     * @param string $estado Nuevo estado de la tarea (Pendiente, En proceso, Completada).
+     * @param int $id_usuario ID del usuario asignado a la tarea.
+     * 
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      - "success" (bool): Indica si la operación fue exitosa.
+     *      - "mensaje" (string): Mensaje sobre el resultado de la operación.
+     * 
+     * @throws mysqli_sql_exception Si ocurre un error al ejecutar la consulta
      */
-    function modificar_tarea($conexion, $id_tarea, $titulo, $descripcion, $estado, $id_usuario)
-    {
-        try
-        {
+    function modificar_tarea(mysqli $conexion_mysqli, int $id_tarea, string $titulo, string $descripcion, string $estado, int $id_usuario) {
+        try {   
+            // Validar estado
+            $estados_validos = ["Pendiente", "En proceso", "Completada"];
+            if(!in_array($estado, $estados_validos, true)){
+                return ["success" => false, "mensaje" => "El estado recibido por parámetro no es correcto."];
+            }
+
             //Crear consulta preparada
             $sql = "UPDATE tareas
-                    SET titulo = ?,
-                    descripcion = ?,
-                    estado = ?,
-                    id_usuario = ?
-                    WHERE id = ?";
-            $stmt = $conexion->prepare($sql);
+            SET titulo = ?, descripcion = ?, estado = ?, id_usuario = ?
+            WHERE id = ?";
+            $stmt = $conexion_mysqli->prepare($sql);
             $stmt->bind_param("sssii", $titulo, $descripcion, $estado, $id_usuario, $id_tarea);
             $stmt->execute();
 
-            return [true, ("La tarea '$titulo' con estado '$estado' se modificó correctamente.")];
-        }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, ("Error a la hora de agregar la tarea: " . $e->getMessage())];
+            // Verificar si se modificó algún registro
+            if ($stmt->affected_rows === 0) {
+                return ["success" => false, "mensaje" => "No se realizaron cambios en la tarea."];
+            }
+            return ["success" => true, "mensaje" => ("La tarea '$titulo' con estado '$estado' se modificó correctamente.")];
+            
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje " => ("Error a la hora de modificar la tarea: " . $e->getMessage())];
+        } finally {
+
+            // Cerrar consulta
+            if (isset($stmt)) {
+                $stmt->close();
+            }
         }
     }
 
