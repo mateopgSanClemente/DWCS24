@@ -336,12 +336,18 @@
     }
 
     /**
-     * Selecciona una tarea por su id
+     * Obtiene una tarea específica por su ID.
+     * 
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
+     * @param int $id_tarea ID de la tarea a buscar.
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      - "success" (bool): Resultado de la consulta.
+     *      - "resultado" (string | array): Resultado de la consulta, si la consulta
+     *      fue exitosa devuelve un array con los datos de la tarea, en caso de que no,
+     *      devuelve un mensaje de error.
      */
-    function seleccionar_tarea_id($conexion, $id_tarea)
-    {
-        try
-        {
+    function seleccionar_tarea_id(mysqli $conexion_mysqli, int $id_tarea) {
+        try {
             //Consulta sql para selecionar una tarea por su id
             $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
             FROM tareas
@@ -350,7 +356,7 @@
             WHERE tareas.id = ?;";
 
             //Consulta preparada
-            $stmt = $conexion->prepare($sql);
+            $stmt = $conexion_mysqli->prepare($sql);
 
             //Vincular parámetro
             $stmt->bind_param("i", $id_tarea);
@@ -360,18 +366,26 @@
             $resultado = $stmt->get_result();
 
             //Verificar resultados
-            if($resultado->num_rows > 0)
-            {
-                return [true, $resultado->fetch_assoc()];
+            if($resultado->num_rows === 0) {
+                return ["success" => false, "resultado" => "No se encontró ninguna tarea con ID $id_tarea."];
             }
-            else
-            {
-                return [false, "No se encontró ninguna tarea con ID $id_tarea."];
+            
+            // Covertir el resultado en un array asociativo
+            $tarea = $resultado->fetch_assoc();
+
+            // Liberar memoria del resultado
+            $resultado->free();
+
+            // Decodificar la tarea
+            $tarea = array_map("htmlspecialchars_decode", $tarea);
+            
+            return ["success" => true, "resultado" => $tarea];
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "resultado" => "Error al obtener la tarea: " . $e->getMessage()];
+        } finally {
+            if(isset($stmt)) {
+                $stmt->close();
             }
-        }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, "Error: $e"];
         }
     }
     
