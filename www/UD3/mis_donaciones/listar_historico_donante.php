@@ -52,7 +52,7 @@
                         }else{
                             echo "<div class='alert alert-warning' role='alert'>$resultado_consulta</div>";                       
                         }
-                        // Cerrar conexion
+                        // Cerrar conexion PDO
                         $resultado_conexion = null;
                     }else{
                         echo "<div class='alert alert-warning' role='alert'>$resultado_conexion</div>";                       

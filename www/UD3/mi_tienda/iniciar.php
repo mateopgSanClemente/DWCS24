@@ -4,7 +4,6 @@
     include_once "head.php";
 ?>
 <body>
-
     <!-- Header -->
     <?php
         include_once "header.php";

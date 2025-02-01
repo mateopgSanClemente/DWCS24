@@ -38,7 +38,6 @@
                             echo ("<div class='aler alert-warning'>" . $resultado_eliminar[1] . "</div>");
                         }
                     ?>
-
             </section>
         </main>
     </div>

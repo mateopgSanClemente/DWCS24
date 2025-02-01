@@ -45,8 +45,8 @@
     {
         try {
             //Comprobar que la base de datos no existe
-            $sqlCheck = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tareas'";
-            $resultado_comprobacion = $conexion->query($sqlCheck);
+            $sql_check = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tareas'";
+            $resultado_comprobacion = $conexion->query($sql_check);
 
             if ($resultado_comprobacion && $resultado_comprobacion->num_rows > 0)
             {
@@ -104,8 +104,8 @@
         try 
         {
             //Verificar si la tabla ya existe
-            $sqlCheck = "SHOW TABLES LIKE 'usuarios';";
-            $resultado = $conexion->query($sqlCheck);
+            $sql_check = "SHOW TABLES LIKE 'usuarios';";
+            $resultado = $conexion->query($sql_check);
 
             if ($resultado && $resultado->num_rows > 0)
             {
@@ -157,8 +157,8 @@
         try
         {   
             //Comprobar si la tabla 'tareas' ya existe
-            $sqlCheck = "SHOW TABLES LIKE 'tareas';";
-            $resultado = $conexion->query($sqlCheck);
+            $sql_check = "SHOW TABLES LIKE 'tareas';";
+            $resultado = $conexion->query($sql_check);
 
             if($resultado && $resultado->num_rows > 0)
             {

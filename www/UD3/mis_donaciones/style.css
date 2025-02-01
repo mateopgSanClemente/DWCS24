@@ -4,12 +4,14 @@
 
 .custom-aside {
     border: 3px solid rgb(189, 1, 1);
+    border-radius: 0%;
 }
 
 .custom-footer {
-    position: absolute;
-    bottom: 0px;
     color: white;
+    position: relative;
+    bottom: 0;
+    margin-top: 50px;
 }
 
 .custom-footer a{

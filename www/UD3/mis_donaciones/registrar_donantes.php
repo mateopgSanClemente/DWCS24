@@ -50,8 +50,10 @@
                             // Comprobar que no se dieron errores
                             if($resultado_insertar[0]){
                                 echo "<div class='alert alert-success' role='alert'>Se insertaron los datos en la tabla 'donante'.";
+                                $resultado_conexion = null;
                             }else{
                                 echo "<div class='aler alert-warning' role='aler'>Se produjo un error en la inserción: " . $resultado_insertar[1] . "</div>";
+                                $resultado_conexion = null;
                             }
                         }else{
                             echo "<div class='alert alert-warning' role='alert'>$resultado_conexion</div>";

@@ -30,7 +30,7 @@
                         list($comprobacion, $resultado) = insertar_historico($resultado_con_PDO, $id_donante);
                         // Comprobar que la insercción se realizó correctamente
                         if($comprobacion){
-                            echo "<div class='alert alert-success' role='alert'>Se insertó un histórico con id: $resultado</div>";
+                            echo "<div class='alert alert-success' role='alert'>Se insertó el histórico con id: $resultado</div>";
                         }else{
                             echo "<div class='alert alert-warning' role='alert'>Ocurrió un error en la inserción del historico de donación: $resultado</div>";
                         }

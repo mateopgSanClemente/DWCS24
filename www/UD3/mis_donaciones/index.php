@@ -20,7 +20,7 @@
                 </div>
                 <p>Mi nombre es <b>Mateo Pastor González</b> y estoy cursando la asignatura <b>DWCS</b>.</p>
                 <?php
-                    include_once "pdo.php";
+                    require_once "pdo.php";
                     // Crear conexión PDO
                     $conexion_PDO = conexion_PDO();
                     // Crear base de datos
