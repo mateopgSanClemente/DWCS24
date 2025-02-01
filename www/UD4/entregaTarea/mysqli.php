@@ -390,14 +390,19 @@
     }
     
     /**
-     * Función para eliminar tareas
+     * Elimina una tarea de la base de datos por su ID.
+     *
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
+     * @param int $id_tarea ID de la tarea a eliminar.
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      - "success" (bool): Exito en la eliminación de la tarea.
+     *      - "mensaje" (string): Mensaje informativo sobre la eliminación de la tarea.
      */
-    function eliminar_tarea ($conexion, $id_tarea)
-    {
+    function eliminar_tarea (mysqli $conexion_mysqli, int $id_tarea) {
         try {
             //Preparar la sentencia sql para eliminar la tarea
             $sql = "DELETE FROM tareas WHERE id = ?";
-            $stmt = $conexion->prepare($sql);
+            $stmt = $conexion_mysqli->prepare($sql);
         
             //Vincular parámetros
             $stmt->bind_param("i", $id_tarea);
@@ -406,13 +411,16 @@
             $stmt->execute();
     
             // Verificar cuántas filas fueron afectadas
-            if ($stmt->affected_rows > 0) {
-                return [true, "La tarea con ID $id_tarea se eliminó correctamente."];
-            } else {
-                return [false, "No se encontró ninguna tarea con ID $id_tarea para eliminar."];
+            if ($stmt->affected_rows === 0) {
+                return ["success" => false, "mensaje" => "No se encontró ninguna tarea con ID $id_tarea para eliminar."];
             }
+            return ["success" => true, "mensaje" => "La tarea con ID $id_tarea se eliminó correctamente."];
         } catch (mysqli_sql_exception $e) {
-            return [false, "Error al eliminar la tarea: " . $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error al eliminar la tarea: " . $e->getMessage()];
+        } finally {
+            if (isset($stmt)){
+                $stmt->close();
+            }
         }
     }
 ?>
