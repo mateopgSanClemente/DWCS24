@@ -1,85 +1,108 @@
 <?php
     /**
-     * Establece una conexión a la base de datos MySQL utilizando MySQLi.
+     * Establece una conexión a la base de datos MySQL utilizando las credenciales de las variables de entorno.
      * 
-     * @param string $host Dirección del servidor MySQL. Por defecto, "db".
-     * @param string $user Nombre de usuario de la base de datos. Por defecto, "root".
-     * @param string $pass Contraseña del usuario. Por defecto, "test".
-     * @param string $db Nombre de la base de datos. Por defecto, "tareas".
+     * Esta función intenta conectar con la base de datos usando las credenciales definidas en las
+     * variables de entorno. Si la base de datos no existe, la función no genera un error, sino
+     * que permite seguir trabajando con la conexión para que se pueda crear la base de datos
+     * en un paso posterior si fuera necesario.
      * 
-     * @return mysqli Devuelve una instancia de conexión MySQLi si es exitosa.
+     * @return array Devuelve un array con la siguiente información:
+     *   - 'success' (bool): Indica si la conexión fue exitosa o no.
+     *   - 'conexion' (mysqli|null): El objeto de conexión mysqli si fue exitosa, null en caso contrario.
+     *   - 'error' (string): Mensaje de error si la conexión falló, vacío si fue exitosa.
      * 
-     * @throws Exception Si no se puede establecer la conexión, lanza una excepción con detalles del error.
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
-    function conectar_mysqli($host = "db", $user = "root", $pass = "test", $db = "tareas")
-    {
-        // Crear la conexión
-        $conexion = new mysqli($host, $user, $pass, $db);
+    function conectar_mysqli() {   
+        try {
+            // Obtener las credenciales de la base de datos desde las variables de entorno
+            $host = getenv("MYSQL_HOST") ?: "db"; // "db" es el nombre del servicio en docker-compose, la variable de entorno MYSQL_HOST no está configurada
+            $user = getenv("MYSQL_USER_WEB") ?: "root";
+            $password = getenv("MYSQL_PASSWORD_WEB") ?: "test";
+            $db = getenv("MYSQL_DATABASE_TAREA_UD4") ?: ""; // Puede que la base de dato no haya sido creada todavía. Si no está configurada se guarda una cadena vacía en la variable.
+            
+            // Configurar mysqli para lanzar excepciones automáticamente y no tener que usar connect_errno manualmente. Evita errores silenciosos.
+            // https://www.php.net/manual/en/mysqli-driver.report-mode.php
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+            
+            // Crear la conexión
+            $conexion_mysqli = new mysqli($host, $user, $password);
 
-        // Comprobar si la conexión fue exitosa
-        if ($conexion->connect_errno) {
-            throw new Exception("Error al conectar a la base de datos: (" . $conexion->connect_errno . ") " . $conexion->connect_error);
+            // Asegurar una codificación adecuada de caracteres
+            $conexion_mysqli->set_charset("utf8mb4");
+
+            // Compruebo que la base de datos existe
+            $sql_check = "SHOW DATABASE LIKE ?;";
+            $stmt = $conexion_mysqli->prepare($sql_check);
+            $stmt->bind_param("s", $db);
+            $stmt->execute();
+
+            $comprobar_db = $stmt->get_result();
+
+            if ($comprobar_db && $comprobar_db->num_rows > 0) {
+                // En caso de que exista, me conecto a esta base de datos
+                $conexion_mysqli->select_db($db);
+            }
+
+            // Devolver la instancia del objeto mysqli en caso de que no exista la base de datos
+            return ["success" => true, "conexion" => $conexion_mysqli, "error" => ""];
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "conexion" => null, "error" => $e->getMessage()];
         }
-
-        // Retornar la conexión activa
-        return $conexion;
     }
 
     /**
-     * Crea una base de datos llamada 'tareas' si no existe.
+     * Crea la base de datos 'tareas' si no existe.
      *
-     * Esta función verifica si la base de datos 'tareas' ya está creada consultando 
-     * el esquema `INFORMATION_SCHEMA`. Si la base de datos no existe, se intenta 
-     * crear. Si ya existe o ocurre un error, retorna un mensaje adecuado.
+     * Esta función utiliza la sentencia `CREATE DATABASE IF NOT EXISTS` para asegurarse de que 
+     * la base de datos no se cree si ya está definida en el servidor.
      *
-     * @param mysqli $conexion Objeto de conexión a MySQL.
+     * @param mysqli $conexion_mysqli Objeto de conexión a MySQL.
+     * @return array Devuelve un array asociativo con la siguiente información: 
+     *               - 'success' (bool): Indica si la base de datos se creó correctamente.
+     *               - 'mensaje' (string): Mensaje de éxito o error.
      * 
-     * @return array Retorna un array donde:
-     *               - El primer elemento es un booleano: `true` si la base de datos se creó correctamente,
-     *                 o `false` si ya existe o ocurrió un error.
-     *               - El segundo elemento es un mensaje descriptivo del resultado.
-     * 
-     * @throws mysqli_sql_exception Captura excepciones relacionadas con MySQL.
-     */
-    function crear_base_datos ($conexion)
-    {
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
+     */ 
+    function crear_base_datos (mysqli $conexion_mysqli) {
         try {
-            //Comprobar que la base de datos no existe
-            $sql_check = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tareas'";
-            $resultado_comprobacion = $conexion->query($sql_check);
+            // Comprobar que la base de datos no existe
+            /* La siguiente comprobación no es necesaria ya que se usa la sentencia CREATE DATA BASE IF NOT EXISTS, 
+             * que ya evita problemas en caso de que la base de datos no exista, de todas formas muestra
+             * de forma más amigable la información en caso de que la tabla 'tareas' ya exista.
+             */
+             $sql_check = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'tareas'"; // También se podría utilizar la sentencia SQL: SHOW DATABASE LIKE base_datos
+            
+            $resultado_comprobacion = $conexion_mysqli->query($sql_check);
 
             if ($resultado_comprobacion && $resultado_comprobacion->num_rows > 0)
             {
-                return [false, "La base de datos <b>'tareas'</b> ya existe."];
+                return ["success" => false, "mensaje" => "La base de datos 'tareas' ya existe."];
+            }
+            
+
+            $sql = "CREATE DATABASE IF NOT EXISTS `tareas` DEFAULT CHARACTER SET utf8mb4;";
+            
+            if ($conexion_mysqli->query($sql)) {
+                return ["success" => true, "mensaje" => "Base de datos 'tareas' creada correctamente."];
             }
 
-            $sql = "CREATE DATABASE IF NOT EXISTS `tareas`;";
-
-            if ($conexion->query($sql))
-            {
-                return [true, "Base de datos <b>'tareas'</b> creada correctamente."];
-            }
-            else
-            {
-                return [false, "No se pudo crear la base de datos <b>'tareas'</b>."];
-            }
-            return $base_datos;
-        }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, $e->getMessage()];
+            // Si la consulta falla devuelve un mensaje de error, pero realmente llega a ejecutarse esta línea??
+            return ["success" => false, "mensaje" => "No se pudo crear la base de datos: " . $conexion_mysqli->error];
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
 
     /**
-     * Función para cerrar la conexión con la base de datos.
+     * Cierra la conexión con la base de datos.
      * @param mysqli objeto mysqli que representa la conexión a la base de datos.
      */
-    function cerrar_conexion ($conexion)
-    {
-        if (isset($conexion))
+    function cerrar_conexion (mysqli $conexion_mysqli) {
+        if (isset($conexion_mysqli))
         {
-            $conexion -> close();
+            $conexion_mysqli -> close();
         }
     }
 
@@ -92,47 +115,42 @@
      *
      * @param mysqli $conexion Objeto de conexión a MySQL.
      * 
-     * @return array Retorna un array donde:
-     *               - El primer elemento es un booleano: `true` si la tabla se creó correctamente,
-     *                 o `false` si ya existe o ocurrió un error.
-     *               - El segundo elemento es un mensaje descriptivo del resultado.
+     * @return array Devuelve un array asociativo con la siguiente información:
+     *               - 'success' (bool): Indica si la tabla se creó correctamente.          
+     *               - 'mensaje' (string): Mensaje de éxito o error.
      * 
-     * @throws mysqli_sql_exception Captura excepciones relacionadas con MySQL.
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
-    function crear_tabla_usuario ($conexion)
-    {
-        try 
-        {
+    function crear_tabla_usuario (mysqli $conexion_mysqli) {
+        try {
             //Verificar si la tabla ya existe
-            $sql_check = "SHOW TABLES LIKE 'usuarios';";
-            $resultado = $conexion->query($sql_check);
+            $sql_check = "SHOW TABLES LIKE usuarios;";
+            $resultado = $conexion_mysqli->query($sql_check);
 
-            if ($resultado && $resultado->num_rows > 0)
-            {
-                return [false, "La tabla <b>'usuarios'</b> ya existe."];
+            if ($resultado && $resultado->num_rows > 0) {
+                return ["success" => false, "mensaje" => "La tabla 'usuarios' ya existe."];
             }
 
-            $sql = "CREATE TABLE IF NOT EXISTS `tareas` . `usuarios` (
+            $sql = "CREATE TABLE IF NOT EXISTS `tareas`.`usuarios` (
                 `id` INT(6) NOT NULL AUTO_INCREMENT,
                 `username` VARCHAR(50) NOT NULL,
                 `nombre` VARCHAR(50) NOT NULL,
                 `apellidos` VARCHAR(100) NOT NULL,
                 `contrasena` VARCHAR(100) NOT NULL,
-                PRIMARY KEY (`id`)
+                CONSTRAINT pk_usuarios PRIMARY KEY (`id`)
                 );";
         
-            if ($conexion->query($sql))
+            if ($conexion_mysqli->query($sql))
             {
-                return [true, "La tabla <b>'usuarios'</b> se creo correctamente."];
+                return ["success" => true, "mensaje" => "La tabla 'usuarios' se creo correctamente."];
             }
             else
             {
-                return [false, "No fue posible crear la tabla <b>'usuarios'</b>."];
+                return ["success" => false, "mensaje" => "No fue posible crear la tabla 'usuarios'."];
             }
         }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, $e->getMessage()];
+        catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
 
@@ -145,24 +163,20 @@
      *
      * @param mysqli $conexion Objeto de conexión a MySQL.
      * 
-     * @return array Retorna un array donde:
-     *               - El primer elemento es un booleano: `true` si la tabla se creó correctamente,
-     *                 o `false` si ya existe o ocurrió un error.
-     *               - El segundo elemento es un mensaje descriptivo del resultado.
+     * @return array Devuelve un array asociativo con la siguiente información:
+     *               - 'success' (bool): Indica si la tabla se creó correctamente.
+     *               - 'mensaje' (string): Mensaje de éxito o erro.
      * 
-     * @throws mysqli_sql_exception Captura excepciones relacionadas con MySQL.
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
-    function crear_tabla_tareas ($conexion)
-    {
-        try
-        {   
+    function crear_tabla_tareas (mysqli $conexion_mysqli) {
+        try {   
             //Comprobar si la tabla 'tareas' ya existe
             $sql_check = "SHOW TABLES LIKE 'tareas';";
-            $resultado = $conexion->query($sql_check);
+            $resultado = $conexion_mysqli->query($sql_check);
 
-            if($resultado && $resultado->num_rows > 0)
-            {
-                return [false, "La tabla <b>'tareas'</b> ya existe"];
+            if($resultado && $resultado->num_rows > 0) {
+                return ["success" => false, "mensaje" => "La tabla 'tareas' ya existe"];
             }
 
             //Crear la tabla tareas y vincularla a la tabla usuarios mediante una clave foranea
@@ -172,130 +186,168 @@
                 `descripcion` VARCHAR(250),
                 `estado` VARCHAR(50),
                 `id_usuario` INT,
-                PRIMARY KEY (`id`),
-                FOREIGN KEY (`id_usuario`) REFERENCES `usuarios`(`id`)
+                CONSTRAINT pk_tareas PRIMARY KEY (`id`),
+                CONSTRAINT fk_tareas_usuarios FOREIGN KEY (`id_usuario`) REFERENCES `usuarios`(`id`)
+                ON UPDATE CASCADE
+                ON DELETE CASCADE
             );";
 
-            if ($conexion->query($sql) === true)
-            {
-                return [true, "La tabla <b>'tareas'</b> se creo correctamente."];
+            if ($conexion_mysqli->query($sql) === true) {
+                return ["success" => true, "mensaje" => "La tabla 'tareas' se creo correctamente."];
             }
-            else
-            {
-                return [false, "No fue posible crear la tabla <b>'tareas'</b>."];
-            }
+
+            return ["success" => false, "mensaje" => "No fue posible crear la tabla 'tareas'."];
 
         }
         catch(mysqli_sql_exception $e)
         {
-            return [false, $e->getMessage()];
+            return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
 
     /**
-     * Obtiene todas las tareas de la tabla `tareas`.
+     * Selecciona todas las tareas de la base de datos junto con el nombre de usuario del creador.
+     *
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
      * 
-     * Esta función ejecuta una consulta SQL para seleccionar todas las filas 
-     * de la tabla `tareas` y devuelve los resultados como un array asociativo.
-     * 
-     * @param mysqli $conexion Instancia de la conexión MySQLi.
-     * 
-     * @return array Un array que contiene:
-     *               - bool: `true` si la operación fue exitosa, `false` si hubo un error.
-     *               - mixed: Un array asociativo con los resultados si fue exitoso, 
-     *                        o un mensaje de error si falló.
+     * @return array Devuelve un array asociativo con la siguiente información
+     *     - "success" (bool) Indica si la operación fue exitosa.
+     *     - "datos" (array|null) Lista de tareas en caso de éxito.
+     *     - "mensaje" (string|null) Mensaje de error en caso de fallo.
+     *
+     * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
-    function seleccionar_tareas($conexion)
-    {
-        try
-        {
+    function seleccionar_tareas(mysqli $conexion_mysqli) {
+        try {
             // Consulta SQL para seleccionar todas las tareas
             $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
             FROM tareas
             INNER JOIN usuarios
             ON tareas.id_usuario = usuarios.id;";
 
-            $resultados = $conexion->query($sql);
+            $resultados = $conexion_mysqli->query($sql);
 
             // Verificar si la consulta devolvió resultados
-            if ($resultados->num_rows == 0) {
-                return [false, "No se encontraron tareas en la base de datos."];
+            if (!$resultados || $resultados->num_rows === 0) {
+                return ["success" => false, "mensaje" => "No se encontraron tareas en la base de datos."];
             }
 
-            // Retornar los resultados como un array asociativo y lo decodifica
+            // Obtener los resultados como un array asociativo.
             $conjunto_tareas = $resultados->fetch_all(MYSQLI_ASSOC);
-            foreach($resultados as $tarea)
-            {
-                foreach($tarea as $dato_tarea)
-                {
-                    $dato_tarea = htmlspecialchars_decode($dato_tarea);
-                }
-            }
-            return [true, $conjunto_tareas];
-        }
-        catch (mysqli_sql_exception $e)
-        {
+            // Decodificar caracteres especiales en los valores del array
+            $conjunto_tareas = array_map(function($tareas){
+                // Las funciones nativas de PHP pueden pasarse como una cadena de caracteres a la función array_map
+                return array_map("htmlspecialchars_decode", $tareas);
+            }, $conjunto_tareas);
+
+            return ["success" => true, "datos" => $conjunto_tareas];
+        } catch (mysqli_sql_exception $e) {
             // Capturar errores y retornar un mensaje claro
-            return [false, "Error al obtener las tareas: " . $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error al obtener las tareas: " . $e->getMessage()];
         }
     }
 
     /**
-     * Función para agregar tareas
+     * Agrega una nueva tarea a la base de datos.
+     *
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
+     * @param string $titulo Título de la tarea.
+     * @param string $descripcion Descripción de la tarea.
+     * @param string $estado Estado de la tarea (Debe ser "Pendiente", "En proceso" o "Completada").
+     * @param int $id_usuario ID del usuario al que se asigna la tarea.
+     *
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      - 'success' (bool) : true si se agregó correctamente, false en caso de error.
+     *      - 'mensaje' (string) : información sobre la ejecución de la función.
+     *
+     * @throws mysqli_sql_exception Si ocurre un error al ejecutar la consulta.
      */
-    function agregar_tarea($conexion, $titulo, $descripcion, $estado, $id_usuario)
-    {
-        try
-        {   
-            //Preparar la consulta
-            $conexion->store_result();
-            $stmt = $conexion->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?,?,?,?)");
-            $stmt->bind_param("sssi", $titulo, $descripcion, $estado, $id_usuario);
-            $stmt->execute();
-            //Cerrar conexión
-            
+    function agregar_tarea(mysqli $conexion_mysqli, string $titulo, string $descripcion, string $estado, int $id_usuario) {
+        try {           
 
-            return [true, ("La tarea '$titulo' con estado '$estado' se agregó correctamente.")];
-        }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, ("Error a la hora de agregar la tarea: " . $e->getMessage())];
+            // Validar que el estado sea correcto.
+            $estados_validos = ["Pendiente", "En proceso", "Completada"];   
+            if (in_array($estado, $estados_validos, true)) {
+
+                //Preparar la consulta
+                $stmt = $conexion_mysqli->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?,?,?,?)");
+                $stmt->bind_param("sssi", $titulo, $descripcion, $estado, $id_usuario);
+                $stmt->execute();  
+
+                // Cerrar la consulta preparada para liberar recursos
+                $stmt->close();
+
+                return ["success" => true, "mensaje" => ("La tarea '$titulo' con estado '$estado' se agregó correctamente.")];
+            } else {
+                return ["success" => false, "mensaje" => "El estado recibido por parámetro no es correcto."];
+            }
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje" => ("Error a la hora de agregar la tarea: " . $e->getMessage())];
         }
     }
 
     /**
-     * Función para modificar usuario
+     * Modifica una tarea existente en la base de datos.
+     *
+     * @param mysqli $conexion Conexión a la base de datos.
+     * @param int $id_tarea ID de la tarea a modificar.
+     * @param string $titulo Nuevo título de la tarea.
+     * @param string $descripcion Nueva descripción de la tarea.
+     * @param string $estado Nuevo estado de la tarea (Pendiente, En proceso, Completada).
+     * @param int $id_usuario ID del usuario asignado a la tarea.
+     * 
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      - "success" (bool): Indica si la operación fue exitosa.
+     *      - "mensaje" (string): Mensaje sobre el resultado de la operación.
+     * 
+     * @throws mysqli_sql_exception Si ocurre un error al ejecutar la consulta
      */
-    function modificar_tarea($conexion, $id_tarea, $titulo, $descripcion, $estado, $id_usuario)
-    {
-        try
-        {
+    function modificar_tarea(mysqli $conexion_mysqli, int $id_tarea, string $titulo, string $descripcion, string $estado, int $id_usuario) {
+        try {   
+            // Validar estado
+            $estados_validos = ["Pendiente", "En proceso", "Completada"];
+            if(!in_array($estado, $estados_validos, true)){
+                return ["success" => false, "mensaje" => "El estado recibido por parámetro no es correcto."];
+            }
+
             //Crear consulta preparada
             $sql = "UPDATE tareas
-                    SET titulo = ?,
-                    descripcion = ?,
-                    estado = ?,
-                    id_usuario = ?
-                    WHERE id = ?";
-            $stmt = $conexion->prepare($sql);
+            SET titulo = ?, descripcion = ?, estado = ?, id_usuario = ?
+            WHERE id = ?";
+            $stmt = $conexion_mysqli->prepare($sql);
             $stmt->bind_param("sssii", $titulo, $descripcion, $estado, $id_usuario, $id_tarea);
             $stmt->execute();
 
-            return [true, ("La tarea '$titulo' con estado '$estado' se modificó correctamente.")];
-        }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, ("Error a la hora de agregar la tarea: " . $e->getMessage())];
+            // Verificar si se modificó algún registro
+            if ($stmt->affected_rows === 0) {
+                return ["success" => false, "mensaje" => "No se realizaron cambios en la tarea."];
+            }
+            return ["success" => true, "mensaje" => ("La tarea '$titulo' con estado '$estado' se modificó correctamente.")];
+            
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje " => ("Error a la hora de modificar la tarea: " . $e->getMessage())];
+        } finally {
+
+            // Cerrar consulta
+            if (isset($stmt)) {
+                $stmt->close();
+            }
         }
     }
 
     /**
-     * Selecciona una tarea por su id
+     * Obtiene una tarea específica por su ID.
+     * 
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
+     * @param int $id_tarea ID de la tarea a buscar.
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      - "success" (bool): Resultado de la consulta.
+     *      - "resultado" (string | array): Resultado de la consulta, si la consulta
+     *      fue exitosa devuelve un array con los datos de la tarea, en caso de que no,
+     *      devuelve un mensaje de error.
      */
-    function seleccionar_tarea_id($conexion, $id_tarea)
-    {
-        try
-        {
+    function seleccionar_tarea_id(mysqli $conexion_mysqli, int $id_tarea) {
+        try {
             //Consulta sql para selecionar una tarea por su id
             $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
             FROM tareas
@@ -304,7 +356,7 @@
             WHERE tareas.id = ?;";
 
             //Consulta preparada
-            $stmt = $conexion->prepare($sql);
+            $stmt = $conexion_mysqli->prepare($sql);
 
             //Vincular parámetro
             $stmt->bind_param("i", $id_tarea);
@@ -314,30 +366,43 @@
             $resultado = $stmt->get_result();
 
             //Verificar resultados
-            if($resultado->num_rows > 0)
-            {
-                return [true, $resultado->fetch_assoc()];
+            if($resultado->num_rows === 0) {
+                return ["success" => false, "resultado" => "No se encontró ninguna tarea con ID $id_tarea."];
             }
-            else
-            {
-                return [false, "No se encontró ninguna tarea con ID $id_tarea."];
+            
+            // Covertir el resultado en un array asociativo
+            $tarea = $resultado->fetch_assoc();
+
+            // Liberar memoria del resultado
+            $resultado->free();
+
+            // Decodificar la tarea
+            $tarea = array_map("htmlspecialchars_decode", $tarea);
+            
+            return ["success" => true, "resultado" => $tarea];
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "resultado" => "Error al obtener la tarea: " . $e->getMessage()];
+        } finally {
+            if(isset($stmt)) {
+                $stmt->close();
             }
-        }
-        catch (mysqli_sql_exception $e)
-        {
-            return [false, "Error: $e"];
         }
     }
     
     /**
-     * Función para eliminar tareas
+     * Elimina una tarea de la base de datos por su ID.
+     *
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
+     * @param int $id_tarea ID de la tarea a eliminar.
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      - "success" (bool): Exito en la eliminación de la tarea.
+     *      - "mensaje" (string): Mensaje informativo sobre la eliminación de la tarea.
      */
-    function eliminar_tarea ($conexion, $id_tarea)
-    {
+    function eliminar_tarea (mysqli $conexion_mysqli, int $id_tarea) {
         try {
             //Preparar la sentencia sql para eliminar la tarea
             $sql = "DELETE FROM tareas WHERE id = ?";
-            $stmt = $conexion->prepare($sql);
+            $stmt = $conexion_mysqli->prepare($sql);
         
             //Vincular parámetros
             $stmt->bind_param("i", $id_tarea);
@@ -346,13 +411,16 @@
             $stmt->execute();
     
             // Verificar cuántas filas fueron afectadas
-            if ($stmt->affected_rows > 0) {
-                return [true, "La tarea con ID $id_tarea se eliminó correctamente."];
-            } else {
-                return [false, "No se encontró ninguna tarea con ID $id_tarea para eliminar."];
+            if ($stmt->affected_rows === 0) {
+                return ["success" => false, "mensaje" => "No se encontró ninguna tarea con ID $id_tarea para eliminar."];
             }
+            return ["success" => true, "mensaje" => "La tarea con ID $id_tarea se eliminó correctamente."];
         } catch (mysqli_sql_exception $e) {
-            return [false, "Error al eliminar la tarea: " . $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error al eliminar la tarea: " . $e->getMessage()];
+        } finally {
+            if (isset($stmt)){
+                $stmt->close();
+            }
         }
     }
 ?>
