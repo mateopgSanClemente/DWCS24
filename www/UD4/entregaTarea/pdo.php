@@ -1,49 +1,59 @@
 <?php
 
     /**
-     * Establece una conexión con una base de datos MySQL utilizando PDO.
-     *
-     * @param string $host     El nombre del host o dirección del servidor de la base de datos. Por defecto, "db".
-     * @param string $db       El nombre de la base de datos a la que se desea conectar. Por defecto, "tareas".
-     * @param string $username El nombre de usuario para la conexión. Por defecto, "root".
-     * @param string $pass     La contraseña asociada al usuario. Por defecto, "test".
-     *
-     * @return array Un array donde el primer elemento es la conexión PDO (o `false` si falla) 
-     *               y el segundo elemento es un mensaje indicando el estado de la conexión.
-     *
-     * @throws PDOException Si ocurre un error crítico en la conexión, este se captura y devuelve un mensaje de error.
-     *
-     * @example
-     * list($conexion, $mensaje) = conectar_PDO();
-     * if ($conexion) {
-     *     echo "Conexión exitosa: $mensaje";
-     * } else {
-     *     echo "Fallo en la conexión: $mensaje";
-     * }
+     * Establece una conexión con MySQL utilizando PDO.
+     * 
+     * Primero intenta conectarse solo al host de MySQL. Si se especifica una 
+     * base de datos, verifica su existencia antes de conectarse a ella. Si la 
+     * base de datos no existe, se mantiene la conexión solo con el host.
+     * 
+     * @return array Devuelve un array con:
+     *     - "success" (bool): `true` si la conexión es exitosa, `false` en caso de error.
+     *     - "conexion" (PDO|null): Instancia de `PDO` si la conexión es exitosa, `null` si falla.
+     *     - "mensaje" (string): Mensaje descriptivo del estado de la conexión.
      */
-    function conectar_PDO ($host="db", $db="tareas", $username="root", $pass="test",)
-    {
-        //TODO: Verificar que las variables de configuración sean válidas
-        $conexion = null;
+    function conectar_PDO () : array {
+        try {
 
-        try
-        {
-            $conexion = new PDO("mysql:host=$host;dbname=$db", $username, $pass);
+            // Recoger variable de entorno
+            $host = getenv("MYSQL_HOST") ?: "db";
+            $username = getenv("MYSQL_USER_WEB") ?: "root";
+            $password = getenv("MYSQL_PASSWORD_WEB") ?: "test";
+            $db = getenv("MYSQL_DATABASE_TAREA_UD4") ?: "";
 
-            $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // Crear instancia PDO conectandose solo al host
+            $conexion_PDO = new PDO("mysql:host=$host", $username, $password);
 
-            return [$conexion, "Se efectuó la conexión con la base de datos '$db'."];
-        }
-        catch (PDOException $e)
-        {
-            return [false, "Error a la hora de conectar con la base de datos: " . $e->getMessage()];
-        }
-        finally
-        {
-            if($conexion)
-            {
-                $conexion = null;
+            // Settear modo de error
+            $conexion_PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            if(!empty($db)) {
+                // Comprobar que la base de datos 'tareas' existe antes de conectarme a ella.
+                $sql_check = "SHOW DATABASES LIKE :db";
+                $stmt = $conexion_PDO->prepare($sql_check);
+                $stmt->execute([":db" => $db]);
+
+                // En caso de que la base de datos exista
+                if($stmt->fetch()) {
+                    $conexion_PDO->exec("USE $db");
+                    return [
+                        "success" => true,
+                        "conexion" => $conexion_PDO,
+                        "mensaje" => "Se efectuó la conexión con la base de datos '$db'."
+                    ];
+                }
             }
+            return [
+                "success" => true,
+                "conexion" => $conexion_PDO,
+                "mensaje" => "Se efectuó la conexión con el host '$host'."
+            ];
+        } catch (PDOException $e) {
+            return [
+                "success" => false,
+                "conexion" => null ,
+                "mensaje" => "Error a la hora de conectar con la base de datos: " . $e->getMessage()
+            ];
         }
     }
 
