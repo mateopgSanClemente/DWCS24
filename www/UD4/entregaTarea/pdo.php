@@ -68,10 +68,10 @@
      *     - mensaje? (string) : Información sobre la ejecución de la sentencia.
  
      */
-    function seleccionar_usuarios(PDO $conexion) : array {
+    function seleccionar_usuarios(PDO $conexion_PDO) : array {
         try {   
             // Preparar y ejecutar la consulta SQL
-            $stmt = $conexion->prepare("SELECT `id`, `username`, `nombre`, `apellidos` FROM `usuarios`;");
+            $stmt = $conexion_PDO->prepare("SELECT `id`, `username`, `nombre`, `apellidos` FROM `usuarios`;");
             $stmt->execute();
 
             // Obtener resultados
@@ -95,55 +95,35 @@
     /**
      * Agrega un nuevo usuario a la base de datos.
      *
-     * @param PDO    $conexion   Objeto PDO que representa la conexión a la base de datos.
-     * @param string $username   Nombre de usuario único para el nuevo usuario.
-     * @param string $nombre     Nombre del usuario.
+     * @param PDO    $conexion   Conexión PDO activa con la base de datos.
+     * @param string $username   Nombre de usuario.
+     * @param string $nombre     Nombre real del usuario.
      * @param string $apellidos  Apellidos del usuario.
-     * @param string $contrasena Contraseña del usuario (debería ser previamente encriptada para mayor seguridad).
+     * @param string $contrasena Contraseña en texto plano (se encriptará antes de almacenarse).
+     * 
+     * @return array Devuelve un array con la siguiente información:
+     *     - "success" (bool) : true si el usuario se agregó correctamente, false en caso contrario.
+     *     - "mensaje" (string) : información sobre como transcurrió la sentencia SQL.
      *
-     * @return array Un array donde el primer elemento es un booleano:
-     *               - `true` si el usuario fue insertado correctamente.
-     *               - `false` si ocurrió un error durante la inserción.
-     *               El segundo elemento es un mensaje descriptivo del resultado.
-     *
-     * @throws PDOException Si ocurre un error crítico al ejecutar la consulta preparada, este es capturado y devuelto como parte del mensaje.
-     *
-     * @example
-     * list($exito, $mensaje) = agregar_usuario($conexion, 'jdoe', 'John', 'Doe', 'password123');
-     * if ($exito) {
-     *     echo $mensaje; // "El usuario John Doe se insertó correctamente."
-     * } else {
-     *     echo $mensaje; // "Error a la hora de insertar usuario: [detalle del error]."
-     * }
      */
-    function agregar_usuario($conexion, $username, $nombre, $apellidos, $contrasena)
-    {
-        try
-        {
-            $stmt = $conexion->prepare("INSERT INTO usuarios (username, nombre, apellidos, contrasena) VALUES (:username, :nombre, :apellidos, :contrasena)");
+    function agregar_usuario(PDO $conexion_PDO, string $username, string $nombre, string $apellidos, string $contrasena) {
+        try {
+
+            // Encriptar contraseña
+            $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
+            $stmt = $conexion_PDO->prepare("INSERT INTO usuarios (username, nombre, apellidos, contrasena) VALUES (:username, :nombre, :apellidos, :contrasena)");
             $stmt->bindParam(':username', $username);
             $stmt->bindParam(':nombre', $nombre);
             $stmt->bindParam(':apellidos', $apellidos);
-            $stmt->bindParam(':contrasena', $contrasena);
+            $stmt->bindParam(':contrasena', $contrasena_hash);
 
             $stmt->execute();
-            
-            //Cerrar el cursor
-            $stmt->closeCursor();
 
-            return [true, ("El usuario " . $nombre . " " . $apellidos . " se insertó correctamente.")];
+            return ["success" => true, "mensaje" => ("El usuario " . $nombre . " " . $apellidos . " se insertó correctamente.")];
         }
-        catch(PDOException $e)
-        {
-            return [false, "Error a la hora de insertar usuario: " . $e->getMessage()];
-        }
-        finally
-        {
-            if($conexion)
-            {
-                $conexion = null;
-            }
-        }
+        catch(PDOException $e) {
+            return ["success" => false, "mensaje" => "Error a la hora de insertar usuario: " . $e->getMessage()];
+        }  
     }
 
     /**
