@@ -126,59 +126,49 @@
         }  
     }
 
-    /**
-     * Recupera los datos de un usuario desde la base de datos utilizando su ID.
+    /** TODO:
+     *  - Seleccionar el tipo de dato de los parámetros.
+     *  - Seleccionar el tipo de dato de retorno.
+     *  - Retornar un array asociativo.
+     *  - Vincular el parámetro id a la consulta y hacer que este sea tratado como un entero
+     *  - Decodificar el resultado retornado mediante htmlspecialchars_decode().
+ 
+     * Recupera los datos de un usuario mediante su ID.
      *
-     * Esta función busca un usuario de la tabla 'usuarios' mediante su identificador único (ID). Si el usuario existe, se devuelven sus datos (nombre, apellidos y username). Si no se encuentra, se devuelve un mensaje indicando que no se encontró el usuario.
-     *
-     * @param PDO    $conexion Conexión PDO a la base de datos.
-     * @param int    $id       ID del usuario que se desea recuperar.
-     *
-     * @return array Un array con dos elementos:
-     *               - El primer elemento es un booleano (`true` si el usuario fue encontrado, `false` en caso contrario).
-     *               - El segundo elemento es un mem nsaje indicando el estado de la operación. Si el usuario existe, devuelve los datos del usuario; de lo contrario, indica que no se encontró el usuario.
-     *
-     * @throws PDOException Si ocurre un error al ejecutar la consulta SQL.
-     *
-     * @example
-     * list($exito, $resultado) = seleccionar_usuario_id($conexion, 123);
-     * if ($exito) {
-     *     // Mostrar los datos del usuario
-     *     echo "Usuario encontrado: " . $resultado['username'];
-     * } else {
-     *     // Mostrar el mensaje de error
-     *     echo $resultado;
-     * }
+     * @param PDO $conexion Objeto PDO para la conexión con la base de datos.
+     * @param int $id ID del usuario a buscar.
+     * 
+     * @return array Retorna un array asociativo con la siguiente información:
+     *     - "success" (bool) : true si la operación tiene éxito, false en caso contrario.
+     *     - "mensaje"? (string) : retorna un mensaje informativo si la operación no tuvo éxito.
+     *     - "datos"? (array) : retorna un array con el conjunto de los datos del usuario
+     *      decodificados mediante htmlspecialchars_decode().
      */
-    function seleccionar_usuario_id($conexion, $id)
-    {
-        try
-        {
+    function seleccionar_usuario_id(PDO $conexion, int $id) : array {
+        try {
             // Preparar la consulta para seleccionar datos del usuario
             $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena FROM usuarios WHERE id = :id");
             
-            // Establecer el modo de recuperación de datos (por defecto, fetch as array)
-            $stmt->setFetchMode(PDO::FETCH_ASSOC);  // Mejor usar PDO::FETCH_ASSOC para obtener los resultados como un array asociativo.
-            
+            // Vincular el parámetro id y hacer que este sea tratado como un enterio
+            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
             // Ejecutar la consulta
-            $stmt->execute(['id' => $id]);
-    
+            $stmt->execute();
+            
+            // Establecer el modo de recuperación de datos (por defecto, fetch as array)
             // Recuperar la primera fila de resultados
-            $usuario = $stmt->fetch();
+            $datos_usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     
             // Verificar si se encontró un usuario con ese ID
-            if (!$usuario) {
-                return [false, "No se encontró ningún usuario con id = " . $id];
-            } else {
-                // Si existe, devolver los datos del usuario
-                //TODO: APLICAR htmlspecialchars_decode() ANTES DE DEVOLVER LA FUNCIÓN! Me habría ahorrado trabajo.
-                return [true, $usuario];
+            if (!$datos_usuario) {
+                return ["success" => false, "mensaje" => "No se encontró ningún usuario con id = " . $id];
             }
-        }
-        catch (PDOException $e)
-        {
+
+            // Si existe, devolver los datos del usuario
+            $datos_usuario = array_map("htmlspecialchars_decode", $datos_usuario);
+            return ["success" => true, "datos" => $datos_usuario];
+        } catch (PDOException $e) {
             // Si ocurre un error con la consulta, devolver el mensaje de error
-            return [false, "Error al obtener los datos del usuario: " . $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error al obtener los datos del usuario: " . $e->getMessage()];
         }
     }
     
