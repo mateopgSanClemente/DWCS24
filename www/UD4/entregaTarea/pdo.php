@@ -60,40 +60,35 @@
     /**
      * Obtiene una lista de usuarios de la base de datos.
      *
-     * @param PDO $conexion Una instancia de la conexión PDO.
-     * @return array [bool, mixed] Retorna un array donde el primer elemento es un booleano que indica el éxito 
-     *                              (true si se obtuvieron datos, false en caso de error) y el segundo elemento 
-     *                              es el resultado de la consulta o un mensaje de error.
+     * @param PDO $conexion Instancia de PDO con la conexión a la base de datos.
+     * @return array Retorna un array asociativo con la siguiente información:
+     *     - success (bool) : true si la sentencia se ejecutó correctamente, false
+     *     en caso contrario.
+     *     - datos? (array) : Colección de usuarios resultado de la selección.
+     *     - mensaje? (string) : Información sobre la ejecución de la sentencia.
+ 
      */
-    function seleccionar_usuarios(PDO $conexion)
-    {
-        try
-        {   
+    function seleccionar_usuarios(PDO $conexion) : array {
+        try {   
             // Preparar y ejecutar la consulta SQL
             $stmt = $conexion->prepare("SELECT `id`, `username`, `nombre`, `apellidos` FROM `usuarios`;");
             $stmt->execute();
 
             // Obtener resultados
-            $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $conjunto_usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Verificar si hay datos
-            if (empty($usuarios))
-            {
-                return [false, "No se encontraron usuarios en la base de datos."];
+            if (empty($conjunto_usuarios)) {
+                return ["success" => false, "mensaje" => "No se encontraron usuarios en la base de datos."];
             }
             
-            foreach($usuarios as $usuario)
-            {
-                foreach($usuario as $dato_usuario)
-                {
-                    $dato_usuario = htmlspecialchars_decode($dato_usuario);
-                }
-            }
-            return [true, $usuarios];
-        } catch (PDOException $e)
-        {
+            $conjunto_usuarios = array_map(function ($usuario){
+                return array_map("htmlspecialchars_decode", $usuario);
+            }, $conjunto_usuarios);
+            return ["success" => true, "datos" => $conjunto_usuarios];
+        } catch (PDOException $e) {
             // Manejar la excepción
-            return [false, "Error al obtener los usuarios: " . $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error al obtener los usuarios: " . $e->getMessage()];
         }
     }
 
