@@ -277,61 +277,67 @@
         }
     }
 
-    //Función para seleccionar las tareas en función de su usuario y su estado
-    function seleccionar_tarea_username_estado($conexion, $id_usuario, $estado=null)
-    {
-        try
-        {   
-            if(isset($estado))
-            {
-                $stmt = $conexion->prepare("SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
-                FROM tareas
-                INNER JOIN usuarios
-                ON tareas.id_usuario = usuarios.id
-                WHERE tareas.id_usuario = :id_usuario AND tareas.estado = :estado");
-                //Seleccionar como deben ser retornados lo datos
-                $stmt->setFetchMode(PDO::FETCH_ASSOC);
-                //Vincular los parámetros
-                $stmt->bindParam(":id_usuario", $id_usuario);
-                $stmt->bindParam(":estado", $estado);
-                //Ejecutar consulta
-                $stmt->execute();
-                //Recuperar resultado
-                $tareas = $stmt->fetchAll();
-                //Comprobar que se encontró alguna tarea
-                if(!empty($tareas))
-                {
-                    return [true, $tareas];
-                }
-                else
-                {
-                    return [false, "No se encontraron tareas para el usuario y el estado especificado."];
-                }
+    /**
+     * Selecciona tareas de un usuario filtradas opcionalmente por estado.
+     *
+     * @param PDO         $conexion_PDO  Conexión PDO a la base de datos.
+     * @param int         $id_usuario    ID del usuario cuyas tareas se desean seleccionar.
+     * @param string|null $estado       (Opcional) Estado de las tareas a filtrar. Es `null` por defecto para no aplicar filtro.
+     *
+     * @return array Devuelve un array con la estructura:
+     *               - 'success' (bool): true si se encontraron tareas, false en caso contrario o si ocurrió un error.
+     *               - 'datos'? (array): Lista de tareas si `success` es `true`.
+     *               - 'mensaje'? (string): Mensaje descriptivo en caso de error o si no se encontraron tareas.
+     *
+     */
+     function tareas_usuario_estado (PDO $conexion_PDO, int $id_usuario, ?string $estado = null) : array {
+        try {
+
+            // Consulta dinámica
+            $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuario.username
+                    FROM tareas
+                    INNER JOIN usuarios
+                    ON tareas.id_usuario = usuario.id
+                    WHERE tareas.id_usuario = :id_usuario";
+
+            // Agregar condición concatenandola a la sentencia anterior en caso de que el estado esté seleccionado
+            if(!empty($estado)) {
+                $sql .= "AND tareas.estado = :estado";
             }
-            else
-            {
-                $stmt = $conexion->prepare("SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
-                FROM tareas
-                INNER JOIN usuarios
-                ON tareas.id_usuario = usuarios.id
-                WHERE id_usuario = :id_usuario");
-                $stmt->setFetchMode(PDO::FETCH_ASSOC);
-                $stmt->bindParam(":id_usuario", $id_usuario);
-                $stmt->execute();
-                $tareas = $stmt->fetchAll();
-                if(!empty($tareas))
-                {
-                    return [true, $tareas];
-                }
-                else
-                {
-                    return [false, "No se encontraron tareas para el usuario con id '". $id_usuario . "'."];
-                }
+
+            // Preparar la consulta
+            $stmt = $conexion_PDO->prepare($sql);
+            $stmt->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
+
+            // Si se especifica el estado, se enlaza a la consulta preparada
+            if(!empty($estado)) {
+                $stmt->bindParam(":estado", $estado, PDO::PARAM_STR);
             }
+
+            // Ejecutar consulta
+            $stmt->execute();
+
+            //Seleccionar como debe ser el tipo de array que guarda los datos
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+
+            //Recuperar resultado
+            $tareas = $stmt->fetchAll();
+
+            //Comprobar que se encontró alguna tarea
+            if(empty($tareas)) {
+
+                // Generar mensaje en función de si se definió o no el estado
+                $mensaje = empty($estado)
+                    ? "No se encontraron tareas para el usuario con ID $id_usuario."
+                    : "No se encontraron tareas para el usuario con ID $id_usuario y con estado '$estado'.";
+                return ["success" => false, "mensaje" => $mensaje];
+            }
+            
+            return ["success" => true, "datos" => $tareas];
+            
         }
-        catch (PDOException $e)
-        {
-            return [false, "Se produjo un error a la hora de seleccionar las tareas en base a su estado y su usuario: " . $e->getMessage()] ;
+        catch (PDOException $e) {
+            return ["success" => false, "mensaje" => "Error al seleccionar las tareas: " . $e->getMessage()] ;
         }
     }
 ?>
