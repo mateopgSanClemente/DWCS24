@@ -5,8 +5,7 @@
      * @param string $input cadena de caracteres a procesar.
      * @return string cadena de caracteres codificada.
      */
-    function test_input ($input)
-    {
+    function test_input ($input) {
         $input = trim ($input);
         $input = stripcslashes ($input);
         $input = htmlspecialchars ($input);
@@ -83,32 +82,32 @@
             "contrasena" => []
         ];
         // Validar `username`: No vacío y máximo de 50 caracteres
-        if (empty($username) || strlen($username) > 50) {
+        if (empty($username)) {
             $errores["username"][] = "El campo 'username' es obligatorio.";
-            if (strlen($username) > 50) {
-                $errores["username"][] = "No puede exceder los 50 caracteres.";
-            }
+        }
+        if (strlen($username) > 50) {
+            $errores["username"][] = "No puede exceder los 50 caracteres.";
         }
         // Validar `nombre`: No vacío y máximo de 50 caracteres
         if (empty($nombre)) {
             $errores["nombre"][] = "El campo 'nombre' es obligatorio";
-            if (strlen($nombre) > 50) {
-                $errores["nombre"][] = "No puede exceder los 50 caracteres.";
-            }
+        }
+        if (strlen($nombre) > 50) {
+            $errores["nombre"][] = "No puede exceder los 50 caracteres.";
         }
         // Validar `apellidos`: No vacío y máximo de 100 caracteres
         if (empty($apellidos)) {
             $errores["apellidos"][] = "El campo 'apellidos' es obligatorio.";
-            if (strlen($apellidos) > 100){
-                $errores["apellidos"][] = "El campo 'apellidos' es obligatorio y no puede exceder los 100 caracteres.";
-            }
+        }
+        if (strlen($apellidos) > 100){
+            $errores["apellidos"][] = "El campo 'apellidos' es obligatorio y no puede exceder los 100 caracteres.";
         }
         // Validar `contrasena`: No vacío y máximo de 100 caracteres
         if (empty($contrasena)) {
             $errores["contrasena"][] = "El campo 'contraseña' es obligatorio.";
-            if(strlen($contrasena) > 100) {
-                $errores["contrasena"][] = "No puede exceder los 100 caracteres.";
-            }
+        }
+        if(strlen($contrasena) > 100) {
+            $errores["contrasena"][] = "No puede exceder los 100 caracteres.";
         }
         //Filtrar array de errores para eliminar claves vacias
         $errores = array_filter($errores);
