@@ -60,42 +60,64 @@
     }
 
     /**
-     * Valida los campos del formulario para el registro de usuarios.
+     * Valida los datos de un usuario antes de su creación.
+     *
+     * Verifica que los campos `username`, `nombre`, `apellidos` y `contrasena` no estén vacíos
+     * y que cumplan con las restricciones de longitud establecidas.
+     *
+     * @param string $username   Nombre de usuario (obligatorio, máx. 50 caracteres).
+     * @param string $nombre     Nombre del usuario (obligatorio, máx. 50 caracteres).
+     * @param string $apellidos  Apellidos del usuario (obligatorio, máx. 100 caracteres).
+     * @param string $contrasena Contraseña del usuario (obligatorio, máx. 100 caracteres).
+     *
+     * @return array<mixed> Retorna un array asociativo con la siguiente información:
+     *                      - "success" (bool): true si la validación es exitosa, false en caso contrario.
+     *                      - "errores"? (string): Si hay errores, incluyendo un array asociativo "errores".
      * 
-     * @param string $campo Campo del furmulario para el registro de usuarios.
-     * @param string 
-     * @return bool  Retorna un booleano que indica el éxito de la validación
-     *               (true si se validó correctamente el campo, false en caso de error)
      */
-    function validar_usuario ($username, $nombre, $apellidos, $contrasena)
-    {
-        // Validar campos
-        $errores = [];
+    function validar_usuario (string $username, string $nombre, string $apellidos, string $contrasena) : array {
+        $errores = [
+            "username" => [],
+            "nombre" => [],
+            "apellidos" => [],
+            "contrasena" => []
+        ];
         // Validar `username`: No vacío y máximo de 50 caracteres
         if (empty($username) || strlen($username) > 50) {
-            $errores[] = "El campo 'username' es obligatorio y no puede exceder los 50 caracteres.";
+            $errores["username"][] = "El campo 'username' es obligatorio.";
+            if (strlen($username) > 50) {
+                $errores["username"][] = "No puede exceder los 50 caracteres.";
+            }
         }
-
         // Validar `nombre`: No vacío y máximo de 50 caracteres
-        if (empty($nombre) || strlen($nombre) > 50) {
-            $errores[] = "El campo 'nombre' es obligatorio y no puede exceder los 50 caracteres.";
+        if (empty($nombre)) {
+            $errores["nombre"][] = "El campo 'nombre' es obligatorio";
+            if (strlen($nombre) > 50) {
+                $errores["nombre"][] = "No puede exceder los 50 caracteres.";
+            }
         }
-
         // Validar `apellidos`: No vacío y máximo de 100 caracteres
-        if (empty($apellidos) || strlen($apellidos) > 100) {
-            $errores[] = "El campo 'apellidos' es obligatorio y no puede exceder los 100 caracteres.";
+        if (empty($apellidos)) {
+            $errores["apellidos"][] = "El campo 'apellidos' es obligatorio.";
+            if (strlen($apellidos) > 100){
+                $errores["apellidos"][] = "El campo 'apellidos' es obligatorio y no puede exceder los 100 caracteres.";
+            }
         }
-
         // Validar `contrasena`: No vacío y máximo de 100 caracteres
-        if (empty($contrasena) || strlen($contrasena) > 100) {
-            $errores[] = "El campo 'contraseña' es obligatorio y no puede exceder los 100 caracteres.";
+        if (empty($contrasena)) {
+            $errores["contrasena"][] = "El campo 'contraseña' es obligatorio.";
+            if(strlen($contrasena) > 100) {
+                $errores["contrasena"][] = "No puede exceder los 100 caracteres.";
+            }
         }
-        
+        //Filtrar array de errores para eliminar claves vacias
+        $errores = array_filter($errores);
         //Si hay errores, devolverlos
         if(!empty($errores))
         {
-            return [true, implode(' ', $errores)];
+            return ["success" => false, "errores" => $errores];
         }
+        return ["success" => true];
     }
 
     /*Función para validar tareas
