@@ -122,7 +122,7 @@
     function crear_tabla_usuario (mysqli $conexion_mysqli) {
         try {
             //Verificar si la tabla ya existe
-            $sql_check = "SHOW TABLES LIKE usuarios;";
+            $sql_check = "SHOW TABLES LIKE 'usuarios';";
             $resultado = $conexion_mysqli->query($sql_check);
 
             if ($resultado && $resultado->num_rows > 0) {
