@@ -17,34 +17,34 @@
     function conectar_mysqli() {   
         try {
             // Obtener las credenciales de la base de datos desde las variables de entorno
-            $host = getenv("MYSQL_HOST") ?: "db"; // "db" es el nombre del servicio en docker-compose, la variable de entorno MYSQL_HOST no está configurada
+            $host = getenv("MYSQL_HOST") ?: "db"; // "db" es el nombre del servicio en docker-compose
             $user = getenv("MYSQL_USER_WEB") ?: "root";
             $password = getenv("MYSQL_PASSWORD_WEB") ?: "test";
-            $db = getenv("MYSQL_DATABASE_TAREA_UD4") ?: ""; // Puede que la base de dato no haya sido creada todavía. Si no está configurada se guarda una cadena vacía en la variable.
-            
+            $db = getenv("MYSQL_DATABASE_TAREA_UD4") ?: ""; // Puede que la base de dato no haya sido creada todavía. Si no está configurada se guarda una cadena vacía en la variable.           
             // Configurar mysqli para lanzar excepciones automáticamente y no tener que usar connect_errno manualmente. Evita errores silenciosos.
             // https://www.php.net/manual/en/mysqli-driver.report-mode.php
-            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-            
-            // Crear la conexión
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);            
+            // Crear la conexión sin seleccionar la base de datos por si no existe.
             $conexion_mysqli = new mysqli($host, $user, $password);
-
             // Asegurar una codificación adecuada de caracteres
             $conexion_mysqli->set_charset("utf8mb4");
-
             // Compruebo que la base de datos existe
-            $sql_check = "SHOW DATABASE LIKE ?;";
-            $stmt = $conexion_mysqli->prepare($sql_check);
-            $stmt->bind_param("s", $db);
-            $stmt->execute();
-
-            $comprobar_db = $stmt->get_result();
-
-            if ($comprobar_db && $comprobar_db->num_rows > 0) {
+            // ERROR: La consulta SHOW DATABASE no admite placeholders
+            //$sql_check = "SHOW DATABASES LIKE ?;";
+            //Obtener una lista de las bases de datos disponibles
+            $sql_check = "SHOW DATABASES";
+            $resultado = $conexion_mysqli->query($sql_check);
+            
+            // Convertir el resultado en un array de nombres de bases de datos
+            $databases = [];
+            while ($row = $resultado->fetch_array(MYSQLI_NUM)){
+                $databases[] = $row[0];
+            }
+            // Verifico si mi base de datos existe en la lista
+            if (in_array($db, $databases)) {
                 // En caso de que exista, me conecto a esta base de datos
                 $conexion_mysqli->select_db($db);
             }
-
             // Devolver la instancia del objeto mysqli en caso de que no exista la base de datos
             return ["success" => true, "conexion" => $conexion_mysqli, "error" => ""];
         } catch (mysqli_sql_exception $e) {
