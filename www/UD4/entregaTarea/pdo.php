@@ -102,13 +102,24 @@
      * @param string $contrasena Contraseña en texto plano (se encriptará antes de almacenarse).
      * 
      * @return array Devuelve un array con la siguiente información:
-     *     - "success" (bool) : true si el usuario se agregó correctamente, false en caso contrario.
+     *     - "success" (bool) : true si el usuario se agregó correctamente, false en caso contrario o si el usuario ya existe en la base de datos.
      *     - "mensaje" (string) : información sobre como transcurrió la sentencia SQL.
      *
      */
     function agregar_usuario(PDO $conexion_PDO, string $username, string $nombre, string $apellidos, string $contrasena) {
         try {
-
+            // Comprobar que el usuario no existe, el username debe ser único
+            $sql_check = "SELECT username FROM usuario WHERE username = :username";
+            // Preparar consulta
+            $stmt = $conexion_PDO->prepare($sql_check);
+            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
+            $stmt->execute();
+            // Recuperar los resultado -> no sería necesario.
+            // $resultado_check = $stmt->fetch(PDO::FETCH_ASSOC); Tampoco sería necesario especificar el modo, al fin y al cabo solo voy a contar si me devuelve alguna fila, no a recuperar los datos.
+            // Comprobar si hubo algún resultado
+            if ($stmt->rowCount() > 0){
+                return ["success" => false, "mensaje" => "El usuario '$username' ya existe en la base de datos 'usuarios'."];
+            }
             // Encriptar contraseña
             $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
             $stmt = $conexion_PDO->prepare("INSERT INTO usuarios (username, nombre, apellidos, contrasena) VALUES (:username, :nombre, :apellidos, :contrasena)");
