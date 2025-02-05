@@ -109,7 +109,7 @@
     function agregar_usuario(PDO $conexion_PDO, string $username, string $nombre, string $apellidos, string $contrasena) {
         try {
             // Comprobar que el usuario no existe, el username debe ser único
-            $sql_check = "SELECT username FROM usuario WHERE username = :username";
+            $sql_check = "SELECT username FROM usuarios WHERE username = :username";
             // Preparar consulta
             $stmt = $conexion_PDO->prepare($sql_check);
             $stmt->bindParam(":username", $username, PDO::PARAM_STR);
