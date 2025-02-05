@@ -114,7 +114,7 @@
      * @param mysqli $conexion Objeto de conexión a MySQL.
      * 
      * @return array Devuelve un array asociativo con la siguiente información:
-     *               - 'success' (bool): Indica si la tabla se creó correctamente.          
+     *               - 'success' (bool): true si la tabla se creo correctamente o ya existe, false en caso contrario.          
      *               - 'mensaje' (string): Mensaje de éxito o error.
      * 
      * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
@@ -126,7 +126,7 @@
             $resultado = $conexion_mysqli->query($sql_check);
 
             if ($resultado && $resultado->num_rows > 0) {
-                return ["success" => false, "mensaje" => "La tabla 'usuarios' ya existe."];
+                return ["success" => true, "mensaje" => "La tabla 'usuarios' ya existe."];
             }
 
             $sql = "CREATE TABLE IF NOT EXISTS `tareas`.`usuarios` (
@@ -162,8 +162,8 @@
      * @param mysqli $conexion Objeto de conexión a MySQL.
      * 
      * @return array Devuelve un array asociativo con la siguiente información:
-     *               - 'success' (bool): Indica si la tabla se creó correctamente.
-     *               - 'mensaje' (string): Mensaje de éxito o erro.
+     *               - 'success' (bool): true si la tabla se creó correctamente o ya existe, false en caso contrario.
+     *               - 'mensaje' (string): Mensaje de éxito o error.
      * 
      * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
@@ -174,7 +174,7 @@
             $resultado = $conexion_mysqli->query($sql_check);
 
             if($resultado && $resultado->num_rows > 0) {
-                return ["success" => false, "mensaje" => "La tabla 'tareas' ya existe"];
+                return ["success" => true, "mensaje" => "La tabla 'tareas' ya existe"];
             }
 
             //Crear la tabla tareas y vincularla a la tabla usuarios mediante una clave foranea
