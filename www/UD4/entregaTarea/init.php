@@ -11,6 +11,11 @@
             <main class="col-md-9 col-sm-12 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Conexión</h2>
                     <?php
+                        /**
+                         * TODO:
+                         *  - Y si en lugar de cerrar la conexión en cada if lo cierro en un bloque finally?
+                         *  - Sería mejor manejar los errores dentro de este fichero y no en las funciones?
+                         */
                         require_once "mysqli.php";
                         //Comprobar conexion
                                               

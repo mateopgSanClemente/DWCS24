@@ -1,15 +1,16 @@
-<?php include_once("head.php"); ?>
+<?php include_once "head.php"; ?>
     <body>
         <!-- header -->
-        <?php include_once("header.php");?>
+        <?php include_once "header.php";?>
           
         <div class='container-fluid d-flex flex-column'>
             <div class="row">
                 <!-- menu -->
-                <?php include_once("menu.php");?>
+                <?php include_once "menu.php";?>
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Registrar Usuario</h2>
                     <section>
+                        <!-- TODO: Incluir el nuevo campo 'rol' -->
                         <form action="nuevoUsuario.php" method="post">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
@@ -34,6 +35,6 @@
             </div>
         </div>
         <!-- footer -->
-        <?php include_once("footer.php");?>
+        <?php include_once "footer.php";?>
     </body>
 </html>
