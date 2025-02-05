@@ -60,7 +60,7 @@
      *
      * @param mysqli $conexion_mysqli Objeto de conexión a MySQL.
      * @return array Devuelve un array asociativo con la siguiente información: 
-     *               - 'success' (bool): Indica si la base de datos se creó correctamente.
+     *               - 'success' (bool): Indica si la base de datos se creó correctamente o ya existe.
      *               - 'mensaje' (string): Mensaje de éxito o error.
      * 
      * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
@@ -78,7 +78,7 @@
 
             if ($resultado_comprobacion && $resultado_comprobacion->num_rows > 0)
             {
-                return ["success" => false, "mensaje" => "La base de datos 'tareas' ya existe."];
+                return ["success" => true, "mensaje" => "La base de datos 'tareas' ya existe."];
             }
             
 
@@ -88,10 +88,8 @@
                 return ["success" => true, "mensaje" => "Base de datos 'tareas' creada correctamente."];
             }
 
-            // Si la consulta falla devuelve un mensaje de error, pero realmente llega a ejecutarse esta línea??
-            return ["success" => false, "mensaje" => "No se pudo crear la base de datos: " . $conexion_mysqli->error];
         } catch (mysqli_sql_exception $e) {
-            return ["success" => false, "mensaje" => $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error al crear la base de dato: " . $e->getMessage()];
         }
     }
 
