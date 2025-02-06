@@ -58,6 +58,8 @@
                                             }
                                             echo "</select>";
                                         }
+                                        // Cerrar conexión PDO
+                                        $conexion_PDO = null;
                                     }
                                 ?>
                         </div>
@@ -67,7 +69,6 @@
             </main>
         </div>
     </div>
-    
     <!--footer-->
     <?php include 'footer.php'; ?>
 </body>
