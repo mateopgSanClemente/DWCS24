@@ -177,60 +177,69 @@
         }
     }
     
-    /**
-     * Modifica los datos de un usuario seleccionado por su id en la base de datos.
-     *
-     * @param PDO $conexion Objeto PDO para la conexión con la base de datos.
-     * @param int $id ID del usuario a modificar.
-     * @param string $username Nuevo nombre de usuario.
-     * @param string $nombre Nuevo nombre del usuario.
-     * @param string $apellidos Nuevos apellidos del usuario.
-     * @param string $contrasena Nueva contraseña (se hasheará antes de almacenarse).
-     * 
-     * @return array Retorna un array asociativo con la siguiente información:
-     *     - "success" (bool): true si el la operación ocurrió sin problemas, false en caso contrario.
-     *     - "mensaje" (string): mensaje informativo sobre lo ocurrido con la operación.
-     */
-    function modificar_usuario (PDO $conexion, int $id, string $username, string $nombre, string $apellidos, string $contrasena) : array {
-        try {
-            // Crear la consulta preparada
+/**
+ * Actualiza los datos de un usuario en la base de datos.
+ *
+ * Si se pasa un valor no vacío para la contraseña, se actualiza la contraseña
+ * (después de encriptarla); de lo contrario, se actualizan solo los demás campos.
+ *
+ * @param PDO         $conexion   Conexión PDO a la base de datos.
+ * @param int         $id         ID del usuario a modificar.
+ * @param string      $username   Nuevo username del usuario.
+ * @param string      $nombre     Nuevo nombre del usuario.
+ * @param string      $apellidos  Nuevos apellidos del usuario.
+ * @param string|null $contrasena (Opcional) Nueva contraseña del usuario. Si es null o está vacía, no se actualiza.
+ *
+ * @return array Retorna un array asociativo con:
+ *               - "success" => true si la actualización se realizó, o false si no se hicieron cambios o ocurrió un error.
+ *               - "mensaje" => Mensaje descriptivo del resultado.
+ */
+function modificar_usuario(PDO $conexion, int $id, string $username, string $nombre, string $apellidos, ?string $contrasena = null): array {
+    try {
+        // Verificar si se proporcionó una contraseña para actualizarla
+        if (!empty($contrasena)) {
+            // Si se actualiza la contraseña, incluirla en la consulta
             $sql = "UPDATE usuarios 
                     SET username = :username, 
                         nombre = :nombre, 
                         apellidos = :apellidos, 
                         contrasena = :contrasena 
                     WHERE id = :id";
-    
             $stmt = $conexion->prepare($sql);
             
-            // Codificar contraseña
+            // Encriptar la contraseña
             $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
-
-            // Vincular los parámetros
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-            $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
-            $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
             $stmt->bindParam(':contrasena', $contrasena_hash, PDO::PARAM_STR);
+        } else {
+            // Si no se proporciona contraseña, no actualizar el campo 'contrasena'
+            $sql = "UPDATE usuarios 
+                    SET username = :username, 
+                        nombre = :nombre, 
+                        apellidos = :apellidos 
+                    WHERE id = :id";
+            $stmt = $conexion->prepare($sql);
+        }
     
-            // Ejecutar la consulta
-            $stmt->execute();
+        // Vincular los parámetros comunes
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+        $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
+        $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
     
-            // Verificar si alguna fila fue afecta, si fue así, la operación se realizó correctamente.
-            if ($stmt->rowCount() > 0) {
-                return ["success" => true, "mensaje" => "El usuario con ID $id se ha actualizado correctamente."];
-            }
+        // Ejecutar la consulta
+        $stmt->execute();
+    
+        // Verificar si alguna fila fue afectada
+        if ($stmt->rowCount() > 0) {
+            return ["success" => true, "mensaje" => "El usuario con ID $id se ha actualizado correctamente."];
+        }
                 
-            return ["success" => false, "mensaje" => "No se realizaron cambios en el usuario con ID $id."];
+        return ["success" => false, "mensaje" => "No se realizaron cambios en el usuario con ID $id."];
             
-        } catch (PDOException $e) {
-
-            // Manejar errores de forma segura
-            return ["success" => false, "mensaje" => "Error al actualizar el usuario: " . $e->getMessage()];
-        }     
-    }
-
-
+    } catch (PDOException $e) {
+        return ["success" => false, "mensaje" => "Error al actualizar el usuario: " . $e->getMessage()];
+    }     
+}
 
     /**
      * Elimina un usuario de la base de datos.
