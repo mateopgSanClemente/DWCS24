@@ -119,6 +119,66 @@
         return ["success" => true];
     }
 
+/**
+ * Valida los datos de un usuario.
+ *
+ * Valida que el username, nombre y apellidos sean obligatorios y cumplan con las longitudes máximas especificadas.
+ * La contraseña es opcional: si se proporciona, se valida que no exceda los 100 caracteres.
+ *
+ * @param string      $username   El nombre de usuario. Obligatorio, máximo 50 caracteres.
+ * @param string      $nombre     El nombre del usuario. Obligatorio, máximo 50 caracteres.
+ * @param string      $apellidos  Los apellidos del usuario. Obligatorio, máximo 100 caracteres.
+ * @param string|null $contrasena La contraseña del usuario. Opcional, si se proporciona, no debe exceder 100 caracteres.
+ *
+ * @return array Retorna un array con la clave 'success' que indica si la validación fue exitosa.
+ *               En caso de errores, retorna 'success' => false y un array 'errores' con los mensajes correspondientes.
+ */
+
+function validar_modificar_usuario(string $username, string $nombre, string $apellidos, ?string $contrasena = null): array {
+    $errores = [
+        "username"   => [],
+        "nombre"     => [],
+        "apellidos"  => [],
+        "contrasena" => []
+    ];
+
+    // Validar username: Obligatorio y máximo 50 caracteres.
+    if (empty($username)) {
+        $errores["username"][] = "El campo 'username' es obligatorio.";
+    }
+    if (strlen($username) > 50) {
+        $errores["username"][] = "No puede exceder los 50 caracteres.";
+    }
+
+    // Validar nombre: Obligatorio y máximo 50 caracteres.
+    if (empty($nombre)) {
+        $errores["nombre"][] = "El campo 'nombre' es obligatorio.";
+    }
+    if (strlen($nombre) > 50) {
+        $errores["nombre"][] = "No puede exceder los 50 caracteres.";
+    }
+
+    // Validar apellidos: Obligatorio y máximo 100 caracteres.
+    if (empty($apellidos)) {
+        $errores["apellidos"][] = "El campo 'apellidos' es obligatorio.";
+    }
+    if (strlen($apellidos) > 100) {
+        $errores["apellidos"][] = "No puede exceder los 100 caracteres.";
+    }
+
+    // Validar contraseña: Opcional, pero si se proporciona, no debe exceder 100 caracteres.
+    if (!empty($contrasena) && strlen($contrasena) > 100) {
+        $errores["contrasena"][] = "No puede exceder los 100 caracteres.";
+    }
+
+    // Filtrar el array de errores para eliminar claves sin mensajes (claves vacías)
+    $errores = array_filter($errores);
+
+    if (!empty($errores)) {
+        return ["success" => false, "errores" => $errores];
+    }
+    return ["success" => true];
+}
     /**
      * Valida los datos de una tarea antes de ser almacenada en la base de datos.
      *
