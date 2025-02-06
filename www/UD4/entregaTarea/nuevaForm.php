@@ -16,12 +16,12 @@
                         <div class="mb-3">
                             <label class="form-label" for="titulo">Titulo</label>
                             <!--Podría acotar el rango de números válidos para este campo-->
-                            <input class="form-control" type="text" name="titulo" id="titulo" placeholder="Título de la tarea" required>
+                            <input class="form-control" type="text" name="titulo" id="titulo" placeholder="Título de la tarea">
                         </div>
                         <div class="mb-3">
                             <!-- Podría poner un mínimo y un máximo de caracteres para este campo -->
                             <label class="form-label" for="descripcion">Descripcion</label>
-                            <input class="form-control" type="text" name="descripcion" id="descripcion" placeholder="Descripción de la tarea" required>
+                            <input class="form-control" type="text" name="descripcion" id="descripcion" placeholder="Descripción de la tarea">
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="estado">Estado</label>
