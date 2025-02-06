@@ -45,7 +45,7 @@
                             // Variable que guarda la instancia PDO
                             $conexion_PDO = $resultado_conexion_PDO["conexion"];
                             if(!$resultado_conexion_PDO["success"]) {
-                                echo "<div class='alert alert-danger>" . $resultado_conexion_PDO["mensaje"] . "</div>";
+                                echo "<div class='alert alert-danger'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
                             } else {
                                 // Insertar los datos en la tabla usuarios
                                 $resultado_agregar_usuario = agregar_usuario($conexion_PDO, $username, $nombre, $apellidos, $contrasena);
