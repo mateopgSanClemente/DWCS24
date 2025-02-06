@@ -1,47 +1,35 @@
-<?php include_once("head.php"); ?>
+<?php include_once "head.php"; ?>
 <body>
     <!-- header -->
-    <?php include_once("header.php"); ?>
+    <?php include_once "header.php"; ?>
     <div class="container-fluid d-flex flex-column">
         <div class="row">
             <!-- menu -->
-            <?php include_once("menu.php"); ?>
+            <?php include_once "menu.php"; ?>
             <main class="col-md-9 main-content">
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Modificar Tarea</h2>
                 <?php
-                    try
-                    {
-                        require_once("mysqli.php");
-                        //Guardar el id de la tarea
-                        $id_tarea = $_GET['id'];
-    
-                        //Crear conexión
-                        $mysqli_con = conectar_mysqli();
-
+                    require_once "mysqli.php";
+                    //Guardar el id de la tarea
+                    $id_tarea = $_GET['id'];
+                    //Crear conexión
+                    $resultado_conexion_mysqli = conectar_mysqli();
+                    //Comprobar estado de la conexión
+                    if(!$resultado_conexion_mysqli["success"]){
+                        // Mostrar mensaje
+                        echo "<div class='alert alert-danger' role='alert'>" . $resultado_conexion_mysqli["mensaje"] . "</div>";
+                    } else {
+                        // Guardar conexión en variable
+                        $conexion_mysqli = $resultado_conexion_mysqli["conexion"];
                         //Seleccionar tarea a modificar
-                        list($comprobacion, $resultado_consulta) = seleccionar_tarea_id($mysqli_con, $id_tarea);
-                        if(!$comprobacion)
-                        {
-                            echo ("<div class='alert alert-warning' role='alert'>" . $resultado_consulta) . "</div>";
-                        }
-                        else
-                        {
-                            //Recuperados los datos los guardo en variables y los descodifico
-                            
-                            $tarea_titulo = htmlspecialchars_decode($resultado_consulta['titulo']);
-                            $tarea_descripcion = htmlspecialchars_decode($resultado_consulta['descripcion']);
-                            $tarea_estado = htmlspecialchars_decode($resultado_consulta['estado']);
-                            $tarea_username_usuario = htmlspecialchars_decode($resultado_consulta['username']);
-                            $tarea_id = htmlspecialchars_decode($resultado_consulta['id']);
-                        }
-                    }
-                    catch (mysqli_sql_exception $e)
-                    {
-                        echo "<div class='alert alert-warning' role='alert'>" . "Error: " . $e->getMessage();
-                    }
-                    finally
-                    {
-                        cerrar_conexion($mysqli_con);
+                        $resultado_seleccionar_tarea = seleccionar_tarea_id($conexion_mysqli, $id_tarea);
+                        $datos_tarea = $resultado_seleccionar_tarea["resultado"];
+                        $tarea_titulo = htmlspecialchars_decode($datos_tarea['titulo']);
+                        $tarea_descripcion = htmlspecialchars_decode($datos_tarea['descripcion']);
+                        $tarea_estado = htmlspecialchars_decode($datos_tarea['estado']);
+                        $tarea_username_usuario = htmlspecialchars_decode($datos_tarea['username']);
+                        // Cerrar conexión
+                        cerrar_conexion($conexion_mysqli);
                     }
                 ?>
                 <section>
@@ -69,31 +57,29 @@
                                 <!-- Generar las opciones de select de forma dinámica -->
                                 <?php
                                 //Generar conexión
-                                require_once("pdo.php");
-                                list($PDO_con, $mensaje_estado_conexion) = conectar_PDO();
-                                //Comprobar la conexión
-                                if($PDO_con === false)
-                                {
-                                    echo "<div class='alert alert-warning'>" . $mensaje_estado_conexion . "</div>";
-                                }
-                                else
-                                {   
+                                require_once "pdo.php";
+
+                                $resultado_conexion_PDO = conectar_PDO();
+                                if(!$resultado_conexion_PDO["success"]){
+                                    echo "<div class='alert alert-danger'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
+                                } else {   
                                     //Sería más eficiente usar una función que sólo selecciones el campo 'username' de la tabla usuarios.
-                                    list($comprobacion, $resultado) = seleccionar_usuarios($PDO_con);
-                                    if(!$comprobacion)
-                                    {
-                                        echo "<div class='alert alert-warning'>" . $resultado . "</div>"; 
-                                    }
-                                    else
-                                    {   
+                                    $conexion_PDO = $resultado_conexion_PDO["conexion"];
+                                    // Seleccionar usuario
+                                    $resultado_seleccionar_usuarios = seleccionar_usuarios($conexion_PDO);
+                                    if(!$resultado_seleccionar_usuarios["success"]){
+                                        echo "<div class='alert alert-warning'>" . $resultado_seleccionar_usuarios["mensaje"] . "</div>"; 
+                                    } else {   
                                         echo "<select class='form-select' name='usuario' id='usuario'>";
-                                        foreach ($resultado as $usuario) {
+                                        foreach ($resultado_seleccionar_usuarios["datos"] as $usuario) {
                                             $selected = ($tarea_username_usuario === $usuario['username']) ? "selected='selected'" : "";
                                             //TODO: Conseguir que imprima selected en lugar de 'selected=""'.
                                             echo "<option value='" . $usuario['id'] . "' $selected>" . $usuario['username'] . "</option>";
                                         }                                        
                                         echo "</select>";
                                     }
+                                    // Cerrar conexión PDO
+                                    $conexion_PDO = null;
                                 }
                             ?>
                         </div>
@@ -104,6 +90,6 @@
         </div>
     </div>
     <!-- footer -->
-    <?php include_once("footer.php"); ?>
+    <?php include_once "footer.php"; ?>
 </body>
  
