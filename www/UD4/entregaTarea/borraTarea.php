@@ -11,22 +11,28 @@
                     <?php
                         //Crear conexion
                         require_once "mysqli.php";
-                        $mysqli_con = conectar_mysqli();
-                        $id_tarea = $_GET['id'];
-                        list($comprobacion, $resultado) = eliminar_tarea($mysqli_con, $id_tarea);
-
-                        if(!$comprobacion)
-                        {
-                            echo ("<div class='alert alert-warning' role='alert'>" . $resultado . "</div>");
-                        }
-                        else
-                        {
-                            echo ("<div class='alert alert-success' role='alert'>" . $resultado . "</div>");
+                        $resultado_conexion_mysqli = conectar_mysqli();
+                        // Comprobar conexión
+                        if (!$resultado_conexion_mysqli["success"]){
+                            // Mostrar mensaje
+                            echo ("<div class='alert alert-danger' role='alert'>" . $resultado_conexion_mysqli["error"] . "</div>");
+                        } else {
+                            // Guarda conexión en una variable
+                            $conexion_mysqli = $resultado_conexion_mysqli["conexion"];
+                            $id_tarea = $_GET['id'];
+                            // Eliminar tarea
+                            $resultado_eliminar_tarea = eliminar_tarea($conexion_mysqli, $id_tarea);
+                            // Mostrar el resultado de eliminar la tarea
+                            if(!$resultado_eliminar_tarea["success"]){
+                                echo ("<div class='alert alert-warning' role='alert'>" . $resultado_eliminar_tarea["mensaje"] . "</div>");
+                            } else {
+                                echo ("<div class='alert alert-success' role='alert'>" . $resultado_eliminar_tarea["mensaje"] . "</div>");
+                            }
                         }
                     ?>
                 </main>
             </div>
         </div>
-        <?php include_once("footer.php");?>
+        <?php include_once "footer.php";?>
     </body>
 </html>
