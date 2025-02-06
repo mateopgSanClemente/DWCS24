@@ -1,4 +1,4 @@
-<?php include_once("head.php"); ?>
+<?php include_once "head.php"; ?>
 <body>
     <!--header-->
     <?php include_once 'header.php'; ?>   
@@ -9,55 +9,56 @@
             <main class="col-md-9 main-content">
                 <h2 class="pt-4 pb-2 mb-3 border-bottom">Estado del registro de tarea</h2>             
                     <?php
-                        try
-                        {                       
+                        try {                       
                             require_once 'utils.php';
-
                             //Recoger los resultados en variables
                             $tarea_titulo = $_POST['titulo'];
                             $tarea_descripcion = $_POST['descripcion'];
                             $tarea_estado = $_POST['estado'];
-                            $tarea_id_usuario = $_POST['usuario'];
-
+                            //
+                            // Convertir el valor del id a un tipo entero
+                            $tarea_id_usuario = intval($_POST['usuario']);
                             //Comprobación de errores y validacion de resultads
-                            list($error, $mensaje_error) = validar_tarea($tarea_titulo, $tarea_descripcion, $tarea_estado, $tarea_id_usuario);
-                            if($error)
-                            {
-                                echo "<div class='alert alert-warning'>" . $mensaje_error . "</div>";
-                            }
-                            else
-                            {
-                                require_once("mysqli.php");
+                            $resultado_validar = validar_tarea($tarea_titulo, $tarea_descripcion, $tarea_estado, $tarea_id_usuario);
+                            if (!$resultado_validar["success"]){
+                                // Creare una lista dinámica de mensajes con información sobre los errores asociados a un campo.
+                                foreach ($resultado_validar["errores"] as $nombre_campo => $errores) {
+                                    echo "<h4 class='pt-2 pb-4 mb-3 border-bottom'>Campo </b>$nombre_campo</b></h4>";
+                                    echo "<ul>";
+                                    foreach ($errores as $error) {                                
+                                        echo "<li class='alert alert-warning' role='alert'>" . $error . "</li>";                                     
+                                    }
+                                    echo "</ul>";
+                                }
+                            } else {
+                                require_once "mysqli.php";
                                 //Filtrar los resultados
                                 $tarea_titulo = test_input($tarea_titulo);
                                 $tarea_descripcion = test_input($tarea_descripcion);
                                 $tarea_estado = test_input($tarea_estado);
                                 $tarea_id_usuario = test_input($tarea_id_usuario);
-
                                 //Insertar los resultados en la tabla tareas
 
-                                //Conexion
-                                $mysqli_conn = conectar_mysqli();
-                                //Insertar datos
-                                list($comprobacion, $mensaje_estado_tarea) = agregar_tarea($mysqli_conn, $tarea_titulo, $tarea_descripcion, $tarea_estado, $tarea_id_usuario);
-                                
-                                //Resultado insercion tarea
-                                if($comprobacion === true)
-                                {
-                                    echo ("<div class='alert alert-success'>" . $mensaje_estado_tarea . "</div>");
-                                }
-                                else
-                                {
-                                    echo ("<div class='alert alert-warning'>" . $mensaje_estado_tarea . "</div>");
+                                //Conexion mysqli
+                                $resultado_conexion_mysqli = conectar_mysqli();
+                                $mysqli_conn = $resultado_conexion_mysqli["conexion"];
+                                // Comprobar que la conexión se realizó correctamente.
+                                if (!$resultado_conexion_mysqli["success"]){
+                                    echo "<div class='alert alert-danger'>" . $resultado_conexion_mysqli["mensaje"] . "</div>";
+                                } else {
+                                    // Insertar datos
+                                    $resultado_agregar_tarea = agregar_tarea($mysqli_conn, $tarea_titulo, $tarea_descripcion, $tarea_estado, $tarea_id_usuario);
+                                    // Mostrar mensaje de error o éxito
+                                    if (!$resultado_agregar_tarea["success"]){
+                                        echo "<div class='alert alert-warning'>" . $resultado_agregar_tarea["mensaje"] . "</div>";
+                                    } else {
+                                        echo "<div class='alert alert-success'>" . $resultado_agregar_tarea["mensaje"] . "</div>";
+                                    }
                                 }
                             }
-                        }
-                        catch (mysqli_sql_exception $e)
-                        {
+                        } catch (mysqli_sql_exception $e) {
                             echo "<div class='alert alert-warning'>Error: " . $e . "</div>";
-                        }
-                        finally
-                        {
+                        } finally {
                             cerrar_conexion($mysqli_conn);
                         }
                     ?>
