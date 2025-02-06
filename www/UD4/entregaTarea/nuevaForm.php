@@ -1,4 +1,4 @@
-<?php include_once("head.php"); ?>
+<?php include_once "head.php"; ?>
 <body>
     <!--header-->
     <?php include 'header.php'; ?>
@@ -37,28 +37,23 @@
                             <label class="form-label" for="usuario">Seleccionar usuario</label>                            
                                 <!-- Generar las opciones de select de forma dinámica -->
                                 <?php
-                                    //Generar conexión
-                                    require_once("pdo.php");
-                                    list($PDO_con, $mensaje_estado_conexion) = conectar_PDO();
-                                    //Comprobar la conexión
-                                    if($PDO_con === false)
-                                    {
-                                        echo "<div class='alert alert-warning'>" . $mensaje_estado_conexion . "</div>";
-                                    }
-                                    else
-                                    {   
-                                        //Sería más eficiente usar una función que sólo selecciones el campo 'username' de la tabla usuarios.
-                                        list($comprobacion, $resultado) = seleccionar_usuarios($PDO_con);
-                                        if(!$comprobacion)
-                                        {
-                                            echo "<div class='alert alert-warning'>" . $resultado . "</div>"; 
-                                        }
-                                        else
-                                        {   
+                                    require_once "pdo.php";
+                                    //Crear conexión con la base de datos
+                                    $resultado_conexion_PDO = conectar_PDO();
+                                    // Variable que guarda la instancia PDO
+                                    $conexion_PDO = $resultado_conexion_PDO["conexion"];
+                                    // Comprobar que la conexión se estableción sin problemas
+                                    if(!$resultado_conexion_PDO["success"]) {
+                                        echo "<div class='alert alert-danger'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
+                                    } else {   
+                                        // Seleccionar usuario de la base de datos
+                                        $resultado_seleccionar_usuarios = seleccionar_usuarios($conexion_PDO);
+                                        if(!$resultado_seleccionar_usuarios["success"]){
+                                            echo "<div class='alert alert-warning'>" . $resultado_seleccionar_usuarios["mensaje"] . "</div>"; 
+                                        } else {  
                                             echo "<select class='form-select' name='usuario' id='usuario'>";
                                             echo "<option value='' selected disabled>Selecciona un usuario</option>";
-                                            foreach($resultado as $usuario)
-                                            {
+                                            foreach($resultado_seleccionar_usuarios["datos"] as $usuario) {
                                                 echo "<option value='". $usuario['id'] . "'>" . $usuario['username'] . "</option>";                                             
                                             }
                                             echo "</select>";
