@@ -125,13 +125,13 @@
      * @param string $titulo      Título de la tarea (obligatorio, máx. 50 caracteres).
      * @param string $descripcion Descripción de la tarea (opcional, máx. 250 caracteres).
      * @param string $estado      Estado de la tarea (obligatorio: 'Pendiente', 'En proceso' o 'Completada').
-     * @param int    $id_usuario  ID del usuario asociado (obligatorio, número entero).
+     * @param mixed   $id_usuario  ID del usuario asociado (obligatorio, número entero).
      *
      * @return array Retorna un array con la clave con la siguiente información:
      *                      - 'success' (bool): true si todos los campos son correctos, false en caso contrario.
      *                      - 'errores'? (array): Array asociativo con los errores de cada campo
      */
-    function validar_tarea(string $titulo, string $descripcion, string $estado, int $id_usuario): array {
+    function validar_tarea(string $titulo, string $descripcion,  string $estado,  int | string $id_usuario): array {
         // Inicializar array de errores
         $errores = [
             "titulo" => [],
@@ -142,12 +142,11 @@
         // Validar título
         if (empty($titulo)) {
             $errores["titulo"][] = "El título es obligatorio.";
-        }
-        if (strlen($titulo) > 50) {
+        } else if (strlen($titulo) > 50) {
             $errores["titulo"][] = "No debe exceder los 50 caracteres.";
         }
         // Validar descripción (puede ser nula)
-        if (!empty($descripcion) && strlen($descripcion) > 250) {
+        if (strlen($descripcion) > 250) {
             $errores["descripcion"][] = "La descripción no debe exceder los 250 caracteres.";
         }
         // Validar estado
@@ -157,8 +156,8 @@
         } elseif (!in_array($estado, $estados_validos)) {
             $errores["estado"][] = "El estado debe ser uno de los siguientes: " . implode(', ', $estados_validos) . ".";
         }
-        // Validar id_usuario
-        if (!isset($id_usuario)) {
+        // Validar id_usuario, al seleccionar la columna de un campo AUTO_INCREMENT el valor nunca puede ser 0. ¿?
+        if (empty($id_usuario)) {
             $errores["id_usuario"][] = "El ID del usuario es obligatorio.";
         }
         // Filtrar errores vacíos
