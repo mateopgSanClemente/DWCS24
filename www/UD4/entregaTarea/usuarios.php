@@ -1,31 +1,29 @@
-<?php include_once("head.php"); ?>
+<?php include_once "head.php"; ?>
 <body>
     <!-- header -->
-    <?php include_once("header.php");?>
+    <?php include_once "header.php";?>
     <div class="container-fluid d-flex flex-column">
         <div class="row">
             <!-- menu -->
-            <?php include_once("menu.php"); ?>
+            <?php include_once "menu.php"; ?>
             <main class="col-md-9 main-content">
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Lista de Usuarios</h2>
                 <?php
-                    require_once("pdo.php");
-                    list($conexion, $mensaje_estado_conexion) = conectar_PDO();
-
-                    if($conexion === false)
-                    {
-                        echo "<div class='alert alert-warning>" . $mensaje_estado_conexion . "</div>";
-                    }
-                    else
-                    {
-                        //También podría utilizar la función list() para separar el resultado de seleccionar_usuarios() en variable.
-                        list($comprobacion, $resultado) = seleccionar_usuarios($conexion);
-                        if(!$comprobacion)
-                        {
-                            echo "<div class='alert alert-warning'>" . $resultado . "</div>";
-                        }
-                        else
-                        {
+                    require_once "pdo.php";
+                    // Conexión PDO con la base de datos
+                    $resultado_conexion_PDO = conectar_PDO();
+                    // Variable que guarda la instancia PDO
+                    $conexion_PDO = $resultado_conexion_PDO["conexion"];
+                    if(!$resultado_conexion_PDO["success"]) {
+                        echo "<div class='alert alert-danger'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
+                    } else {
+                        // Seleccionar usuario
+                        $resultado_seleccionar_usuarios = seleccionar_usuarios($conexion_PDO);
+                        // Comprobar si el usuario se seleccionó correctamente
+                        if (!$resultado_seleccionar_usuarios["success"]){
+                            echo "<div class='alert alert-warning'>" . $resultado_seleccionar_usuarios["mensaje"] . "</div>";
+                        } else {
+                            // Si se seleccionó correctamenta, generar la tabla dinamicamente.
                             echo "<table class='table table-striped table-hover'>
                                 <thead class='table-dark'>
                                     <tr>
@@ -37,13 +35,10 @@
                                         <th scope='col'>Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody>";
-                            
-                            foreach($resultado as $usuario)
-                            {
+                                <tbody>";       
+                            foreach($resultado_seleccionar_usuarios["datos"] as $usuario) {
                                 echo "<tr>";
-                                foreach($usuario as $dato_usuario)
-                                {
+                                foreach($usuario as $dato_usuario) {
                                     echo "<td>" . $dato_usuario . "</td>";
                                 }
                                 echo "<td>";
@@ -53,7 +48,7 @@
                                 echo "</tr>";
                             }
                             echo "</tbody></table>";
-                        }     
+                        }
                     }
                 ?>
             </main>
