@@ -40,15 +40,15 @@
                         <form class="mb-5" action="editaUsuario.php?id=<?php echo $id_usuario; ?>" method="post">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control" name="username" id="username" placeholder="<?php echo $username; ?>">
+                                <input type="text" class="form-control" name="username" id="username" value="<?php echo $username; ?>">
                             </div>
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" name="nombre" id="nombre" placeholder="<?php echo $nombre; ?>">
+                                <input type="text" class="form-control" name="nombre" id="nombre" value="<?php echo $nombre; ?>">
                             </div>
                             <div class="mb-3">
                                 <label for="apellidos" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" name="apellidos" id="apellidos" placeholder="<?php echo $apellidos; ?>">
+                                <input type="text" class="form-control" name="apellidos" id="apellidos" value="<?php echo $apellidos; ?>">
                             </div>
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
