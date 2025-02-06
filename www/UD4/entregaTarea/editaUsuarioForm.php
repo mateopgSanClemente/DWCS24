@@ -1,46 +1,43 @@
-<?php include_once("head.php"); ?>
+<?php include_once "head.php"; ?>
     <body>
         <!-- header -->
-        <?php include_once("header.php");?>
+        <?php include_once "header.php";?>
           
         <div class='container-fluid d-flex flex-column'>
             <div class="row">
-                <?php include_once("menu.php");?>
+                <?php include_once "menu.php";?>
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Modificar Usuario</h2>
                     <?php
-                        require_once("pdo.php");
-                        //Guardar el id de usuario en una variable
-                        $id = $_GET['id'];
-
-                        //Crear conexión con la base de datos
-                        list($conexion, $mensaje_estado_conexion) = conectar_PDO();
-
-                        if($conexion === false)
-                        {
-                            echo "<div class='alert alert-warning>" . $mensaje_estado_conexion . "</div>";
-                        }
-                        else
-                        {
-                            //Seleccionar el usuario original
-                            list($comprobacion, $resultado_consulta) = seleccionar_usuario_id($conexion, $id);
-
-                            if(!$comprobacion)
-                            {
-                                echo ("<div class='alert alert-warning' role='alert'>" . $resultado_consulta) . "</div>";
+                        // Crear conexión PDO
+                        require_once "pdo.php";
+                        $resultado_conexion_PDO = conectar_PDO();
+                        // Comprobar conexión
+                        if (!$resultado_conexion_PDO["success"]){
+                            echo "<div class='alert alert-danger' role='alert'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
+                        } else {
+                            // Guardar conexión en una variable
+                            $conexion_PDO = $resultado_conexion_PDO["conexion"];
+                            //Guardar el id de usuario en una variable
+                            $id_usuario = $_GET['id'];
+                            // Seleccionar usuario a editar
+                            $resultado_usuario = seleccionar_usuario_id($conexion_PDO, $id_usuario);
+                            // Comprobar que se selecciono el usuario
+                            if (!$resultado_usuario["success"]){
+                                echo "<div class='alert alert-warning' role='alert'>" . $resultado_usuario["mensaje"] . "</div>";
+                            } else {
+                                //Recuperados los datos los guardo en variables, la función ya los descodifica.
+                                $datos_usuario = $resultado_usuario["datos"];
+                                $username = $datos_usuario["username"];
+                                $nombre = $datos_usuario["nombre"];
+                                $apellidos = $datos_usuario["apellidos"];
                             }
-                            else
-                            {
-                                //Recuperados los datos los guardo en variables y los descodifico
-                                $username = htmlspecialchars_decode($resultado_consulta["username"]);
-                                $nombre = htmlspecialchars_decode($resultado_consulta["nombre"]);
-                                $apellidos = htmlspecialchars_decode($resultado_consulta["apellidos"]);
-                            }
+                            // Cerrar conexión
+                            $conexion_PDO = null;
                         }
-
                     ?>
                     <section>
-                        <form action="editaUsuario.php?id=<?php echo $id; ?>" method="post">
+                        <form class="mb-5" action="editaUsuario.php?id=<?php echo $id_usuario; ?>" method="post">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" name="username" id="username" placeholder="<?php echo $username; ?>">
@@ -65,6 +62,6 @@
         </div>
 
         <!-- footer -->
-        <?php include_once("footer.php");?>
+        <?php include_once "footer.php";?>
     </body>
 </html>
