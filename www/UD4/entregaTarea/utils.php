@@ -69,7 +69,7 @@
      * @param string $apellidos  Apellidos del usuario (obligatorio, máx. 100 caracteres).
      * @param string $contrasena Contraseña del usuario (obligatorio, máx. 100 caracteres).
      *
-     * @return array<mixed> Retorna un array asociativo con la siguiente información:
+     * @return array Retorna un array asociativo con la siguiente información:
      *                      - "success" (bool): true si la validación es exitosa, false en caso contrario.
      *                      - "errores"? (string): Si hay errores, incluyendo un array asociativo "errores".
      * 
@@ -119,38 +119,54 @@
         return ["success" => true];
     }
 
-    /*Función para validar tareas
-    */
-    function validar_tarea ($titulo, $descripcion, $estado, $id_usuario)
-    {
-        // Validar campos
-        $errores = [];
-        
+    /**
+     * Valida los datos de una tarea antes de ser almacenada en la base de datos.
+     *
+     * @param string $titulo      Título de la tarea (obligatorio, máx. 50 caracteres).
+     * @param string $descripcion Descripción de la tarea (opcional, máx. 250 caracteres).
+     * @param string $estado      Estado de la tarea (obligatorio: 'Pendiente', 'En proceso' o 'Completada').
+     * @param int    $id_usuario  ID del usuario asociado (obligatorio, número entero).
+     *
+     * @return array Retorna un array con la clave con la siguiente información:
+     *                      - 'success' (bool): true si todos los campos son correctos, false en caso contrario.
+     *                      - 'errores'? (array): Array asociativo con los errores de cada campo
+     */
+    function validar_tarea(string $titulo, string $descripcion, string $estado, int $id_usuario): array {
+        // Inicializar array de errores
+        $errores = [
+            "titulo" => [],
+            "descripcion" => [],
+            "estado" => [],
+            "id_usuario" => []
+        ];
         // Validar título
-        if (empty($titulo) || strlen($titulo) > 50) {
-            $errores[] = "El título es obligatorio y no debe exceder los 50 caracteres.";
+        if (empty($titulo)) {
+            $errores["titulo"][] = "El título es obligatorio.";
         }
-        
+        if (strlen($titulo) > 50) {
+            $errores["titulo"][] = "No debe exceder los 50 caracteres.";
+        }
         // Validar descripción (puede ser nula)
-        if (!is_null($descripcion) && strlen($descripcion) > 250) {
-            $errores[] = "La descripción no debe exceder los 250 caracteres.";
+        if (!empty($descripcion) && strlen($descripcion) > 250) {
+            $errores["descripcion"][] = "La descripción no debe exceder los 250 caracteres.";
         }
-        
         // Validar estado
         $estados_validos = ['Pendiente', 'En proceso', 'Completada'];
-        if (empty($estado) || !in_array($estado, $estados_validos)) {
-            $errores[] = "El estado es obligatorio y debe ser uno de los siguientes: " . implode(', ', $estados_validos) . ".";
+        if (empty($estado)) {
+            $errores["estado"][] = "El estado es obligatorio.";
+        } elseif (!in_array($estado, $estados_validos)) {
+            $errores["estado"][] = "El estado debe ser uno de los siguientes: " . implode(', ', $estados_validos) . ".";
         }
-        
         // Validar id_usuario
-        if (empty($id_usuario) || !is_numeric($id_usuario)) {
-            $errores[] = "El ID del usuario es obligatorio y debe ser un número entero válido.";
+        if (!isset($id_usuario)) {
+            $errores["id_usuario"][] = "El ID del usuario es obligatorio.";
         }
-        
+        // Filtrar errores vacíos
+        $errores = array_filter($errores);
         // Si hay errores, devolverlos
         if (!empty($errores)) {
-            return [true, implode(' ', $errores)];
+            return ["success" => false, "errores" => $errores];
         }
+        return ["success" => true];
     }
-    
 ?>
