@@ -380,4 +380,38 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             return ["success" => false, "mensaje" => "Error al seleccionar las tareas: " . $e->getMessage()] ;
         }
     }
+
+    /**
+     * Selecciona un usuario de la tabla usuarios por su username,
+     * retorna la contraseña en caso e que exista.
+     * 
+     * @param PDO    $conexion_PDO  Conexión PDO a la base de datos.
+     * @param string $username      Nombre de usuario.
+     * 
+     * @return array Devuelve un array asociativo con la siguiente información:
+     *               - "success" (bool): true si se encontró al usuario, false en caso contrario.
+     *               - "mensaje"? (string): mensaje informativo en caso de error.
+     *               - "pass"? (string): contraseña del usuario en caso de que exista.
+     */
+    function seleccionar_usuario_pass (PDO $conexion_PDO, string $username) : array {
+        try {
+            // Consulta
+            $sql = "SELECT contrasena FROM usuarios WHERE username = :username";
+            // Preparar consulta
+            $stmt = $conexion_PDO->prepare($sql);
+            // Vincular parámetros
+            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
+            // Ejecutar consulta
+            $stmt->execute();
+            // Si se encontró un usuario con ese username, retornarlo
+            if ($stmt->rowCount() > 0) {
+                // Recoger el resultado
+                $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+                return ["success" => true, "pass" => $resultado["contrasena"]];
+            }
+            return ["success" => false, "mensaje" => "El usuario '$username' no existe en la base de datos."];
+        } catch (PDOException $e) {
+            return ["success" => false, "mensaje" => $e->getMessage()];
+        }
+    }
 ?>
