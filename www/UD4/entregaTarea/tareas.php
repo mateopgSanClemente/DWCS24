@@ -32,6 +32,10 @@
                             echo "<div class='alert alert-warning' role='alert'>" . $resultado_seleccionar_tareas["mensaje"] . "</div>";
                         } else {
                             // Recuperar tareas y mostrar en una tabla sus características y su usuario
+                            /**
+                             * TODO:
+                             *  - Hacer todavía más dinámica la tabla utilizando un bucle para procesar los valores de las claves y crear los encabezados de cada columna
+                             */
                             $tareas = $resultado_seleccionar_tareas["datos"];
                             echo "<table class='table table-striped table-hover'>
                                     <thead class='table-dark'>
