@@ -35,7 +35,7 @@ services:
             MYSQL_PASSWORD: ${MYSQL_PASSWORD_WEB}
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD_WEB}
         env_file:
-            - -env
+            - .env
     phpmyadmin:
         image: phpmyadmin:5.2.1
         links: 
