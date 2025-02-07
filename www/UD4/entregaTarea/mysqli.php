@@ -1,5 +1,7 @@
 <?php
     /**
+     *  TODO:
+     *  - Podría eliminar la clave "success" y verificar si la función devuelve una conexión nula para comprobar que se realizó correctamente.
      * Establece una conexión a la base de datos MySQL utilizando las credenciales de las variables de entorno.
      * 
      * Esta función intenta conectar con la base de datos usando las credenciales definidas en las

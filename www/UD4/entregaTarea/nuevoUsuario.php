@@ -9,11 +9,6 @@
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Estado del registro de usuario</h2>
                     <?php
-                    try {   
-                        /**
-                         * TODO:
-                         *  - Recoger, validar y sanear si fuera necesario el nuevo campo 'rol'.
-                         */
                         require_once "utils.php";
                         //Recoger los resultados en variables
                         $username = $_POST["username"];
@@ -24,9 +19,9 @@
                         $resultado_validar = validar_usuario($username, $nombre, $apellidos, $contrasena);
                         //Comprobar los resultados, aunque pienso que sería más conveniente hacerlo en la página del propio formulario
                         if (!$resultado_validar["success"]){
-                            // Creare una lista dinámica con mensajes con información sobre los errores asociados a un campo.
+                            // Creare una lista dinámica de mensajes con información sobre los errores asociados a un campo.
                             foreach ($resultado_validar["errores"] as $nombre_campo => $errores) {
-                                echo "<h4 class='pt-2 pb-4 mb-3 border-bottom'>Campo $nombre_campo</b></h4>";
+                                echo "<h4 class='pt-2 pb-4 mb-3 border-bottom'>Campo <b>$nombre_campo</b></h4>";
                                 echo "<ul>";
                                 foreach ($errores as $error) {                                
                                     echo "<li class='alert alert-warning' role='alert'>" . $error . "</li>";                                     
@@ -56,17 +51,9 @@
                                 else {
                                     echo ("<div class='alert alert-success'>" . $resultado_agregar_usuario["mensaje"] . "</div>");
                                 }
+                                $conexion_PDO = null;
                             }
                         }
-                    }
-                    catch (PDOException $e)
-                    {
-                        echo "<div class='alert alert-warning'>Error: " . $e . "</div>";
-                    }
-                    finally
-                    {
-                        $conexion = null;
-                    }
                     ?>
                 </main>
             </div>

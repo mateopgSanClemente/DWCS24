@@ -39,6 +39,7 @@
                                             }
                                             echo "</select>";
                                         }
+                                        $conexion_PDO = null;
                                     }
 
                                 ?>

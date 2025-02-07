@@ -178,6 +178,9 @@
     }
     
 /**
+ *  TODO:
+ *  - El problema es que todavía reconoce el espacio en blanco como válido, debería utilizar una expresión regular
+ *  mediante las funciones del fichero utils.php para validar los parámetros.
  * Actualiza los datos de un usuario en la base de datos.
  *
  * Si se pasa un valor no vacío para la contraseña, se actualiza la contraseña
@@ -314,15 +317,15 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
         try {
 
             // Consulta dinámica
-            $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuario.username
+            $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
                     FROM tareas
                     INNER JOIN usuarios
-                    ON tareas.id_usuario = usuario.id
+                    ON tareas.id_usuario = usuarios.id
                     WHERE tareas.id_usuario = :id_usuario";
 
             // Agregar condición concatenandola a la sentencia anterior en caso de que el estado esté seleccionado
             if(!empty($estado)) {
-                $sql .= "AND tareas.estado = :estado";
+                $sql .= " AND tareas.estado = :estado";
             }
 
             // Preparar la consulta

@@ -74,10 +74,10 @@
                         // Guardar la conexión en una variable
                         $conexion_PDO = $resultado_conexion_PDO["conexion"];
                         // ID usuario para mostrar tareas asociada.
-                        $id_usuario = $_POST["username"];
+                        $id_usuario = intval($_POST["username"]);
                         // En caso de que se especifique el estado de la tarea
-                        if(isset($_POST["estado"])) {
-                            $estado_tarea = $_POST["estado"];
+                        
+                            $estado_tarea = isset($_POST["estado"]) ? $_POST["estado"] : null;
                             // Seleccionar las tareas por su id_usuario y estado
                             $resultado_seleccionar_tareas = tareas_usuario_estado($conexion_PDO, $id_usuario, $estado_tarea);
                             // Comprobar que se seleccionaron correctamente
@@ -98,8 +98,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>";
-                                foreach($resultado_seleccionar_tareas["datos"] as $tarea)
-                                {
+                                foreach($resultado_seleccionar_tareas["datos"] as $tarea) {
                                     echo "<tr>";
                                     foreach($tarea as $datos_tarea)
                                     {
@@ -113,7 +112,7 @@
                                 }
                                 echo "</tbody></table>";
                             }
-                        }
+
                         // Cerrar conexión
                         $conexion_PDO = null;
                     }
