@@ -67,6 +67,7 @@
      * @param string $username   Nombre de usuario (obligatorio, máx. 50 caracteres).
      * @param string $nombre     Nombre del usuario (obligatorio, máx. 50 caracteres).
      * @param string $apellidos  Apellidos del usuario (obligatorio, máx. 100 caracteres).
+     * @param int    $rol        Rol del usuario (obligatorio, 0 para usuario o 1 para administrador).
      * @param string $contrasena Contraseña del usuario (obligatorio, máx. 100 caracteres).
      *
      * @return array Retorna un array asociativo con la siguiente información:
@@ -74,12 +75,13 @@
      *                      - "errores"? (string): Si hay errores, incluyendo un array asociativo "errores".
      * 
      */
-    function validar_usuario (string $username, string $nombre, string $apellidos, string $contrasena) : array {
+    function validar_usuario (string $username, string $nombre, string $apellidos, int $rol, string $contrasena) : array {
         $errores = [
             "username" => [],
             "nombre" => [],
             "apellidos" => [],
-            "contrasena" => []
+            "contrasena" => [],
+            "rol" => []
         ];
         // Validar `username`: No vacío y máximo de 50 caracteres
         if (empty($username)) {
@@ -109,6 +111,15 @@
         if(strlen($contrasena) > 100) {
             $errores["contrasena"][] = "No puede exceder los 100 caracteres.";
         }
+        // Validar rol: Obligatorio, debe ser un número entero y solo puede contener los valores 0 y 1.
+        if (!isset($rol)) {
+            $errores["rol"][] = "El campo 'rol' es obligatorio.";
+        }
+        if (!is_int($rol)) {
+            $errores["rol"][] = "El campo 'rol' debe ser un entero.";
+        } else if (($rol !== 0) && ($rol !== 1)) {
+            $errores["rol"][] = "El campo 'rol' debe contener el valor 0 para 'usuario' y 1 para 'administrador'.";
+        }
         //Filtrar array de errores para eliminar claves vacias
         $errores = array_filter($errores);
         //Si hay errores, devolverlos
@@ -128,17 +139,19 @@
  * @param string      $username   El nombre de usuario. Obligatorio, máximo 50 caracteres.
  * @param string      $nombre     El nombre del usuario. Obligatorio, máximo 50 caracteres.
  * @param string      $apellidos  Los apellidos del usuario. Obligatorio, máximo 100 caracteres.
+ * @param int         $rol        Rol del usuario. Obligatorio.
  * @param string|null $contrasena La contraseña del usuario. Opcional, si se proporciona, no debe exceder 100 caracteres.
  *
  * @return array Retorna un array con la clave 'success' que indica si la validación fue exitosa.
  *               En caso de errores, retorna 'success' => false y un array 'errores' con los mensajes correspondientes.
  */
 
-function validar_modificar_usuario(string $username, string $nombre, string $apellidos, ?string $contrasena = null): array {
+function validar_modificar_usuario(string $username, string $nombre, string $apellidos, int $rol, ?string $contrasena = null): array {
     $errores = [
         "username"   => [],
         "nombre"     => [],
         "apellidos"  => [],
+        "rol"        => [],
         "contrasena" => []
     ];
 
@@ -164,6 +177,16 @@ function validar_modificar_usuario(string $username, string $nombre, string $ape
     }
     if (strlen($apellidos) > 100) {
         $errores["apellidos"][] = "No puede exceder los 100 caracteres.";
+    }
+
+    // Validar rol: Obligatorio, debe ser un número entero y solo puede contener los valores 0 y 1.
+    if (!isset($rol)) {
+        $errores["rol"][] = "El campo 'rol' es obligatorio.";
+    }
+    if (!is_int($rol)) {
+        $errores["rol"][] = "El campo 'rol' debe ser un entero.";
+    } else if (($rol !== 0) && ($rol !== 1)) {
+        $errores["rol"][] = "El campo 'rol' debe contener el valor 0 para 'usuario' y 1 para 'administrador'.";
     }
 
     // Validar contraseña: Opcional, pero si se proporciona, no debe exceder 100 caracteres.

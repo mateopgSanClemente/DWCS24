@@ -10,7 +10,7 @@
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Registrar Usuario</h2>
                     <section>
-                        <!-- TODO: Incluir el nuevo campo 'rol' -->
+                        <!-- TODO: Incluir el nuevo campo 'rol' con usuario y administrados -->
                         <form action="nuevoUsuario.php" method="post">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
@@ -23,6 +23,14 @@
                             <div class="mb-3">
                                 <label for="apellidos" class="form-label">Apellidos</label>
                                 <input type="text" class="form-control" name="apellidos" id="apellidos" placeholder="Apellidos del usuario" required>
+                            </div class="mb-3">
+                            <div class="mb-3">
+                                <label class="form-label" for="rol">Rol</label>
+                                <select class="form-select" name="rol" id="rol">
+                                    <option value="" selected disabled>Seleccione un rol</option>
+                                    <option value="0">Usuario</option>
+                                    <option value="1">Administrador</option>
+                                </select>   
                             </div>
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>

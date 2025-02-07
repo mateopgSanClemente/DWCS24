@@ -32,6 +32,7 @@
                                         <th scope='col'>Username</th>
                                         <th scope='col'>Nombre</th>
                                         <th scope='col'>Apellidos</th>
+                                        <th scope='col'>Rol</th>
                                         <th scope='col'>Acciones</th>
                                     </tr>
                                 </thead>

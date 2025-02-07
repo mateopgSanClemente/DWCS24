@@ -9,6 +9,10 @@
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Modificar Usuario</h2>
                     <?php
+                        /**
+                         *  TODO:
+                         *  - Modificar el código para que incluya el campo rol.
+                         */
                         // Crear conexión PDO
                         require_once "pdo.php";
                         $resultado_conexion_PDO = conectar_PDO();
@@ -31,6 +35,7 @@
                                 $username = $datos_usuario["username"];
                                 $nombre = $datos_usuario["nombre"];
                                 $apellidos = $datos_usuario["apellidos"];
+                                $rol = intval($datos_usuario["rol"]);
                             }
                             // Cerrar conexión
                             $conexion_PDO = null;
@@ -53,6 +58,13 @@
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
                                 <input type="text" class="form-control" name="contrasena" id="apellidos" placeholder="Nueva contraseña del usuario">
+                            </div>
+                            <div class="mb-3">
+                                <label for="rol" class="form-label">Rol</label>
+                                <select class="form-select" name="rol" id="rol">
+                                    <option value="0" <?php echo ($rol === 0) ? "selected" : ""; ?>>Usuario</option>
+                                    <option value="1" <?php echo ($rol === 1) ? "selected" : ""; ?>>Administrador</option>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-success mb-3">Registrar</button>
                         </form>

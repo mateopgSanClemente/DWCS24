@@ -58,6 +58,9 @@
     }
 
     /**
+     *  TODO:
+     *  - Incluir el campo rol. x
+     *  - Actualizar documentación. x
      * Obtiene una lista de usuarios de la base de datos.
      *
      * @param PDO $conexion Instancia de PDO con la conexión a la base de datos.
@@ -71,7 +74,7 @@
     function seleccionar_usuarios(PDO $conexion_PDO) : array {
         try {   
             // Preparar y ejecutar la consulta SQL
-            $stmt = $conexion_PDO->prepare("SELECT `id`, `username`, `nombre`, `apellidos` FROM `usuarios`;");
+            $stmt = $conexion_PDO->prepare("SELECT `id`, `username`, `nombre`, `apellidos`, `rol` FROM `usuarios`;");
             $stmt->execute();
 
             // Obtener resultados
@@ -93,6 +96,11 @@
     }
 
     /**
+     *  TODO:
+     *  - Incluir el campo rol.
+     *  - Actualizar documentación.
+     *  - Especificar tipo de dato que se recoge por parámetro.
+     *  - Cambiar mensaje de en caso de que la consulta se ejecute sin problemas para que muestre el username.
      * Agrega un nuevo usuario a la base de datos.
      *
      * @param PDO    $conexion   Conexión PDO activa con la base de datos.
@@ -100,13 +108,14 @@
      * @param string $nombre     Nombre real del usuario.
      * @param string $apellidos  Apellidos del usuario.
      * @param string $contrasena Contraseña en texto plano (se encriptará antes de almacenarse).
+     * @param int    $rol        Rol de usuario representado como entero, 0 para usuario y 1 para administrador.
      * 
      * @return array Devuelve un array con la siguiente información:
      *     - "success" (bool) : true si el usuario se agregó correctamente, false en caso contrario o si el usuario ya existe en la base de datos.
      *     - "mensaje" (string) : información sobre como transcurrió la sentencia SQL.
      *
      */
-    function agregar_usuario(PDO $conexion_PDO, string $username, string $nombre, string $apellidos, string $contrasena) {
+    function agregar_usuario(PDO $conexion_PDO, string $username, string $nombre, string $apellidos, string $contrasena, int $rol) {
         try {
             // Comprobar que el usuario no existe, el username debe ser único
             $sql_check = "SELECT username FROM usuarios WHERE username = :username";
@@ -122,15 +131,16 @@
             }
             // Encriptar contraseña
             $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
-            $stmt = $conexion_PDO->prepare("INSERT INTO usuarios (username, nombre, apellidos, contrasena) VALUES (:username, :nombre, :apellidos, :contrasena)");
-            $stmt->bindParam(':username', $username);
-            $stmt->bindParam(':nombre', $nombre);
-            $stmt->bindParam(':apellidos', $apellidos);
-            $stmt->bindParam(':contrasena', $contrasena_hash);
+            $stmt = $conexion_PDO->prepare("INSERT INTO usuarios (username, nombre, apellidos, contrasena, rol) VALUES (:username, :nombre, :apellidos, :contrasena, :rol)");
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
+            $stmt->bindParam(':contrasena', $contrasena_hash, PDO::PARAM_STR);
+            $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
 
             $stmt->execute();
 
-            return ["success" => true, "mensaje" => ("El usuario " . $nombre . " " . $apellidos . " se insertó correctamente.")];
+            return ["success" => true, "mensaje" => ("El usuario '$username' se insertó correctamente.")];
         }
         catch(PDOException $e) {
             return ["success" => false, "mensaje" => "Error a la hora de insertar usuario: " . $e->getMessage()];
@@ -138,6 +148,7 @@
     }
 
     /** 
+     *  TODO: - Incluir el rol en la selección de campos de usuario.
      * Recupera los datos de un usuario mediante su ID.
      *
      * @param PDO $conexion Objeto PDO para la conexión con la base de datos.
@@ -152,9 +163,9 @@
     function seleccionar_usuario_id(PDO $conexion, int $id) : array {
         try {
             // Preparar la consulta para seleccionar datos del usuario
-            $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena FROM usuarios WHERE id = :id");
+            $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena, rol FROM usuarios WHERE id = :id");
             
-            // Vincular el parámetro id y hacer que este sea tratado como un enterio
+            // Vincular el parámetro id y hacer que este sea tratado como un entero
             $stmt->bindParam(":id", $id, PDO::PARAM_INT);
             // Ejecutar la consulta
             $stmt->execute();
@@ -165,7 +176,7 @@
     
             // Verificar si se encontró un usuario con ese ID
             if (!$datos_usuario) {
-                return ["success" => false, "mensaje" => "No se encontró ningún usuario con id = " . $id];
+                return ["success" => false, "mensaje" => "No se encontró ningún usuario con ID " . $id];
             }
 
             // Si existe, devolver los datos del usuario
@@ -181,6 +192,8 @@
  *  TODO:
  *  - El problema es que todavía reconoce el espacio en blanco como válido, debería utilizar una expresión regular
  *  mediante las funciones del fichero utils.php para validar los parámetros.
+ *  - Incluir el campo rol.
+ * 
  * Actualiza los datos de un usuario en la base de datos.
  *
  * Si se pasa un valor no vacío para la contraseña, se actualiza la contraseña
@@ -191,13 +204,14 @@
  * @param string      $username   Nuevo username del usuario.
  * @param string      $nombre     Nuevo nombre del usuario.
  * @param string      $apellidos  Nuevos apellidos del usuario.
+ * @param int         $rol        Nuevo rol del usuario.
  * @param string|null $contrasena (Opcional) Nueva contraseña del usuario. Si es null o está vacía, no se actualiza.
  *
  * @return array Retorna un array asociativo con:
  *               - "success" => true si la actualización se realizó, o false si no se hicieron cambios o ocurrió un error.
  *               - "mensaje" => Mensaje descriptivo del resultado.
  */
-function modificar_usuario(PDO $conexion, int $id, string $username, string $nombre, string $apellidos, ?string $contrasena = null): array {
+function modificar_usuario(PDO $conexion, int $id, string $username, string $nombre, string $apellidos, int $rol, ?string $contrasena = null): array {
     try {
         // Verificar si se proporcionó una contraseña para actualizarla
         if (!empty($contrasena)) {
@@ -206,7 +220,8 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
                     SET username = :username, 
                         nombre = :nombre, 
                         apellidos = :apellidos, 
-                        contrasena = :contrasena 
+                        contrasena = :contrasena,
+                        rol = :rol
                     WHERE id = :id";
             $stmt = $conexion->prepare($sql);
             
@@ -218,7 +233,8 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             $sql = "UPDATE usuarios 
                     SET username = :username, 
                         nombre = :nombre, 
-                        apellidos = :apellidos 
+                        apellidos = :apellidos,
+                        rol = :rol
                     WHERE id = :id";
             $stmt = $conexion->prepare($sql);
         }
@@ -228,6 +244,7 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
         $stmt->bindParam(':username', $username, PDO::PARAM_STR);
         $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
         $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
+        $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
     
         // Ejecutar la consulta
         $stmt->execute();

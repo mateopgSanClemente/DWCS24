@@ -15,8 +15,10 @@
                         $nombre = $_POST["nombre"];
                         $apellidos = $_POST["apellidos"];
                         $contrasena = $_POST["contrasena"];
+                        // Convertir el tipo de dato a entero
+                        $rol = intval($_POST["rol"]);
                         //Comprobar errores
-                        $resultado_validar = validar_usuario($username, $nombre, $apellidos, $contrasena);
+                        $resultado_validar = validar_usuario($username, $nombre, $apellidos, $rol, $contrasena);
                         //Comprobar los resultados, aunque pienso que sería más conveniente hacerlo en la página del propio formulario
                         if (!$resultado_validar["success"]){
                             // Creare una lista dinámica de mensajes con información sobre los errores asociados a un campo.
@@ -43,7 +45,7 @@
                                 echo "<div class='alert alert-danger'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
                             } else {
                                 // Insertar los datos en la tabla usuarios
-                                $resultado_agregar_usuario = agregar_usuario($conexion_PDO, $username, $nombre, $apellidos, $contrasena);
+                                $resultado_agregar_usuario = agregar_usuario($conexion_PDO, $username, $nombre, $apellidos, $contrasena, $rol);
                                 // Comprobar que el usuario se agrego correctamente
                                 if(!$resultado_agregar_usuario["success"]) {
                                     echo ("<div class='alert alert-warning'>" . $resultado_agregar_usuario["mensaje"] . "</div>");

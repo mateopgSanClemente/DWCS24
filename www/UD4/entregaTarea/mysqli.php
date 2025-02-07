@@ -107,6 +107,9 @@
     }
 
     /**
+     *  TODO:
+     *  - Añadir el campo 'rol' a la tabla. x
+     * 
      * Crea una tabla llamada 'usuarios' si no existe.
      *
      * Esta función verifica si la tabla 'usuarios' ya existe en la base de datos mediante la instrucción
@@ -132,13 +135,15 @@
             }
 
             $sql = "CREATE TABLE IF NOT EXISTS `tareas`.`usuarios` (
-                `id` INT(6) NOT NULL AUTO_INCREMENT,
+                `id` INT UNSIGNED AUTO_INCREMENT,
                 `username` VARCHAR(50) NOT NULL,
                 `nombre` VARCHAR(50) NOT NULL,
                 `apellidos` VARCHAR(100) NOT NULL,
                 `contrasena` VARCHAR(100) NOT NULL,
-                CONSTRAINT pk_usuarios PRIMARY KEY (`id`)
-                );";
+                `rol` TINYINT(1) NOT NULL,
+                CONSTRAINT pk_usuarios PRIMARY KEY (`id`),
+                CONSTRAINT chk_rol CHECK (`rol` IN (0, 1))
+                ) ENGINE=InnoDB;";
         
             if ($conexion_mysqli->query($sql))
             {
@@ -155,6 +160,8 @@
     }
 
     /**
+     *  TODO:
+     *  - Modificar sentencia SQL para la creación de la tabla para que sea más correcta.
      * Crea una tabla llamada 'tareas' si no existe.
      *
      * Esta función verifica si la tabla 'tareas' ya existe en la base de datos mediante la instrucción
@@ -181,16 +188,16 @@
 
             //Crear la tabla tareas y vincularla a la tabla usuarios mediante una clave foranea
             $sql = "CREATE TABLE IF NOT EXISTS `tareas`.`tareas` (
-                `id` INT(6) AUTO_INCREMENT,
+                `id` INT UNSIGNED AUTO_INCREMENT,
                 `titulo` VARCHAR(50) NOT NULL,
                 `descripcion` VARCHAR(250),
-                `estado` VARCHAR(50),
-                `id_usuario` INT,
+                `estado` ENUM('Pendiente', 'En proceso', 'Completada') NOT NULL,
+                `id_usuario` INT UNSIGNED NOT NULL,
                 CONSTRAINT pk_tareas PRIMARY KEY (`id`),
-                CONSTRAINT fk_tareas_usuarios FOREIGN KEY (`id_usuario`) REFERENCES `usuarios`(`id`)
-                ON UPDATE CASCADE
-                ON DELETE CASCADE
-            );";
+                CONSTRAINT fk_tareas_usuarios FOREIGN KEY (`id_usuario`) REFERENCES `tareas`.`usuarios`(`id`)
+                    ON UPDATE CASCADE
+                    ON DELETE CASCADE
+            ) ENGINE=InnoDB;";
 
             if ($conexion_mysqli->query($sql) === true) {
                 return ["success" => true, "mensaje" => "La tabla 'tareas' se creo correctamente."];
