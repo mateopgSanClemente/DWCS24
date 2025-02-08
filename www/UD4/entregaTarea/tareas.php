@@ -89,7 +89,7 @@
                                             </div>
                                             <!-- Enlace o botón para añadir archivo adjunto -->
                                             <div class='text-center mt-3'>
-                                                <a href='subidaFichForm.php' class='text-decoration-none'>Añadir archivo adjunto</a>
+                                                <a href='subidaFichForm.php?id=" . strval($id_tarea) . "' class='text-decoration-none'>Añadir archivo adjunto</a>
                                             </div>
                                             </div>
                                         </div>
