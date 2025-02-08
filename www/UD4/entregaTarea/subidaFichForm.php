@@ -15,14 +15,14 @@
             <?php include_once "menu.php"; ?>
             <main class="col-md-9 main-content">
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Adjuntar archivo</h2>
-                <form class="mb-5" action="subidaFichProc.php" method="post" enctype="multipart/form-data">
+                <form class="mb-5" action="subidaFichProc.php?id=<?php echo $_GET["id"];?>" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label" for="nombre">Nombre</label>
                         <input class="form-control" type="text" name="nombre" id="nombre" placeholder="Nombre del producto" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="descripcion">Descripcion</label>
-                        <input class="form-control" type="text" name="descripcion" id="descripcion" placeholder="Descripción del producto" required>
+                        <input class="form-control" type="text" name="descripcion" id="descripcion" placeholder="Descripción del producto">
                     </div>
                     <div class="mb-3">
                         <label for="producto" class="form-label">Seleccionar archivo</label>
