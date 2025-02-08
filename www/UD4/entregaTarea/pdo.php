@@ -450,4 +450,48 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             return ["success" => false, "mensaje" => "La tarea con ID $id_tarea no existe en la base de datos."];
         }
     }
+
+    /**
+     * Inserta un archivo en la tabla 'ficheros' de la base de datos.
+     *
+     * Dependiendo de si se proporciona una descripción (no nula) o no, la función construye 
+     * la consulta SQL de forma condicional para incluir (o excluir) la columna 'descripcion'.
+     *
+     * La tabla 'ficheros' debe tener las siguientes columnas::
+     * - nombre (VARCHAR)
+     * - file (VARCHAR) – se utiliza el nombre 'file' entre backticks porque es una palabra reservada.
+     * - descripcion (VARCHAR), que debe permitir valores nulos.
+     *
+     * @param PDO         $conexion_PDO Conexión PDO activa a la base de datos.
+     * @param string      $nombre       El nombre del archivo.
+     * @param string      $archivo      Representa la ruta del fichero.
+     * @param string|null $descripcion  Descripción del archivo (opcional). Si es null, no se incluirá en la consulta.
+     *
+     * @return array Devuelve un array asociativo con dos claves:
+     *               - 'success' => true si la inserción se realizó correctamente, false en caso de error.
+     *               - 'mensaje' => Mensaje informativo o de error.
+     */
+    function insertar_archivo(PDO $conexion_PDO, string $nombre, string $archivo, ?string $descripcion = null) {
+        try {
+            if ($descripcion !== null) {
+                $sql = "INSERT INTO ficheros (nombre, `file`, descripcion) 
+                        VALUES (:nombre, :file, :descripcion)";
+            } else {
+                $sql = "INSERT INTO ficheros (nombre, `file`) 
+                        VALUES (:nombre, :file)";
+            }
+            
+            $stmt = $conexion_PDO->prepare($sql);
+            $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
+            $stmt->bindParam(':file', $archivo, PDO::PARAM_STR);
+            if ($descripcion !== null) {
+                $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
+            }
+            $stmt->execute();
+    
+            return ["success" => true, "mensaje" => "Archivo insertado correctamente"];
+        } catch(PDOException $e) {
+            return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
+        }
+    }
 ?>
