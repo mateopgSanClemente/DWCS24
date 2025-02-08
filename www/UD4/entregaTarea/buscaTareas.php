@@ -1,3 +1,10 @@
+<?php
+    session_start();
+    // Redirige al usuario al formulario de login en caso de que la sesión no exista.
+    if (!isset($_SESSION["usuario"])){
+        header("Location: login.php?error=sesion");
+    }
+?>
 <?php include_once "head.php"; ?>
     <body>
         <!-- header -->
