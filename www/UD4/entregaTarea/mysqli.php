@@ -240,7 +240,7 @@
                 `descripcion` VARCHAR(250) COMMENT 'Descripción del contenido del fichero',
                 `id_tarea` INT UNSIGNED NOT NULL,
                 CONSTRAINT pk_ficheros PRIMARY KEY (`id`),
-                CONSTRAINT fk_ficheros_tarea FOREIGN KEY (`id_tarea`) REFERENCES `tareas`.`tarea`(`id`)
+                CONSTRAINT fk_ficheros_tareas FOREIGN KEY (`id_tarea`) REFERENCES `tareas`.`tareas`(`id`)
                     ON UPDATE CASCADE
                     ON DELETE CASCADE
                 ) ENGINE=InnoDB";
