@@ -18,9 +18,88 @@
                 <?php
                 /**
                  *  TODO:
-                 *  - Adaptar el fichero a las nuevas fuciones de pdo y mysqli.
+                 *  - Mostrar un página con la infomación detallada sobre la tarea cuando el fichero 
+                 *  recive un id y este se corresponde con alguno de las tareas existentes
                  */
-                if(empty($_POST)) {
+                // En caso de que el arrat $_GET no esté vacío
+                if (!empty($_GET)){
+                    // Convertir el tipo de dato en un entero
+                    // Validar el contenido del array GET: El valor de la clave deber ser 'id' y el valor ser de tipo entero
+                    if (isset($_GET["id"]) && is_numeric($_GET["id"]) && $_GET["id"] > 0){
+                        // Convertir el valor del id a tipo entero
+                        $id_tarea = intval($_GET["id"]);
+                        require_once "pdo.php";
+                        // Conexión PDO
+                        $resultado_conexion_PDO = conectar_PDO();
+                        // Comprobar conexión
+                        if (!$resultado_conexion_PDO["success"]){
+                            // Mostrar mensaje de error
+                            echo "<div class='alert alert-danger' role='alert'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
+                        } else {
+                            $conexion_PDO = $resultado_conexion_PDO["conexion"];
+                            $resultado_tarea_id = seleccionar_tarea_id_PDO($conexion_PDO, $id_tarea);
+                            // Comprobar que los id que se pasan a través de un método GET coinciden con el id de alguna tarea de la base de datos
+                            if (!$resultado_tarea_id["success"]) {
+                                echo "<div class='alert alert-warning' role='alert'>" . $resultado_tarea_id["mensaje"] . "</div>";
+                            } else {
+                                // Mostrar la información detallada de la tarea
+                                // Recoger los datos de la tarea en variables
+                                $tarea = $resultado_tarea_id["datos"];
+                                $titulo_tarea = $tarea["titulo"];
+                                $descripcion_tarea = $tarea["descripcion"];
+                                $estado_tarea = $tarea["estado"];
+                                $tarea_username = $tarea["username"];
+                                echo "<div class='container mt-5'>
+                                        <table class='table table-bordered'>
+                                        <thead>
+                                            <tr>
+                                            <th colspan='2' class='text-center table-dark'>DETALLES</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                            <th scope='row'>Título:</th>
+                                            <td>" . $titulo_tarea . "</td>
+                                            </tr>
+                                            <tr>
+                                            <th scope='row'>Descripción:</th>
+                                            <td>" . $descripcion_tarea . "</td>
+                                            </tr>
+                                            <tr>
+                                            <th scope='row'>Estado:</th>
+                                            <td>" . $estado_tarea . "</td>
+                                            </tr>
+                                            <tr>
+                                            <th scope='row'>Usuario:</th>
+                                            <td>" . $tarea_username . "</td>
+                                            </tr>
+                                        </tbody>
+                                        </table>
+                                    </div>
+                                    <div class='container mt-4 mb-4'>
+                                        <!-- Contenedor para Archivos adjuntos -->
+                                        <div class='card'>
+                                            <div class='card-header'>
+                                            Archivos adjuntos
+                                            </div>
+                                            <div class='card-body'>
+                                            <!-- Área para añadir archivo con borde punteado -->
+                                            <div class='d-flex justify-content-center align-items-center' style='border: 2px dashed #ccc; height: 150px;'>
+                                                <span class='h1 mb-0'>+</span>
+                                            </div>
+                                            <!-- Enlace o botón para añadir archivo adjunto -->
+                                            <div class='text-center mt-3'>
+                                                <a href='subidaFichForm.php' class='text-decoration-none'>Añadir archivo adjunto</a>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>";
+                            }
+                        }
+                    } else {
+                        echo "<div class='alert alert-warning' role='alert'>El tipo de dato del formulario GET no es correcto</div>";
+                    }
+                } else if(empty($_POST) && empty($_GET)) {
                     require_once "mysqli.php";
                     // Crear la conexion
                     $resultado_conexion_mysqli = conectar_mysqli();
@@ -64,6 +143,7 @@
                                             echo "<td>" . $datos_tarea . "</td>";
                                         }
                                         echo "<td>";
+                                        echo "<a href='" . $_SERVER["PHP_SELF"] . "?id=" . $tarea['id'] . "' class='btn btn-primary btn-sm me-2'>Mostrar</a>";
                                         echo "<a href='editaTareaForm.php?id=" . $tarea['id'] . "' class='btn btn-success btn-sm me-2'>Editar</a>";
                                         echo "<a href='borraTarea.php?id=" . $tarea['id'] . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
                                         echo "</td>";
@@ -74,13 +154,13 @@
                         // Cerrar conexión
                         cerrar_conexion($conexion_mysqli);
                     }
-                } else {
+                } else if (!empty($_POST)) {
                     require_once "pdo.php";
                     // Crear la conexion
                     $resultado_conexion_PDO = conectar_PDO();
                     // Comprobar que la cnexión fue exitosa
                     if (!$resultado_conexion_PDO["success"]){
-                        echo "<div class='alert alert-danger' role='alert'>" . $resultado_conexion_mysqli["mensaje"] . "</div>";
+                        echo "<div class='alert alert-danger' role='alert'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
                     } else {
                         // Guardar la conexión en una variable
                         $conexion_PDO = $resultado_conexion_PDO["conexion"];
@@ -116,6 +196,7 @@
                                         echo "<td>" . $datos_tarea . "</td>";
                                     }
                                     echo "<td>";
+                                    echo "<a href='" . $_SERVER["PHP_SELF"] . "?id=" . $tarea['id'] . "' class='btn btn-primary btn-sm me-2'>Mostrar</a>";
                                     echo "<a href='editaTareaForm.php?id=" . $tarea['id'] . "' class='btn btn-success btn-sm me-2'>Editar</a>";
                                     echo "<a href='borraTarea.php?id=" . $tarea['id'] . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
                                     echo "</td>";
