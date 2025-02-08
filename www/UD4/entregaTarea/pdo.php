@@ -391,12 +391,12 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
      * @return array Devuelve un array asociativo con la siguiente información:
      *               - "success" (bool): true si se encontró al usuario, false en caso contrario.
      *               - "mensaje"? (string): mensaje informativo en caso de error.
-     *               - "pass"? (string): contraseña del usuario en caso de que exista.
+     *               - "datos"? (string): contraseña y rol del usuario en caso de que exista.
      */
-    function seleccionar_usuario_pass (PDO $conexion_PDO, string $username) : array {
+    function seleccionar_usuario_pass_rol (PDO $conexion_PDO, string $username) : array {
         try {
             // Consulta
-            $sql = "SELECT contrasena FROM usuarios WHERE username = :username";
+            $sql = "SELECT contrasena, rol FROM usuarios WHERE username = :username";
             // Preparar consulta
             $stmt = $conexion_PDO->prepare($sql);
             // Vincular parámetros
@@ -407,7 +407,7 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             if ($stmt->rowCount() > 0) {
                 // Recoger el resultado
                 $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-                return ["success" => true, "pass" => $resultado["contrasena"]];
+                return ["success" => true, "datos" => $resultado];
             }
             return ["success" => false, "mensaje" => "El usuario '$username' no existe en la base de datos."];
         } catch (PDOException $e) {
