@@ -471,11 +471,11 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
      *               - 'success' => true si la inserción se realizó correctamente, false en caso de error.
      *               - 'mensaje' => Mensaje informativo o de error.
      */
-    function insertar_archivo(PDO $conexion_PDO, string $nombre, string $archivo, ?string $descripcion = null) {
+    function insertar_archivo(PDO $conexion_PDO, string $nombre, string $archivo, int $id_tarea, ?string $descripcion = null) {
         try {
             if ($descripcion !== null) {
-                $sql = "INSERT INTO ficheros (nombre, `file`, descripcion) 
-                        VALUES (:nombre, :file, :descripcion)";
+                $sql = "INSERT INTO ficheros (nombre, `file`, descripcion, id_tarea) 
+                        VALUES (:nombre, :file, :descripcion, :id_tarea)";
             } else {
                 $sql = "INSERT INTO ficheros (nombre, `file`) 
                         VALUES (:nombre, :file)";
@@ -484,6 +484,7 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             $stmt = $conexion_PDO->prepare($sql);
             $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
             $stmt->bindParam(':file', $archivo, PDO::PARAM_STR);
+            $stmt->bindParam('id_tarea', $id_tarea, PDO::PARAM_INT);
             if ($descripcion !== null) {
                 $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
             }
