@@ -16,7 +16,7 @@
      * 
      * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
-    function conectar_mysqli() {   
+    function conectar_mysqli() : array {   
         try {
             // Obtener las credenciales de la base de datos desde las variables de entorno
             $host = getenv("MYSQL_HOST") ?: "db"; // "db" es el nombre del servicio en docker-compose
@@ -67,7 +67,7 @@
      * 
      * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */ 
-    function crear_base_datos (mysqli $conexion_mysqli) {
+    function crear_base_datos (mysqli $conexion_mysqli) : array {
         try {
             // Comprobar que la base de datos no existe
             /* La siguiente comprobación no es necesaria ya que se usa la sentencia CREATE DATA BASE IF NOT EXISTS, 
@@ -124,7 +124,7 @@
      * 
      * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
-    function crear_tabla_usuario (mysqli $conexion_mysqli) {
+    function crear_tabla_usuario (mysqli $conexion_mysqli) : array {
         try {
             //Verificar si la tabla ya existe
             $sql_check = "SHOW TABLES LIKE 'usuarios';";
@@ -176,7 +176,7 @@
      * 
      * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
-    function crear_tabla_tareas (mysqli $conexion_mysqli) {
+    function crear_tabla_tareas (mysqli $conexion_mysqli) : array {
         try {   
             //Comprobar si la tabla 'tareas' ya existe
             $sql_check = "SHOW TABLES LIKE 'tareas';";
@@ -212,6 +212,46 @@
         }
     }
 
+    /**
+     *  TODO:
+     *  - Revisar documentación.
+     * 
+     * Crea la tabla 'ficheros' si no existe en la base de datos.
+     *
+     * La tabla 'ficheros' almacena información sobre archivos vinculados a tareas.
+     * Cada fichero pertenece a una tarea, estableciendo una relación de 1:N.
+     *
+     * @param mysqli $conexion_mysqli Conexión activa a la base de datos MySQL.
+     * @return array Resultado de la operación con 'success' y 'mensaje'.
+     */
+    function crear_tabla_ficheros (mysqli $conexion_mysqli) : array {
+        try {
+            //Comprobar si la tabla 'tareas' ya existe
+            $sql_check = "SHOW TABLES LIKE 'ficheros';";
+            $resultado = $conexion_mysqli->query($sql_check);
+            if($resultado && $resultado->num_rows > 0) {
+                return ["success" => true, "mensaje" => "La tabla 'ficheros' ya existe"];
+            }
+            // Crear la tabla ficheros y vincularla a la tabla tareas. Cardinalidad 1:N
+            $sql = "CREATE TABLE IF NOT EXISTS `tareas`.`ficheros` (
+                `id` INT UNSIGNED AUTO_INCREMENT,
+                `nombre` VARCHAR(100) NOT NULL COMMENT 'Nombre del fichero',
+                `file` VARCHAR(250) NOT NULL COMMENT 'Ruta donde se aloja el fichero',
+                `descripcion` VARCHAR(250) COMMENT 'Descripción del contenido del fichero',
+                `id_tarea` INT UNSIGNED NOT NULL,
+                CONSTRAINT pk_ficheros PRIMARY KEY (`id`),
+                CONSTRAINT fk_ficheros_tarea FOREIGN KEY (`id_tarea`) REFERENCES `tareas`.`tarea`(`id`)
+                    ON UPDATE CASCADE
+                    ON DELETE CASCADE
+                ) ENGINE=InnoDB";
+            if ($conexion_mysqli->query($sql) === true) {
+                return ["success" => true, "mensaje" => "La tabla 'ficheros' se creo correctamente."];
+            }
+            return ["success" => false, "mensaje" => "No fue posible crear la tabla 'ficheros'."];
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje" => $e->getMessage()];
+        }
+    }
     /**
      * Selecciona todas las tareas de la base de datos junto con el nombre de usuario del creador.
      *
