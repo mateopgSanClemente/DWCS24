@@ -5,7 +5,11 @@
         header("Location: login.php?error=sesion");
         exit;
     }
-
+    // Redirigir a index en caso de que la persona que pretende acceder lo haga sin sen administrador
+    if ($_SESSION["rol"] !== 1) {
+        header("Location: index.php");
+        exit;
+    }
 ?>
 <?php include_once "head.php";?>
     <body>
