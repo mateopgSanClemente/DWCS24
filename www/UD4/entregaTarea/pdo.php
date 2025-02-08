@@ -430,9 +430,9 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
      *               - "datos" (array): Contiene los datos de la tarea (titulo, descripcion, estado, username) en caso de éxito.
      *               - "mensaje" (string): Mensaje de error en caso de que no se encuentre la tarea.
      */
-    function seleccionar_tarea_id (PDO $conexion_PDO, int $id_tarea) : array {
+    function seleccionar_tarea_id_PDO (PDO $conexion_PDO, int $id_tarea) : array {
         // Comprobar que la tarea existe
-        $sql = "SELECT `tareas`.`titulo`, `tareas`.`descripcion`, `tareas`.`estado`, `usuario`.`username`
+        $sql = "SELECT `tareas`.`titulo`, `tareas`.`descripcion`, `tareas`.`estado`, `usuarios`.`username`
                 FROM `tareas`
                 INNER JOIN `usuarios`
                 ON `tareas`.`id_usuario` = `usuarios`.`id`
