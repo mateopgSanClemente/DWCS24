@@ -26,6 +26,10 @@
                                 echo "<div class='alert alert-warning' role='alert'>" . "La contraseña no es correcta" . "</div>";
                             }
                         }
+                        // Mostrar que la sesión se cerró correctamente
+                        if (isset($_GET["cerrar"]) && $_GET["cerrar"] == true) {
+                            echo "<div class='alert alert-success' role='alert'>" . "La sesión se cerró correctamente" . "</div>";
+                        }
                     ?>
                     <form action="loginAuth.php" method="post">
                         <!-- Campo para el username -->

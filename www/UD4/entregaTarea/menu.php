@@ -10,5 +10,6 @@
         <li class="list-group-item"><a class="nav-link" href="nuevaForm.php">Nueva tarea</a></li>
         <li class="list-group-item"><a class="nav-link" href="tareas.php">Listar tareas</a></li>
         <li class="list-group-item"><a class="nav-link" href="buscaTareas.php">Buscar tareas de usuario</a></li>
+        <li class="list-group-item"><a class="nav-link" href="logout.php">Cerrar sesión</a></li>
     </ul>
 </aside>
