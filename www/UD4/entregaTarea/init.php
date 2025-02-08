@@ -74,7 +74,20 @@
                                         // Mostrar mensaje de éxito
                                         echo "<h3 class='pt-2 pb-4 mb-3 border-bottom'>Estado de la <b>tabla tareas</b></h3>";
                                         echo "<div class='alert alert-success' role='alert'>" . $resultado_tabla_tareas["mensaje"] . "</div>";
-                                        cerrar_conexion($resultado_conectar["conexion"]);
+                                        // Crear tabla ficheros
+                                        $resultado_tabla_ficheros = crear_tabla_ficheros($resultado_conectar["conexion"]);
+                                        // Comprobar que se creó correctamente
+                                        if (!$resultado_tabla_ficheros["success"]) {
+                                            // Mostrar mensaje de error
+                                            echo "<h3 class='pt-2 pb-4 mb-3 border-bottom'>Estado de la <b>tabla tareas</b></h3>";
+                                            echo "<div class='alert alert-danger' role='alert'>" . $resultado_tabla_ficheros["mensaje"] . "</div>";                                            
+                                            cerrar_conexion($resultado_conectar["conexion"]);
+                                        } else {
+                                            // Mostrar mensaje de éxito
+                                            echo "<h3 class='pt-2 pb-4 mb-3 border-bottom'>Estado de la <b>tabla ficheros</b></h3>";
+                                            echo "<div class='alert alert-success' role='alert'>" . $resultado_tabla_ficheros["mensaje"] . "</div>";
+                                            cerrar_conexion($resultado_conectar["conexion"]);
+                                        }
                                     }
                                 }
                             }                        
