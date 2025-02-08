@@ -414,4 +414,40 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
+
+    /**
+     * Selecciona una tarea por su ID, incluyendo información del usuario asignado.
+     *
+     * Realiza una consulta en la base de datos para obtener el título, la descripción y el estado de la tarea,
+     * junto con el nombre de usuario del propietario de la tarea. Se utiliza una consulta JOIN entre las tablas
+     * `tareas` y `usuarios`.
+     *
+     * @param PDO $conexion_PDO Conexión PDO activa a la base de datos.
+     * @param int $id_tarea     ID de la tarea a seleccionar.
+     *
+     * @return array Devuelve un array asociativo con la siguiente estructura:
+     *               - "success" (bool): Indica si la operación fue exitosa.
+     *               - "datos" (array): Contiene los datos de la tarea (titulo, descripcion, estado, username) en caso de éxito.
+     *               - "mensaje" (string): Mensaje de error en caso de que no se encuentre la tarea.
+     */
+    function seleccionar_tarea_id (PDO $conexion_PDO, int $id_tarea) : array {
+        // Comprobar que la tarea existe
+        $sql = "SELECT `tareas`.`titulo`, `tareas`.`descripcion`, `tareas`.`estado`, `usuario`.`username`
+                FROM `tareas`
+                INNER JOIN `usuarios`
+                ON `tareas`.`id_usuario` = `usuarios`.`id`
+                WHERE `tareas`.`id` = :id_tarea";
+        $stmt = $conexion_PDO->prepare($sql);
+        $stmt->bindParam(":id_tarea", $id_tarea, PDO::PARAM_INT);
+        $stmt->execute();
+        // Comprobar que la tarea existe
+        if ($stmt->rowCount() > 0) {
+            // Si existe se retornan los datos después de recoger el resultado
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            return ["success" => true, "datos" => $resultado];
+        } else {
+            // Si no existe, se retorn un mensaje de error
+            return ["success" => false, "mensaje" => "La tarea con ID $id_tarea no existe en la base de datos."];
+        }
+    }
 ?>
