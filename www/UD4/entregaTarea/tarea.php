@@ -95,37 +95,40 @@
                                     </div>";
                                 // Mostrar ficheros
                                 // Recoger información sobre los ficheros
-                                $resultado_seleccionar_archivos = seleccionar_archivos($conexion_PDO);
+                                $resultado_seleccionar_archivos = seleccionar_fichero_tarea($conexion_PDO, $id_tarea);
                                 echo "<div class='container mt-4 mb-4'>
                                 <div class='card'>
                                     <div class='card-header'>
                                     Archivos adjuntos
                                     </div>
                                     <div class='card-body'>
-                                    <div class='row'>
-                                        <!-- Columna para añadir archivo -->
-                                        <div class='col-md-4'>
-                                        <div class='d-flex flex-column justify-content-center align-items-center' style='border: 2px dashed #ccc; height: 150px;'>
-                                            <i class='bi bi-plus-circle' style='font-size: 2rem;'></i>
-                                            <a href='subidaFichForm.php?id=$id_tarea' class='text-decoration-none mt-2'>Añadir archivo adjunto</a>
-                                        </div>
-                                        </div>";
+                                    <div class='row d-flex align-items-stretc'>";
+                                        
                                         if ($resultado_seleccionar_archivos["success"]){
                                             $array_ficheros = $resultado_seleccionar_archivos["datos"];
                                             // Mostrar ficheros de forma dinámica
                                             foreach ($array_ficheros as $fichero){
                                                 echo "<div class='col-md-4 my-2'>
-                                                <div class='card'>
+                                                <div class='card h-100'>
                                                     <div class='card-body'>
                                                         <h5 class='card-title'>" . $fichero["nombre"] . "</h5>
                                                         <p class='card-text'>" . $fichero["descripcion"] . "</p>
-                                                        <a href='ruta-al-fichero-para-descargar' class='btn btn-success'>Descargar</a>
-                                                        <a href='borraFichero.php?id=$id_tarea&id_fichero=" . $fichero["id"] . "' class='btn btn-danger'>Eliminar</a>
+                                                        <a href='descargaFichero.php?id=$id_tarea&id_fichero=" . $fichero["id"] . "' class='btn btn-success'>Descargar</a>
+                                                        <a href='borraFichero.php?id=$id_tarea&id_fichero=" . $fichero["id"] . "' class='btn btn-danger' blank>Eliminar</a>
                                                     </div>        
                                                 </div>
                                                 </div>";
                                             }
                                         }
+                                        echo "<!-- Columna para añadir archivo -->
+                                        <div class='col-md-4  my-2'>
+                                        <div class='card h-100'>
+                                        <div class='card-body d-flex flex-column justify-content-center align-items-center'>
+                                            <i class='bi bi-plus-circle' style='font-size: 2rem;'></i>
+                                            <a href='subidaFichForm.php?id=$id_tarea' class='text-decoration-none mt-2'>Añadir archivo adjunto</a>
+                                        </div>
+                                        </div>
+                                        </div>";
                                     echo "</div>
                                     </div>
                                 </div>
