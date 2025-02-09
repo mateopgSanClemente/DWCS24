@@ -21,6 +21,6 @@
     // Eliminar de la base de datos
     eliminar_fichero($conexion_PDO, $id_fichero);
     $conexion_PDO = null;
-    header("Location: tareas.php?id=" . $id_tarea . "&eliminar=true");
+    header("Location: tarea.php?id=" . $id_tarea . "&eliminar=true");
     exit;
 ?>
