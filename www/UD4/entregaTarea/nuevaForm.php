@@ -41,7 +41,6 @@
                         </div>
                         <!-- Seleccionar usuario: se verá el username pero se vinculará a su id -->
                         <div class="mb-3">
-                            <label class="form-label" for="usuario">Seleccionar usuario</label>                            
                                 <!-- Generar las opciones de select de forma dinámica -->
                                 <?php
                                     require_once "pdo.php";
@@ -54,17 +53,30 @@
                                         echo "<div class='alert alert-danger'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
                                     } else {   
                                         // Seleccionar usuario de la base de datos
-                                        $resultado_seleccionar_usuarios = seleccionar_usuarios($conexion_PDO);
-                                        if(!$resultado_seleccionar_usuarios["success"]){
-                                            echo "<div class='alert alert-warning'>" . $resultado_seleccionar_usuarios["mensaje"] . "</div>"; 
-                                        } else {  
-                                            echo "<select class='form-select' name='usuario' id='usuario'>";
-                                            echo "<option value='' selected disabled>Selecciona un usuario</option>";
-                                            foreach($resultado_seleccionar_usuarios["datos"] as $usuario) {
-                                                echo "<option value='". $usuario['id'] . "'>" . $usuario['username'] . "</option>";                                             
+                                        // El campo usuario viene predefinido para usuarios normales, que son ellos mismos
+                                        // Los administradores tienen acceso a todos los usuarios
+                                        if ($_SESSION["rol"] == 1) {
+                                            echo "<label class='form-label' for='usuario'>Seleccionar usuario</label>";                           
+                                            $resultado_seleccionar_usuarios = seleccionar_usuarios($conexion_PDO);
+                                            if(!$resultado_seleccionar_usuarios["success"]){
+                                                echo "<div class='alert alert-warning'>" . $resultado_seleccionar_usuarios["mensaje"] . "</div>"; 
+                                            } else {  
+                                                echo "<select class='form-select' name='usuario' id='usuario'>";
+                                                echo "<option value='' selected disabled>Selecciona un usuario</option>";
+                                                foreach($resultado_seleccionar_usuarios["datos"] as $usuario) {
+                                                    echo "<option value='". $usuario['id'] . "'>" . $usuario['username'] . "</option>";                                             
+                                                }
+                                                echo "</select>";
                                             }
-                                            echo "</select>";
+                                        } else if ($_SESSION["rol"] == 0) {
+                                            // Seleccionar el id de usuario asociado a un username
+                                            // Seleccionar el id de usuario asociado a un username
+                                            $username = $_SESSION["usuario"];
+                                            $resultado_seleccionar_usuarios = seleccionar_id_username($conexion_PDO, $username);
+                                            $id_usuario = $resultado_seleccionar_usuarios["datos"]["id"];
+                                            echo "<input type='hidden' name='usuario' id='usuario' value='$id_usuario'>";
                                         }
+
                                         // Cerrar conexión PDO
                                         $conexion_PDO = null;
                                     }
