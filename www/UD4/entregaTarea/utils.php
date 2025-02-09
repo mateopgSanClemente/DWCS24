@@ -112,7 +112,7 @@
             $errores["contrasena"][] = "No puede exceder los 100 caracteres.";
         }
         // Validar rol: Obligatorio, debe ser un número entero y solo puede contener los valores 0 y 1.
-        if (!isset($rol)) {
+        if (empty($rol)) {
             $errores["rol"][] = "El campo 'rol' es obligatorio.";
         }
         if (!is_int($rol)) {
