@@ -563,4 +563,29 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
         }
     }
+
+    /**
+     * Seleccionar el id de usuario que corresponde al id
+     */
+    function seleccionar_id_username (PDO $conexion_PDO, string $username) : array {
+        try {
+            // Consulta
+            $sql = "SELECT id FROM usuarios WHERE username = :username";
+            // Preparar consulta
+            $stmt = $conexion_PDO->prepare($sql);
+            // Vincular parámetros
+            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
+            // Ejecutar consulta
+            $stmt->execute();
+            // Si se encontró un usuario con ese username, retornarlo
+            if ($stmt->rowCount() > 0) {
+                // Recoger el resultado
+                $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+                return ["success" => true, "datos" => $resultado];
+            }
+            return ["success" => false, "mensaje" => "El usuario '$username' no existe en la base de datos."];
+        } catch (PDOException $e) {
+            return ["success" => false, "mensaje" => $e->getMessage()];
+        }
+    }
 ?>
