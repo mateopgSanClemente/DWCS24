@@ -21,10 +21,28 @@
                 <main class="col-md-9 main-content">
                     <h2 class="pt-4 pb-2 mb-3 border-bottom">Modificar Usuario</h2>
                     <?php
-                        /**
-                         *  TODO:
-                         *  - Modificar el código para que incluya el campo rol.
-                         */
+                        // Muestro los errores en la validación del formulario en caso de que existan
+                        if (isset($_SESSION["errorVal"])){
+                            // Crear una lista dinámica de mensajes con información sobre los errores asociados a un campo.
+                            foreach ($_SESSION["errorVal"] as $nombre_campo => $errores) {
+                                echo "<h4 class='pt-2 pb-4 mb-3 border-bottom'>Campo <b>$nombre_campo</b></h4>";
+                                echo "<ul>";
+                                foreach ($errores as $error) {                                
+                                    echo "<li class='alert alert-warning' role='alert'>" . $error . "</li>";                                     
+                                }
+                                echo "</ul>";
+                            }
+                            unset($_SESSION["errorVal"]);
+                        } else if (isset($_SESSION["errorConPDO"])){
+                            echo "<div class='alert alert-danger'>" . $_SESSION["errorConPDO"] . "</div>";
+                            unset($_SESSION["errorConPDO"]);
+                        } else if (isset($_SESSION["errorInsUser"])){
+                            echo "<div class='alert alert-warning'>" . $_SESSION["errorInsUser"] . "</div>";
+                            unset($_SESSION["errorInsUser"]);
+                        } else if (isset($_SESSION["success"])){
+                            echo "<div class='alert alert-success'>" . $_SESSION["success"] . "</div>";
+                            unset($_SESSION["success"]);
+                        }
                         // Crear conexión PDO
                         require_once "pdo.php";
                         $resultado_conexion_PDO = conectar_PDO();
