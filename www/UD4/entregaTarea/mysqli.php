@@ -142,6 +142,7 @@
                 `contrasena` VARCHAR(100) NOT NULL,
                 `rol` TINYINT(1) NOT NULL,
                 CONSTRAINT pk_usuarios PRIMARY KEY (`id`),
+                CONSTRAINT uk_usuarios_username UNIQUE (`username`),
                 CONSTRAINT chk_rol CHECK (`rol` IN (0, 1))
                 ) ENGINE=InnoDB;";
         
