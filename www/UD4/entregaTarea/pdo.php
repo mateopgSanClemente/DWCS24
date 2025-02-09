@@ -547,4 +547,20 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
         }
     }
+
+    /**
+     * Seleccionar ficheros or su id_tarea
+     */
+    function seleccionar_fichero_tarea (PDO $conexion_PDO, int $id_tarea) {
+        try {
+            $sql = ("SELECT * FROM ficheros WHERE id_tarea = :id_tarea");
+            $stmt = $conexion_PDO->prepare($sql);            
+            $stmt->bindParam(':id_tarea', $id_tarea, PDO::PARAM_INT);
+            $stmt->execute();
+            $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return ["success" => true, "datos" => $resultado];
+        } catch (PDOException $e) {
+            return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
+        }
+    }
 ?>
