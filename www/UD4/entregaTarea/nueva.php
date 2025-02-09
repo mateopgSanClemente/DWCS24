@@ -28,14 +28,15 @@
         //Insertar los resultados en la tabla tareas
         //Conexion mysqli
         $resultado_conexion_mysqli = conectar_mysqli();
-        $mysqli_conn = $resultado_conexion_mysqli["conexion"];
+        
         // Comprobar que la conexión se realizó correctamente.
         if (!$resultado_conexion_mysqli["success"]){
             // Guardar el mensaje en una variable de sesión
-            $_SESSION["errorConMysqli"] = $resultado_conexion_mysqli["mensaje"];
+            $_SESSION["errorConMysqli"] = $resultado_conexion_mysqli["error"];
             header ("Location: " . $_SERVER["HTTP_REFERER"]);
             exit;
         } else {
+            $mysqli_conn = $resultado_conexion_mysqli["conexion"];
             // Insertar datos
             $resultado_agregar_tarea = agregar_tarea($mysqli_conn, $tarea_titulo, $tarea_descripcion, $tarea_estado, $tarea_id_usuario);
             // Mostrar mensaje de error o éxito
