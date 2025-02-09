@@ -16,7 +16,17 @@
             <main class="col-md-9 main-content">
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Lista de Tareas</h2>
                 <?php
-
+                // Mostrar mensajes de error mediante variables de sesión
+                if (isset($_SESSION["errorConMysqli"])){
+                    echo ("<div class='alert alert-danger' role='alert'>" . $_SESSION["errorConMysqli"] . "</div>");
+                    unset($_SESSION["errorConMysqli"]);
+                } else if (isset($_SESSION["errorDel"])){
+                    echo ("<div class='alert alert-warning' role='alert'>" . $_SESSION["errorDel"] . "</div>");
+                    unset($_SESSION["errorDel"]);
+                } else if (isset($_SESSION["success"])){
+                    echo ("<div class='alert alert-success' role='alert'>" . $_SESSION["success"] . "</div>");
+                    unset($_SESSION["success"]);
+                }
                 if(empty($_POST)) {
                     require_once "mysqli.php";
                     // Crear la conexion
