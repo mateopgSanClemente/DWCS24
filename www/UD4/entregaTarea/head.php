@@ -14,7 +14,6 @@
             text-align: center;
             padding: 10px;
             border-top: 1px solid #ddd;
-            position: fixed;
             bottom: 0;
             width: 100%;
         }

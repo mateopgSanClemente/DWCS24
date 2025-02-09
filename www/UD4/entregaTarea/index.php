@@ -6,10 +6,10 @@
     }
 ?>
 <?php include_once "head.php"; ?>
-<body>
+<body class='d-flex flex-column min-vh-100'>
     <!-- header -->
     <?php include_once 'header.php';?>
-    <div class="container-fluid d-flex flex-column">
+    <div class="container-fluid flex-grow-1">
         <div class="row">
             <!-- menu -->
             <?php
@@ -19,7 +19,7 @@
                 <div class="pt-4 pb-2 mb-3 border-bottom">
                     <h2>Sobre mí</h2>
                 </div>
-                <p>Mi nombre es <b>Mateo Pastor González</b> y estoy cursando la asignatura <b>DWCS</b>.</p>
+                <p>Pagina para la gestión de tareas y usuarios</p>
             </main>
         </div>
 
