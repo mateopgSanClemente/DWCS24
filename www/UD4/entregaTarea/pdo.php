@@ -516,4 +516,19 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
+
+    /**
+     * Eliminar un fichero según su id
+     * 
+     */
+    function eliminar_fichero (PDO $conexion_PDO, int $id_fichero) {
+        try {
+            $sql = ("DELETE FROM ficheros WHERE id = :id");
+            $stmt = $conexion_PDO->prepare($sql);            
+            $stmt->bindParam(':id', $id_fichero, PDO::PARAM_INT);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
+        }
+    }
 ?>
