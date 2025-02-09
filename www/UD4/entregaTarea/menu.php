@@ -16,4 +16,13 @@
         ?>
         <li class="list-group-item"><a class="nav-link" href="logout.php">Cerrar sesión</a></li>
     </ul>
+    <form class="m-3 w-50" action="tema.php">
+        <label for="tema" class="form-label">Tema</label>
+        <select id="tema" name="tema" class="form-select mb-2" aria-label="Selector de tema">
+            <option value="light" selected> Claro</option>
+            <option value="dark">Oscuro</option>
+            <option value="auto">Automático</option>
+        </select>
+        <button type="submit" class="btn btn-primary w-100">Aplicar</button>
+    </form>
 </aside>
