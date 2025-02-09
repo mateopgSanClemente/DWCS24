@@ -48,7 +48,8 @@
                         $conexion_PDO = $resultado_conexion_PDO["conexion"];
                         $resultado_producto = insertar_archivo($conexion_PDO, $fichero_nombre, $target_file, $id_tarea, $fichero_descripcion);
                         // Redirigir
-                        header ("Location: tareas.php?id=" . $_GET["id"]);
+                        header ("Location: tareas.php?id=" . $_GET["id"] . "&success=true");
+                        exit;
                     }
                 }
             }
