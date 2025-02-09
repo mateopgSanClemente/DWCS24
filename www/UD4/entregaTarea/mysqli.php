@@ -436,6 +436,57 @@
             }
         }
     }
+
+    /**
+     * Seleciconar las tareas asociadas a un username
+     *  TODO:
+     *  - Documentar
+     */
+    
+    function seleccionar_tarea_username (mysqli $conexion_mysqli, string $username) {
+        try {
+            //Consulta sql para selecionar una tarea por su id
+            $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
+            FROM tareas
+            INNER JOIN usuarios
+            ON tareas.id_usuario = usuarios.id
+            WHERE usuarios.username = ?;";
+
+            //Consulta preparada
+            $stmt = $conexion_mysqli->prepare($sql);
+
+            //Vincular parámetro
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+
+            //Obtener resultado
+            $resultado = $stmt->get_result();
+
+            //Verificar resultados
+            if($resultado->num_rows === 0) {
+                return ["success" => false, "mensaje" => "El usuario '$username' no tiene tareas asociadas."];
+            }
+            
+            // Covertir el resultado en un array asociativo
+            $conjunto_tareas = $resultado->fetch_all(MYSQLI_ASSOC);
+
+            // Liberar memoria del resultado
+            $resultado->free();
+
+            // Decodificar la tarea
+            $conjunto_tareas = array_map(function ($tareas){
+                return array_map ("htmlspecialchars_decode", $tareas);
+            }, $conjunto_tareas);
+            
+            return ["success" => true, "datos" => $conjunto_tareas];
+        } catch (mysqli_sql_exception $e) {
+            return ["success" => false, "mensaje" => "Error al obtener la tarea: " . $e->getMessage()];
+        } finally {
+            if(isset($stmt)) {
+                $stmt->close();
+            }
+        }
+    }
     
     /**
      * Elimina una tarea de la base de datos por su ID.
