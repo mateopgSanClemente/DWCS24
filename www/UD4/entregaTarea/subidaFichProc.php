@@ -4,14 +4,7 @@
     if (!isset($_SESSION["usuario"])){
         header("Location: login.php?error=sesion");
     }
-    /**
-     *  TODO:
-     *  - Validar formulario.
-     *  - Sanear datos formulario
-     *  - Formatos válidos: jpg, png y pdf.
-     *  - Tamaño máximo de fichero: 20Mb
-     */
-    
+        
     // Comprobar que la imagen se subió correctamente al formulario
     $fichero = $_FILES["producto"];
     if(isset($fichero) && $fichero["error"] == UPLOAD_ERR_OK){
@@ -21,11 +14,20 @@
             $fichero_descripcion = $_POST["descripcion"];
         }
         $target_dir = "files/";
+        /**
+         *  TODO:
+         *  - Arreglar esto, funciona para salir del paso me es bastante chapucero.
+         *  - Podría simplificar todo el apartado de mensajes de error mediante arrays?
+         *  - Me gustaría evitar que el código quedase tan anidado.
+         */
+        // Generar un nombre aleatorio para el fichero.
+        $nombre_aleatorio = bin2hex(random_bytes(8));
         $target_file = $target_dir . basename($fichero["name"]);
         $img_file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        // Cambio el valor de terget_file para que su nombre corresponda con el nuevo nombre
+        $target_file = $target_dir . $nombre_aleatorio .".". $img_file_type;
         $tipos_validos = ["png", "jpg", "pdf"];
-        // Guardar valor del fichero en una variable
-        $foto_producto = file_get_contents($fichero["tmp_name"]);
+
         // Verificar el que el tamaño del fichero es el correcto: 20Mb
         if($fichero["size"] <= 20000000){            
         // Verificar que el tipo de archivo es el correcto
@@ -47,12 +49,26 @@
                         $id_tarea = intval($_GET["id"]);
                         $conexion_PDO = $resultado_conexion_PDO["conexion"];
                         $resultado_producto = insertar_archivo($conexion_PDO, $fichero_nombre, $target_file, $id_tarea, $fichero_descripcion);
+                        // Cerrar conexión
+                        $conexion_PDO = null;
                         // Redirigir
                         header ("Location: tarea.php?id=" . $_GET["id"] . "&success=true");
                         exit;
                     }
                 }
+                // Mostrar mensaje de error si no se pudo subir el fichero
+                header ("Location: tarea.php?erroUpload=true");
+                exit;
             }
+             // Mostrar mensaje de error si el fichero no es del tipo válido
+            header ("Location: tarea.php?erroType=true");
+            exit;
         }
+        // Mostrar mensaje de error si el fichero supera los 20Mb
+        header ("Location: tarea.php?erroSize=true");
+        exit;
     }
+    // Mostrar mensaje de error
+    header ("Location: tarea.php?error=true");
+    exit;
 ?>
