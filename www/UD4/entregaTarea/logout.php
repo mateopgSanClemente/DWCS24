@@ -7,7 +7,7 @@
      */
     // Eliminar todas las variables de sesión
     session_unset();
-    // Regenerar el ID de sesión antes de destruirla para mayor seguridad
+    // ? Regenerar el ID de sesión antes de destruirla para mayor seguridad
     session_regenerate_id(true);
     // Destruye la sesión
     session_destroy();
