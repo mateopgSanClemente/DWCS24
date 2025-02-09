@@ -21,6 +21,17 @@
             <main class="col-md-9 main-content">
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Lista de Usuarios</h2>
                 <?php
+                    // Mesaje de error al eliminar usuario
+                    if (isset($_SESSION["errorConPDO"])){
+                        echo "<div class='alert alert-danger' role='alert'>" . $_SESSION["errorConPDO"] . "</div>";
+                        unset($_SESSION["errorConPDO"]);
+                    } else if (isset($_SESSION["errorDel"])){
+                        echo "<div class='alert alert-warning' role='alert'>" . $_SESSION["errorDel"]. "</div>";
+                        unset($_SESSION["errorDel"]);
+                    } else if (isset($_SESSION["success"])) {
+                        echo "<div class='alert alert-success' role='alert'>" . $_SESSION["success"] . "</div>";
+                        unset($_SESSION["success"]);
+                    }
                     require_once "pdo.php";
                     // Conexión PDO con la base de datos
                     $resultado_conexion_PDO = conectar_PDO();
