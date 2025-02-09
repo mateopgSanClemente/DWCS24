@@ -29,7 +29,14 @@
                         // Si la conexión fue exitosa, guardar la conexión en una variable por comodidad
                         $conexion_mysqli = $resultado_conexion_mysqli["conexion"];
                         // Seleccionar tarea
-                        $resultado_seleccionar_tareas = seleccionar_tareas($conexion_mysqli);
+                        if ($_SESSION["rol"] == 1) {
+                            $resultado_seleccionar_tareas = seleccionar_tareas($conexion_mysqli);
+                        }
+                        if ($_SESSION["rol"] == 0) {
+                            // NECESITO EL USERNAME DEL USUARIO
+                            $username = $_SESSION["usuario"];
+                            $resultado_seleccionar_tareas = seleccionar_tarea_username($conexion_mysqli, $username);
+                        }
                         //Comprobar que las tareas se seleccionaron correctamente
                         if (!$resultado_seleccionar_tareas["success"]){
                             // Mostrar mensaje de error
