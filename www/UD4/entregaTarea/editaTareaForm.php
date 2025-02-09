@@ -16,6 +16,28 @@
             <main class="col-md-9 main-content">
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Modificar Tarea</h2>
                 <?php
+                    // Mostrar errores
+                    if (isset($_SESSION["errorVal"])){
+                        foreach ($_SESSION["errorVal"] as $nombre_campo => $errores) {
+                            echo "<h4 class='pt-2 pb-2 mb-3 border-bottom'>Campo </b>$nombre_campo</b></h4>";
+                            echo "<ul>";
+                            foreach ($errores as $error) {                                
+                                echo "<li class='alert alert-warning' role='alert'>" . $error . "</li>";                                     
+                            }
+                            echo "</ul>";
+                        }
+                        unset($_SESSION["errorVal"]);
+                    } else if (isset($_SESSION["errorConMysqli"])){
+                        echo "<div class='alert alert-danger'>" . $_SESSION["errorConMysqli"] . "</div>";
+                        unset($_SESSION["errorConMysqli"]);
+                    } else if (isset($_SESSION["errorInsTask"])){
+                        echo "<div class='alert alert-warning'>" . $_SESSION["errorInsTask"] . "</div>";
+                        unset($_SESSION["errorInsTask"]);
+                    } else if (isset($_SESSION["success"])){
+                        echo "<div class='alert alert-success'>" . $_SESSION["success"] . "</div>";
+                        unset($_SESSION["success"]);
+                    }
+
                     require_once "mysqli.php";
                     //Guardar el id de la tarea
                     $id_tarea = $_GET['id'];
