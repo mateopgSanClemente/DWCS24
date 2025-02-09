@@ -19,9 +19,18 @@
                 /**
                  *  TODO:
                  *  - Mostrar un página con la infomación detallada sobre la tarea cuando el fichero 
-                 *  recive un id y este se corresponde con alguno de las tareas existentes
+                 *  recive un id y este se corresponde con alguno de las tareas existentes. x
+                 *  - Mostar un elemento que contenga la información sobre el fichero subido y dos 
+                 *  botones con las opciones 'descargar' y 'borrar'
                  */
                 // En caso de que el arrat $_GET no esté vacío
+                // Mostrar mensaje informativo en caso de que el fichero se subiera correctamente
+                if (!empty($_GET["success"]) && $_GET["success"] == true){
+                    echo "<div class='alert alert-success' role='alert'>Fichero subido correctamente</div>";
+                }
+                if (!empty($_GET["eliminar"]) && $_GET["eliminar"] == true){
+                    echo "<div class='alert alert-danger' role='alert'>Fichero eliminado</div>";
+                }
                 if (!empty($_GET)){
                     // Convertir el tipo de dato en un entero
                     // Validar el contenido del array GET: El valor de la clave deber ser 'id' y el valor ser de tipo entero
@@ -42,13 +51,13 @@
                             if (!$resultado_tarea_id["success"]) {
                                 echo "<div class='alert alert-warning' role='alert'>" . $resultado_tarea_id["mensaje"] . "</div>";
                             } else {
-                                // Mostrar la información detallada de la tarea
                                 // Recoger los datos de la tarea en variables
                                 $tarea = $resultado_tarea_id["datos"];
                                 $titulo_tarea = $tarea["titulo"];
                                 $descripcion_tarea = $tarea["descripcion"];
                                 $estado_tarea = $tarea["estado"];
                                 $tarea_username = $tarea["username"];
+                                // Mostrar la información detallada de la tarea
                                 echo "<div class='container mt-5'>
                                         <table class='table table-bordered'>
                                         <thead>
@@ -75,24 +84,43 @@
                                             </tr>
                                         </tbody>
                                         </table>
-                                    </div>
-                                    <div class='container mt-4 mb-4'>
-                                        <!-- Contenedor para Archivos adjuntos -->
-                                        <div class='card'>
-                                            <div class='card-header'>
-                                            Archivos adjuntos
-                                            </div>
-                                            <div class='card-body'>
-                                            <!-- Área para añadir archivo con borde punteado -->
-                                            <div class='d-flex justify-content-center align-items-center' style='border: 2px dashed #ccc; height: 150px;'>
-                                                <span class='h1 mb-0'>+</span>
-                                            </div>
-                                            <!-- Enlace o botón para añadir archivo adjunto -->
-                                            <div class='text-center mt-3'>
-                                                <a href='subidaFichForm.php?id=" . strval($id_tarea) . "' class='text-decoration-none'>Añadir archivo adjunto</a>
-                                            </div>
-                                            </div>
+                                    </div>";
+                                    // Mostrar ficheros
+                                    // Recoger información sobre los ficheros
+                                    $resultado_seleccionar_archivos = seleccionar_archivos($conexion_PDO);
+                                    echo "<div class='container mt-4 mb-4'>
+                                    <div class='card'>
+                                        <div class='card-header'>
+                                        Archivos adjuntos
                                         </div>
+                                        <div class='card-body'>
+                                        <div class='row'>
+                                            <!-- Columna para añadir archivo -->
+                                            <div class='col-md-4'>
+                                            <div class='d-flex flex-column justify-content-center align-items-center' style='border: 2px dashed #ccc; height: 150px;'>
+                                                <i class='bi bi-plus-circle' style='font-size: 2rem;'></i>
+                                                <a href='subidaFichForm.php?id=$id_tarea' class='text-decoration-none mt-2'>Añadir archivo adjunto</a>
+                                            </div>
+                                            </div>";
+                                            if ($resultado_seleccionar_archivos["success"]){
+                                                $array_ficheros = $resultado_seleccionar_archivos["datos"];
+                                                // Mostrar ficheros de forma dinámica
+                                                foreach ($array_ficheros as $fichero){
+                                                    echo "<div class='col-md-4 my-2'>
+                                                    <div class='card'>
+                                                        <div class='card-body'>
+                                                            <h5 class='card-title'>" . $fichero["nombre"] . "</h5>
+                                                            <p class='card-text'>" . $fichero["descripcion"] . "</p>
+                                                            <a href='ruta-al-fichero-para-descargar' class='btn btn-success'>Descargar</a>
+                                                            <a href='borraFichero.php?id=$id_tarea&id_fichero=" . $fichero["id"] . "' class='btn btn-danger'>Eliminar</a>
+                                                        </div>        
+                                                    </div>
+                                                    </div>";
+                                                }
+                                            }
+                                        echo "</div>
+                                        </div>
+                                    </div>
                                     </div>";
                             }
                         }
