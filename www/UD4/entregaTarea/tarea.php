@@ -22,6 +22,7 @@
                  *  recive un id y este se corresponde con alguno de las tareas existentes. x
                  *  - Mostar un elemento que contenga la información sobre el fichero subido y dos 
                  *  botones con las opciones 'descargar' y 'borrar'
+                 *  - Mostrar mensajes de error mediante sesiones.
                  */
                 // En caso de que el arrat $_GET no esté vacío
                 // Mostrar mensaje informativo en caso de que el fichero se subiera correctamente o no

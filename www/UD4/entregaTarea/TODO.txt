@@ -8,3 +8,7 @@ TODO:
         - Modificar todos los ficheros para hacerlos de esta forma.
     - Investigar como funcionan las cabeceras que manejan la descarga.
     - Enviar los mensajes de error a través de la sesión.
+    - Cuando ocurra algún error a la hora de validar los campos de los formularios
+    tarea y usuario, mostrar estos debajo de cada campo.
+    - Cambiar los mensajes de error y éxito para que sean más coherentes entre
+    ellos y sen más intuitivos -> accesibilidad

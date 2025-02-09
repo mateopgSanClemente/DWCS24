@@ -47,12 +47,10 @@
             if(!$resultado_agregar_usuario["success"]) {
                 $_SESSION["errorInsUser"] = $resultado_agregar_usuario["mensaje"];
                 header ("Location: " . $_SERVER["HTTP_REFERER"]);
-                exit;
             }
             else {
                 $_SESSION["success"] = $resultado_agregar_usuario["mensaje"];
                 header ("Location: " . $_SERVER["HTTP_REFERER"]);
-                exit;
             }
             $conexion_PDO = null;
         }
