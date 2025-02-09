@@ -495,4 +495,24 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
             return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
         }
     }
+
+    /**
+     *  TODO:
+     *  - 
+     * Seleccionar información ficheros
+     */
+    function seleccionar_archivos (PDO $conexion_PDO) : array {
+        try {
+            $sql = "SELECT id, nombre, `file`, descripcion FROM ficheros";
+            $stmt = $conexion_PDO->prepare($sql);
+            $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($stmt->rowCount()== 0)  {
+                return ["success" => false, "mensaje" => "No hay ficheros en la base de datos."];
+            }
+            return ["success" => true, "datos" => $resultado];
+            
+        } catch (PDOException $e) {
+            return ["success" => false, "mensaje" => $e->getMessage()];
+        }
+    }
 ?>
