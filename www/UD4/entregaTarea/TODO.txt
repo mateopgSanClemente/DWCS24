@@ -16,3 +16,5 @@ TODO:
         tarea y usuario, mostrar estos debajo de cada campo.
     - Cambiar los mensajes de error y éxito para que sean más coherentes entre
     ellos y sen más intuitivos -> accesibilidad
+    - La función validaUsuario tiene que validar el rol, de momento lo pongo 
+    como required en el formulario pero hay que cambiarlo.
