@@ -498,13 +498,14 @@ function modificar_usuario(PDO $conexion, int $id, string $username, string $nom
 
     /**
      *  TODO:
-     *  - 
+     *  - Documentar.
      * Seleccionar información ficheros
      */
     function seleccionar_archivos (PDO $conexion_PDO) : array {
         try {
             $sql = "SELECT id, nombre, `file`, descripcion FROM ficheros";
             $stmt = $conexion_PDO->prepare($sql);
+            $stmt->execute();
             $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if ($stmt->rowCount()== 0)  {
                 return ["success" => false, "mensaje" => "No hay ficheros en la base de datos."];
