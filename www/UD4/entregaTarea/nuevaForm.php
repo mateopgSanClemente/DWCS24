@@ -18,6 +18,29 @@
             <!--Formulario-->
             <!--Mi idea inicial era añadir el atributo required a algunos de los campos del formulario, pero lo eliminé con el fin de validarlos a través del fichero nueva.php y las funciones del fichero utils.php-->
                 <h2 class="pt-4 pb-2 mb-3 border-bottom">Registrar Tarea</h2>
+                <?php
+                    // Mostrar errores
+                    if (isset($_SESSION["errorVal"])){
+                        foreach ($_SESSION["errorVal"] as $nombre_campo => $errores) {
+                            echo "<h4 class='pt-2 pb-2 mb-3 border-bottom'>Campo </b>$nombre_campo</b></h4>";
+                            echo "<ul>";
+                            foreach ($errores as $error) {                                
+                                echo "<li class='alert alert-warning' role='alert'>" . $error . "</li>";                                     
+                            }
+                            echo "</ul>";
+                        }
+                        unset($_SESSION["errorVal"]);
+                    } else if (isset($_SESSION["errorConMysqli"])){
+                        echo "<div class='alert alert-danger'>" . $_SESSION["errorConMysqli"] . "</div>";
+                        unset($_SESSION["errorConMysqli"]);
+                    } else if (isset($_SESSION["errorInsTask"])){
+                        echo "<div class='alert alert-warning'>" . $_SESSION["errorInsTask"] . "</div>";
+                        unset($_SESSION["errorInsTask"]);
+                    } else if (isset($_SESSION["success"])){
+                        echo "<div class='alert alert-success'>" . $_SESSION["success"] . "</div>";
+                        unset($_SESSION["success"]);
+                    }
+                ?>
                 <section>
                     <form class="mb-5" action="nueva.php" method="post">
                         <div class="mb-3">
@@ -61,7 +84,7 @@
                                             if(!$resultado_seleccionar_usuarios["success"]){
                                                 echo "<div class='alert alert-warning'>" . $resultado_seleccionar_usuarios["mensaje"] . "</div>"; 
                                             } else {  
-                                                echo "<select class='form-select' name='usuario' id='usuario'>";
+                                                echo "<select class='form-select' name='usuario_id' id='usuario'>";
                                                 echo "<option value='' selected disabled>Selecciona un usuario</option>";
                                                 foreach($resultado_seleccionar_usuarios["datos"] as $usuario) {
                                                     echo "<option value='". $usuario['id'] . "'>" . $usuario['username'] . "</option>";                                             
