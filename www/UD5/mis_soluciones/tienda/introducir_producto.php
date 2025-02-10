@@ -1,3 +1,6 @@
+<?php
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <?php
@@ -15,6 +18,19 @@
             
             <main class="col-md-9 main-content">
                 <h2 class="mb-4">Introducir producto</h2>
+
+                <?php
+                    // Mostrar mensaje de error
+                    if(isset($_SESSION["error"])){
+                        echo "<div class='alert alert-warning' role='alert'>{$_SESSION["error"]}</div>";  
+                        unset($_SESSION["error"]);  
+                    } else if(isset($_SESSION["success"])){
+                        echo "<div class='alert alert-success' role='alert'>{$_SESSION["success"]}</div>";
+                        echo "<img src='mostrar_foto.php' class='img-fluid rounded shadow mx-auto d-block'>";
+                        unset($_SESSION["success"]);
+                    }
+                ?>
+
                 <form method="post" action="validar_producto.php" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="nombre_producto" class="form-label">Nombre de producto</label>
