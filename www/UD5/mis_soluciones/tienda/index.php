@@ -7,12 +7,12 @@
 <?php
     include_once "head.php";
 ?>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Header -->
     <?php
         include_once "header.php";
     ?>
-    <div class="container-fluid">
+    <div class="container-fluid flex-grow-1">
         <div class="row">
             <!-- Sidebar -->
             <?php

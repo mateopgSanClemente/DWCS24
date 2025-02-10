@@ -3,7 +3,7 @@
 <?php
     include_once "head.php"
 ?>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <?php
         include_once "header.php";
     ?>

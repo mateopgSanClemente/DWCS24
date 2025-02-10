@@ -8,6 +8,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            height: 100%;
         }
 
         header {
@@ -22,7 +23,6 @@
             text-align: center;
             padding: 10px;
             border-top: 1px solid #ddd;
-            position: fixed;
             bottom: 0;
             width: 100%;
         }
