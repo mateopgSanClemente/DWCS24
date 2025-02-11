@@ -1,3 +1,6 @@
+<?php
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <?php
@@ -11,7 +14,7 @@
 ?>
 
 <!-- Layout -->
-<div class="container-fluid">
+<div class="container-fluid flex-grow-1">
     <div class="row">
         <!-- Sidebar -->
         <?php
@@ -23,6 +26,16 @@
             <!-- Listar Usuarios -->
             <section id="listar" class="mb-4">
                 <h2>Listar Usuarios</h2>
+                <?php
+                    // Mostrar éxito
+                    if (isset($_SESSION["success"])){
+                        echo "<div class='alert alert-success role='alert'>" . $_SESSION["success"] . "</div>";
+                        unset($_SESSION["success"]);
+                    } else if (isset($_SESSION["error"])){
+                        echo "<div class='alert alert-warning role='alert'>" . $_SESSION["error"] . "</div>";
+                        unset($_SESSION["error"]);
+                    }
+                ?>
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>

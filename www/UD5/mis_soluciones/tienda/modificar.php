@@ -1,3 +1,6 @@
+<?php
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <?php
@@ -17,7 +20,6 @@
         <?php
             include_once "nav_menu.php";
         ?>
-
         <!-- Main Content -->
         <main class="col-md-9 main-content">
 
@@ -25,10 +27,21 @@
             <section id="modificar" class="mb-4">
                 <h2 class="mb-4">Modificar Usuario</h2>
                 <?php
+
                     echo "<div class='alert alert-warning' role='alert'>Modificando el usuario: " . $_GET['nombre'] . " " . $_GET['apellido'] . "</div>";
                 ?>
                 <h2 class="mb-4">Formulario</h2>
-                <form method="post" action=<?php echo "validar_modificar.php?id=" . $_GET['id'] . "\""?>>
+                <?php
+                    // Mostrar errores
+                    if(isset($_SESSION["error"])){
+                        foreach ($_SESSION["error"] as $mensaje)
+                        {
+                            echo "<div class='alert alert-warning' role='alert'>" . $mensaje . "</div>";
+                        }
+                        unset($_SESSION["error"]);
+                    }
+                ?>
+                <form method="post" action=<?php echo "validar_modificar.php?id={$_GET['id']}&nombre={$_GET["nombre"]}&apellido={$_GET["apellido"]}"?>>
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nuevo Nombre de Usuario</label>
                         <input name="nombre" type="text" class="form-control" id="nombre" placeholder="Nuevo nombre de usuario" required>
