@@ -196,22 +196,28 @@
     /** 
      * Función para modificar un cliente.
     */
-    function modificar_cliente ($conexion, $id, $nombre, $apellidos, $edad, $provincia)
+    function modificar_cliente (mysqli $conexion, Usuario $usuario)
     {
         try
         {
             $sql = "UPDATE clientes SET nombre = ?, apellido = ?, edad = ?, provincia = ? WHERE id = ?";
             $stmt = $conexion->prepare($sql);
 
+            // Tomar los valores del objeto de la clase Usuario mediante getters
+            $nombre = $usuario->getNombre();
+            $apellidos = $usuario->getApellido();
+            $edad = $usuario->getEdad();
+            $provincia = $usuario->getProvincia();
+            $id = $usuario->getId();
             $stmt->bind_param("ssisi", $nombre, $apellidos, $edad, $provincia, $id);
 
             $stmt->execute();
 
-            return [true, "Usuario actualizado."];
+            return ["success" => true, "mensaje" => "Usuario actualizado."];
         }
         catch (mysqli_sql_exception $e)
         {
-            return [false, $e->getMessage()];
+            return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
 
