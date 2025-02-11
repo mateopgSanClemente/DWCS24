@@ -121,20 +121,26 @@
      * Función para insertar un nuevo usuario en la tabla clientes
      * 
      */
-    function insertar_cliente ($conexion, $nombre, $apellidos, $edad, $provincia)
+    function insertar_cliente (mysqli $conexion, Usuario $cliente)
     {
         try
         {
             $stmt = $conexion->prepare("INSERT INTO clientes (nombre, apellido, edad, provincia) VALUES (?,?,?,?)");
+
+            // Recoger en variables las propiedades del objeto y aplicar htmlspecialchars
+            $nombre = $cliente->getNombre();
+            $apellidos = $cliente->getApellido();
+            $edad = $cliente->getEdad();
+            $provincia = $cliente->getProvincia();
             $stmt->bind_param("ssis", $nombre, $apellidos, $edad, $provincia);
 
             $stmt->execute();
 
-            return [true, "Usuario creado correctamente."];
+            return ["success" => true, "mensaje" => "Usuario creado correctamente."];
         }
         catch (mysqli_sql_exception $e)
         {
-            return [false, $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
         }
         finally
         {
@@ -270,7 +276,7 @@
             //Ejecutar la consulta
             $stmt->execute();
 
-            return [true, "Produco agregado correctamente."];
+            return [true, "Producto agregado correctamente."];
         } catch (mysqli_sql_exception $e) {
             return [false, $e->getMessage()];
         }
