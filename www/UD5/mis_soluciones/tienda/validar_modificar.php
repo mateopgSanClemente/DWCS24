@@ -38,7 +38,7 @@
 
     if ($error) {
         $_SESSION["error"] = $mensaje_error;
-        header("Location: modificar.php?id={$_GET['id']}&nombre={$_GET["nombre"]}&apellido={$_GET["apellido"]}");
+        header("Location: modificar.php?id=$id&nombre=$nombre&apellido=$apellido");
         exit;
 
     } else {
