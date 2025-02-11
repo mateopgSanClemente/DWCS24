@@ -1,3 +1,6 @@
+<?php
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <?php
@@ -22,7 +25,22 @@
         <main class="col-md-9 main-content">
             <!-- Registrar Usuario -->
             <section id="registrar" class="mb-4">
-                <h2>Registrar Usuario</h2>
+                <h2>Registrar cliente:</h2>
+                <?php
+                    // Mostrar errores mediante sesiones
+                    if(isset($_SESSION["errorVal"])){
+                        foreach ($_SESSION["errorVal"] as $error){
+                            echo "<div class='alert alert-warning' role='alert'>$error</div>";
+                        }
+                        unset($_SESSION["errorVal"]);
+                    } else if (isset($_SESSION["success"])){
+                        echo "<div class='alert alert-success' role='alert'>{$_SESSION["success"]}</div>";
+                        unset($_SESSION["success"]);
+                    } else if (isset($_SESSION["error"])){
+                        echo "<div class='alert alert-warning' role='alert'>{$_SESSION["error"]}</div>";
+                        unset($_SESSION["error"]);
+                    }
+                ?>
                 <form method="post" action="validar_registrar.php">
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
