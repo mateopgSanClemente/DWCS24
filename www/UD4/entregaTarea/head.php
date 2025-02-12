@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <?php
 // Recuperar el valor de la cookie
-$tema = $_COOKIE["tema"];
+if (isset($_COOKIE["tema"])){
+    $tema = $_COOKIE["tema"];
+}
+
 ?>
-<html lang="es" data-bs-theme="<?php echo $tema;?>">
+<html lang="es" data-bs-theme="<?php echo $tema??"light";?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

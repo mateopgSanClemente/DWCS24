@@ -1,8 +1,10 @@
 <?php
     // Recuperar cookie
-    $tema = $_COOKIE["tema"];
+    if (isset($_COOKIE["tema"])){
+        $tema = $_COOKIE["tema"];
+    }
 ?>
-<nav class="col-md-3 col-lg-3 d-md-block bg-<?php echo $tema; ?> sidebar p-3">
+<nav class="col-md-3 col-lg-3 d-md-block bg-<?php echo $tema??"light"; ?> sidebar p-3">
     <div class="container pt-3 pb-2 mb-3 border-bottom">
         <h2>Menú</h2>
     </div>
