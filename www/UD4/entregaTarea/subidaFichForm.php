@@ -18,18 +18,18 @@
                 <form class="mb-5" action="subidaFichProc.php?id=<?php echo $_GET["id"];?>" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label" for="nombre">Nombre</label>
-                        <input class="form-control" type="text" name="nombre" id="nombre" placeholder="Nombre del producto" required>
+                        <input class="form-control" type="text" name="nombre" id="nombre" placeholder="Nombre del fichero" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="descripcion">Descripcion</label>
-                        <input class="form-control" type="text" name="descripcion" id="descripcion" placeholder="Descripción del producto">
+                        <input class="form-control" type="text" name="descripcion" id="descripcion" placeholder="Descripción de la tarea">
                     </div>
                     <div class="mb-3">
-                        <label for="producto" class="form-label">Seleccionar archivo</label>
-                        <input type="file" name="producto" id="producto" class="form-control">
+                        <label for="fichero" class="form-label">Seleccionar archivo</label>
+                        <input type="file" name="fichero" id="fichero" class="form-control">
                     </div>
                     <div class="mb-3">
-                            <input type="submit" name="submit" value="Subir producto" class="btn btn-success">
+                            <input type="submit" name="submit" value="Subir fichero" class="btn btn-success">
                     </div>
                 </form>
             </main>

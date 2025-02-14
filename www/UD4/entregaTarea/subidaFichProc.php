@@ -6,7 +6,7 @@
     }
         
     // Comprobar que la imagen se subió correctamente al formulario
-    $fichero = $_FILES["producto"];
+    $fichero = $_FILES["fichero"];
     if(isset($fichero) && $fichero["error"] == UPLOAD_ERR_OK){
         // Datos formualrio
         $fichero_nombre = $_POST["nombre"];
