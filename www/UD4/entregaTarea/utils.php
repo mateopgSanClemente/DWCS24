@@ -112,14 +112,11 @@
             $errores["contrasena"][] = "No puede exceder los 100 caracteres.";
         }
         // Validar rol: Obligatorio, debe ser un número entero y solo puede contener los valores 0 y 1.
-        if (empty($rol)) {
+        // ERROR: OJO! La función empty evalúa el valor 0 como 'vacio'. Es esta la foma correcta de corregir este error?
+        if (!in_array($rol, [0, 1], true)) {
             $errores["rol"][] = "El campo 'rol' es obligatorio.";
         }
-        if (!is_int($rol)) {
-            $errores["rol"][] = "El campo 'rol' debe ser un entero.";
-        } else if (($rol !== 0) && ($rol !== 1)) {
-            $errores["rol"][] = "El campo 'rol' debe contener el valor 0 para 'usuario' y 1 para 'administrador'.";
-        }
+
         //Filtrar array de errores para eliminar claves vacias
         $errores = array_filter($errores);
         //Si hay errores, devolverlos
