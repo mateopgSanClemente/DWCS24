@@ -153,37 +153,35 @@
      * @return array Retorna un array asociativo con la siguiente información:
      *     - "success" (bool) : true si la operación tiene éxito, false en caso contrario.
      *     - "mensaje"? (string) : retorna un mensaje informativo si la operación no tuvo éxito.
-     *     - "usuario"? (array) : retorna un objeto de la clase Usuarios.
+     *     - "usuario"? (Usuario) : retorna un objeto de la clase Usuarios.
      */
-    function seleccionar_usuario_id(PDO $conexion, int $id) : array {
+    function seleccionar_usuario_id(PDO $conexion, Usuarios $usuario) : array {
         try {
             // Preparar la consulta para seleccionar datos del usuario
             $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena, rol FROM usuarios WHERE id = :id");
             
             // Vincular el parámetro id y hacer que este sea tratado como un entero
-            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+            $stmt->bindParam(":id", $usuario->getId(), PDO::PARAM_INT);
             // Ejecutar la consulta
             $stmt->execute();
             
             // Establecer el modo de recuperación de datos (por defecto, fetch as array)
             // Recuperar la primera fila de resultados
-            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+            $usuario_resultado = $stmt->fetch(PDO::FETCH_ASSOC);
     
             // Verificar si se encontró un usuario con ese ID
-            if (!$usuario) {
-                return ["success" => false, "mensaje" => "No se encontró ningún usuario con el ID " . $id];
+            if (!$usuario_resultado) {
+                return ["success" => false, "mensaje" => "No se encontró ningún usuario con el ID " . $usuario->getId()];
             }
 
             // Si existe, devolver los datos del usuario
-            $usuario_decodificado = array_map("htmlspecialchars_decode", $usuario);
-            $objeto_usuario = new Usuarios(
-                    $usuario_decodificado["username"],
-                    $usuario_decodificado["nombre"],
-                    $usuario_decodificado["apellidos"],
-                    $usuario_decodificado["rol"],
-                    $usuario_decodificado["contrasena"]
-                );
-            return ["success" => true, "usuario" => $objeto_usuario];
+            $usuario_decodificado = array_map("htmlspecialchars_decode", $usuario_resultado);
+            $usuario->setUsername($usuario_decodificado["username"]);
+            $usuario->setNombre($usuario_decodificado["nombre"]);
+            $usuario->setApellidos($usuario_decodificado["apellidos"]);
+            $usuario->setRol($usuario_decodificado["rol"]);
+            $usuario->setContrasena($usuario_decodificado["contrasena"]);
+            return ["success" => true, "usuario" => $usuario];
         } catch (PDOException $e) {
             // Si ocurre un error con la consulta, devolver el mensaje de error
             return ["success" => false, "mensaje" => "Error al obtener los datos del usuario: " . $e->getMessage()];
@@ -373,33 +371,35 @@
 
     /**
      * Selecciona un usuario de la tabla usuarios por su username,
-     * retorna la contraseña en caso e que exista.
+     * retorna la contraseña y el rol en caso e que exista.
      * 
-     * @param PDO    $conexion_PDO  Conexión PDO a la base de datos.
-     * @param string $username      Nombre de usuario.
+     * @param PDO      $conexion_PDO  Conexión PDO a la base de datos.
+     * @param Usuarios $usuario       Objetao de la clase Usuario.
      * 
      * @return array Devuelve un array asociativo con la siguiente información:
      *               - "success" (bool): true si se encontró al usuario, false en caso contrario.
      *               - "mensaje"? (string): mensaje informativo en caso de error.
-     *               - "datos"? (string): contraseña y rol del usuario en caso de que exista.
+     *               - "usuario"? (string): objeto de la clase Usuarios.
      */
-    function seleccionar_usuario_pass_rol (PDO $conexion_PDO, string $username) : array {
+    function seleccionar_usuario_pass_rol (PDO $conexion_PDO, Usuarios $usuario) : array {
         try {
             // Consulta
             $sql = "SELECT contrasena, rol FROM usuarios WHERE username = :username";
             // Preparar consulta
             $stmt = $conexion_PDO->prepare($sql);
             // Vincular parámetros
-            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
+            $stmt->bindParam(":username", $usuario->getUsername(), PDO::PARAM_STR);
             // Ejecutar consulta
             $stmt->execute();
             // Si se encontró un usuario con ese username, retornarlo
             if ($stmt->rowCount() > 0) {
                 // Recoger el resultado
                 $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-                return ["success" => true, "datos" => $resultado];
+                $usuario->setContrasena($resultado["contrasena"]);
+                $usuario->setRol($resultado["rol"]);
+                return ["success" => true, "usuario" => $usuario];
             }
-            return ["success" => false, "mensaje" => "El usuario '$username' no existe en la base de datos."];
+            return ["success" => false, "mensaje" => "El usuario '{$usuario->getUsername()}' no existe en la base de datos."];
         } catch (PDOException $e) {
             return ["success" => false, "mensaje" => $e->getMessage()];
         }
@@ -555,25 +555,33 @@
     }
 
     /**
-     * Seleccionar el id de usuario que corresponde al id
+     * Seleccionar el id de usuario que corresponde al username.
+     * 
+     * @param PDO $conexion_PDO: Conexión PDO activa.
+     * @param Usuarios $usuarios: Objeto de la clase Usuarios
+     * 
+     * @return array: array asociativo con la siguiente información:
+     *      -"success" (bool): indica si la operación fue exitosa.
+     *      -"datos"   (Usuarios): Objeto Usuario con la información sobre el mismo.
      */
-    function seleccionar_id_username (PDO $conexion_PDO, string $username) : array {
+    function seleccionar_id_username (PDO $conexion_PDO, Usuarios $usuario) : array {
         try {
             // Consulta
             $sql = "SELECT id FROM usuarios WHERE username = :username";
             // Preparar consulta
             $stmt = $conexion_PDO->prepare($sql);
             // Vincular parámetros
-            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
+            $stmt->bindParam(":username", $usuario->getUsername(), PDO::PARAM_STR);
             // Ejecutar consulta
             $stmt->execute();
             // Si se encontró un usuario con ese username, retornarlo
             if ($stmt->rowCount() > 0) {
                 // Recoger el resultado
                 $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-                return ["success" => true, "datos" => $resultado];
+                $usuario->setId($resultado["id"]);
+                return ["success" => true, "datos" => $usuario];
             }
-            return ["success" => false, "mensaje" => "El usuario '$username' no existe en la base de datos."];
+            return ["success" => false, "mensaje" => "El usuario '{$usuario->getUsername()}' no existe en la base de datos."];
         } catch (PDOException $e) {
             return ["success" => false, "mensaje" => $e->getMessage()];
         }
