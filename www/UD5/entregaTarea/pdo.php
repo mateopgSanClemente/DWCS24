@@ -1,5 +1,5 @@
 <?php
-
+    require_once "clases/usuarios.php";
     /**
      * Establece una conexión con MySQL utilizando PDO.
      * 
@@ -58,23 +58,20 @@
     }
 
     /**
-     *  TODO:
-     *  - Incluir el campo rol. x
-     *  - Actualizar documentación. x
-     * Obtiene una lista de usuarios de la base de datos.
+     * Comprueba un si existen datos en la tabla usuarios y retorna un
+     * array de objetos de la clase Usuarios.
      *
      * @param PDO $conexion Instancia de PDO con la conexión a la base de datos.
      * @return array Retorna un array asociativo con la siguiente información:
      *     - success (bool) : true si la sentencia se ejecutó correctamente, false
      *     en caso contrario.
-     *     - datos? (array) : Colección de usuarios resultado de la selección.
+     *     - datos? (array) : Colección de objetos de la clase Usuarios resultado de la selección.
      *     - mensaje? (string) : Información sobre la ejecución de la sentencia.
- 
      */
     function seleccionar_usuarios(PDO $conexion_PDO) : array {
         try {   
             // Preparar y ejecutar la consulta SQL
-            $stmt = $conexion_PDO->prepare("SELECT `id`, `username`, `nombre`, `apellidos`, `rol` FROM `usuarios`;");
+            $stmt = $conexion_PDO->prepare("SELECT `id`, `username`, `nombre`, `apellidos`, `contrasena`, `rol` FROM `usuarios`;");
             $stmt->execute();
 
             // Obtener resultados
@@ -85,8 +82,17 @@
                 return ["success" => false, "mensaje" => "No se encontraron usuarios en la base de datos."];
             }
             
+            // Decodificar los usuarios y convertir cada uno en un objeto de tipo Usuarios
             $conjunto_usuarios = array_map(function ($usuario){
-                return array_map("htmlspecialchars_decode", $usuario);
+                $usuarios_decodificados = array_map("htmlspeceialchars_decode", $usuario);
+                    return new Usuarios (            
+                        $usuarios_decodificados["username"],
+                        $usuarios_decodificados["nombre"],
+                        $usuarios_decodificados["apellidos"],
+                        $usuarios_decodificados["contrasena"],
+                        $usuarios_decodificados["rol"],
+                        $usuarios_decodificados["id"]
+                    );
             }, $conjunto_usuarios);
             return ["success" => true, "datos" => $conjunto_usuarios];
         } catch (PDOException $e) {
@@ -96,54 +102,44 @@
     }
 
     /**
-     *  TODO:
-     *  - Incluir el campo rol.
-     *  - Actualizar documentación.
-     *  - Especificar tipo de dato que se recoge por parámetro.
-     *  - Cambiar mensaje de en caso de que la consulta se ejecute sin problemas para que muestre el username.
      * Agrega un nuevo usuario a la base de datos.
      *
-     * @param PDO    $conexion   Conexión PDO activa con la base de datos.
-     * @param string $username   Nombre de usuario.
-     * @param string $nombre     Nombre real del usuario.
-     * @param string $apellidos  Apellidos del usuario.
-     * @param string $contrasena Contraseña en texto plano (se encriptará antes de almacenarse).
-     * @param int    $rol        Rol de usuario representado como entero, 0 para usuario y 1 para administrador.
+     * @param PDO       $conexion   Conexión PDO activa con la base de datos.
+     * @param Usuarios  $usuario    Objetos de la clase Usuarios.
      * 
      * @return array Devuelve un array con la siguiente información:
      *     - "success" (bool) : true si el usuario se agregó correctamente, false en caso contrario o si el usuario ya existe en la base de datos.
      *     - "mensaje" (string) : información sobre como transcurrió la sentencia SQL.
-     *
      */
-    function agregar_usuario(PDO $conexion_PDO, string $username, string $nombre, string $apellidos, string $contrasena, int $rol) {
+    function agregar_usuario(PDO $conexion_PDO, Usuarios $usuario) {
         try {
             // Comprobar que el usuario no existe, el username debe ser único
             $sql_check = "SELECT username FROM usuarios WHERE username = :username";
             // Preparar consulta
             $stmt = $conexion_PDO->prepare($sql_check);
-            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
+            $stmt->bindParam(":username", $usuario->getUsername(), PDO::PARAM_STR);
             $stmt->execute();
             // Recuperar los resultado -> no sería necesario.
             // $resultado_check = $stmt->fetch(PDO::FETCH_ASSOC); Tampoco sería necesario especificar el modo, al fin y al cabo solo voy a contar si me devuelve alguna fila, no a recuperar los datos.
             // Comprobar si hubo algún resultado
             if ($stmt->rowCount() > 0){
-                return ["success" => false, "mensaje" => "El usuario '$username' ya existe en la base de datos 'usuarios'."];
+                return ["success" => false, "mensaje" => "El usuario '{$usuario->getUsername()}' ya existe en la tabla 'usuarios'."];
             }
             // Encriptar contraseña
-            $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
+            $contrasena_hash = password_hash($usuario->getContrasena(), PASSWORD_DEFAULT);
             $stmt = $conexion_PDO->prepare("INSERT INTO usuarios (username, nombre, apellidos, contrasena, rol) VALUES (:username, :nombre, :apellidos, :contrasena, :rol)");
-            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-            $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
-            $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
+            $stmt->bindParam(':username', $usuario->getUsername(), PDO::PARAM_STR);
+            $stmt->bindParam(':nombre', $usuario->getNombre(), PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos', $usuario->getApellidos(), PDO::PARAM_STR);
             $stmt->bindParam(':contrasena', $contrasena_hash, PDO::PARAM_STR);
-            $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
+            $stmt->bindParam(':rol', $usuario->getRol(), PDO::PARAM_INT);
 
             $stmt->execute();
 
-            return ["success" => true, "mensaje" => ("El usuario '$username' se insertó correctamente.")];
+            return ["success" => true, "mensaje" => "El usuario '{$usuario->getUsername()}' se insertó correctamente."];
         }
         catch(PDOException $e) {
-            return ["success" => false, "mensaje" => "Error a la hora de insertar usuario: " . $e->getMessage()];
+            return ["success" => false, "mensaje" => "Error, no fue posible insertar el usuario: " . $e->getMessage()];
         }  
     }
 
