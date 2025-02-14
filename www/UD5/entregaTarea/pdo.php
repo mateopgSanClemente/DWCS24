@@ -254,40 +254,36 @@
     }
 
     /**
-     *  TODO:
-     *  - Eliminar la parte en la que se comprueba si el usuario existe mediante una consulta
-     *  y comprobarlo mirando si la consulta DELETE devolvío algún resultado.
-     * 
      * Elimina un usuario de la base de datos.
      *
      * Esta función elimina un usuario de la base de datos mediante su ID. 
      * La tabla 'tareas' tiene una relación con 'usuarios' definida con `ON DELETE CASCADE`,
      * las tareas asociadas se eliminarán automáticamente sin necesidad de una consulta adicional.
      *
-     * @param PDO $conexion Objeto de conexión a la base de datos.
-     * @param int $id ID del usuario a eliminar.
+     * @param PDO       $conexion Objeto de conexión a la base de datos.
+     * @param Usuarios  $usuario Objeto de la clase Usuarios.
      * 
      * @return array Retorna un array asociativo con los siguiente valores:
      *     - "success" (bool) : true si el usuario se eliminó con éxito, false en caso contrario.
      *     - "mensaje" (string) : mensaje informativo con el resultado de la ejecución de la función.
      */
-    function eliminar_usuario(PDO $conexion, int $id) : array {
+    function eliminar_usuario(PDO $conexion, Usuarios $usuario) : array {
         try {
             // Verificar que el usuario existe
             $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena FROM usuarios WHERE id = :id");
 
             // Enlazar los parametros
-            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+            $stmt->bindParam(":id", $usuario->getId(), PDO::PARAM_INT);
             // Usamos PDO::FETCH_ASSOC para obtener resultados como array asociativo.
             $stmt->execute();
     
             // Recuperar la información del usuario
-            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+            $usuario_eliminar = $stmt->fetch(PDO::FETCH_ASSOC);
             $stmt->closeCursor();
     
             // Verificar si se encontró el usuario
-            if (!$usuario) {
-                return ["success" => false, "mensaje" => "No se encontró ningún usuario con ID " . $id];
+            if ($usuario_eliminar === false) {
+                return ["success" => false, "mensaje" => "No se encontró ningún usuario con el ID " . $usuario->getId()];
             }
 
             // Eliminar las tareas asociadas al usuario antes de eliminar al usuario
@@ -302,13 +298,11 @@
             // Eliminar el usuario
             $sql = "DELETE FROM usuarios WHERE id = :id";
             $stmt = $conexion->prepare($sql);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $usuario->getId(), PDO::PARAM_INT);
             $stmt->execute();
 
-            return ["success" => true, "mensaje" => "El usuario " . htmlspecialchars_decode($usuario['nombre']) . " " . htmlspecialchars_decode($usuario['apellidos']) . " y todas sus tareas se eliminaron correctamente."];
-        
+            return ["success" => true, "mensaje" => "El usuario " . htmlspecialchars_decode($usuario->getUsername()) . " y todas sus tareas se eliminaron correctamente."];
         } catch (PDOException $e) {
-
             return ["success" => false, "mensaje" => "Se produjo un error en la eliminación del usuario: " . $e->getMessage()];
         }
     }
