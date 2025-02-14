@@ -4,14 +4,14 @@ class Usuarios {
     
     // Propiedades
     private ?int $id;
-    private string $username;
-    private string $nombre;
-    private string $apellidos;
-    private string $contrasena;
-    private int $rol;
+    private ?string $contrasena;
+    private ?string $username;
+    private ?string $nombre;
+    private ?string $apellidos;
+    private ?int $rol;
 
     // Contructor
-    public function __construct(string $username, string $nombre, string $apellidos, string $contrasena, int $rol, ?int $id = null )
+    public function __construct(?string $username = null, ?string $nombre = null, ?string $apellidos = null, ?int $rol = null, ?string $contrasena = null, ?int $id = null)
     {
         $this->username = $username;
         $this->nombre = $nombre;
