@@ -87,6 +87,9 @@
             $sql = "CREATE DATABASE IF NOT EXISTS `tareas` DEFAULT CHARACTER SET utf8mb4;";
             
             if ($conexion_mysqli->query($sql)) {
+                
+                // Si se creó la base de datos sin problemas, usarla.
+                $conexion_mysqli->select_db('tareas');
                 return ["success" => true, "mensaje" => "Base de datos 'tareas' creada correctamente."];
             }
 
