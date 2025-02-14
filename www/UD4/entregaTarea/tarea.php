@@ -30,14 +30,6 @@
                     echo "<div class='alert alert-success' role='alert'>Fichero subido correctamente</div>";
                 } else if (!empty($_GET["eliminar"]) && $_GET["eliminar"] == true){
                     echo "<div class='alert alert-danger' role='alert'>Fichero eliminado</div>";
-                } else if (!empty($_GET["error"]) && $_GET["error"] == true){
-                    echo "<div class='alert alert-danger' role='alert'>Error al subir el fichero</div>";
-                } else if (!empty($_GET["errorSize"]) && $_GET["errorSize"] == true){
-                    echo "<div class='alert alert-warning' role='alert'>No se pudo subir el fichero, el tamaño no puede ser superior a 20 Mb</div>";
-                } else if (!empty($_GET["errorType"]) && $_GET["errorType"] == true){
-                    echo "<div class='alert alert-warning' role='alert'>No se pudo subir el fichero, sólo se admiten ficheros de tipo jpg, png y pdf.</div>";
-                } else if (!empty($_GET["errorUpload"]) && $_GET["errorUpload"] == true){
-                    echo "<div class='alert alert-warning' role='alert'>No se pudo subir el fichero a la careta files.</div>";
                 }
                 if (!empty($_GET)){
                     // Convertir el tipo de dato en un entero

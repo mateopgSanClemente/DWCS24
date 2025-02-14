@@ -17,8 +17,6 @@
         /**
          *  TODO:
          *  - Arreglar esto, funciona para salir del paso me es bastante chapucero.
-         *  - Podría simplificar todo el apartado de mensajes de error mediante arrays?
-         *  - Me gustaría evitar que el código quedase tan anidado.
          */
         // Generar un nombre aleatorio para el fichero.
         $nombre_aleatorio = bin2hex(random_bytes(8));
@@ -57,18 +55,18 @@
                     }
                 }
                 // Mostrar mensaje de error si no se pudo subir el fichero
-                header ("Location: tarea.php?erroUpload=true");
+                header ("Location: subidaFichForm.php?id={$_GET["id"]}&errorUpload=true");
                 exit;
             }
              // Mostrar mensaje de error si el fichero no es del tipo válido
-            header ("Location: tarea.php?erroType=true");
+            header ("Location: subidaFichForm.php?id={$_GET["id"]}&errorType=true");
             exit;
         }
         // Mostrar mensaje de error si el fichero supera los 20Mb
-        header ("Location: tarea.php?erroSize=true");
+        header ("Location: subidaFichForm.php?id={$_GET["id"]}&errorSize=true");
         exit;
     }
     // Mostrar mensaje de error
-    header ("Location: tarea.php?error=true");
+    header ("Location: subidaFichForm.php?id={$_GET["id"]}&error=true");
     exit;
 ?>
