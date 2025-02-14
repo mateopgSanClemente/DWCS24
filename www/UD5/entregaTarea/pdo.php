@@ -89,8 +89,8 @@
                         $usuarios_decodificados["username"],
                         $usuarios_decodificados["nombre"],
                         $usuarios_decodificados["apellidos"],
-                        $usuarios_decodificados["contrasena"],
                         $usuarios_decodificados["rol"],
+                        $usuarios_decodificados["contrasena"],
                         $usuarios_decodificados["id"]
                     );
             }, $conjunto_usuarios);
@@ -143,9 +143,9 @@
         }  
     }
 
-    /** 
-     *  TODO: - Incluir el rol en la selección de campos de usuario.
-     * Recupera los datos de un usuario mediante su ID.
+    /**
+     * Recupera los datos de un usuario mediante su ID, los decodifica mediante htmlspecialchars_decode
+     * y retorna un objeto de la clase Usuarios creado con estos.
      *
      * @param PDO $conexion Objeto PDO para la conexión con la base de datos.
      * @param int $id ID del usuario a buscar.
@@ -153,8 +153,7 @@
      * @return array Retorna un array asociativo con la siguiente información:
      *     - "success" (bool) : true si la operación tiene éxito, false en caso contrario.
      *     - "mensaje"? (string) : retorna un mensaje informativo si la operación no tuvo éxito.
-     *     - "datos"? (array) : retorna un array con el conjunto de los datos del usuario
-     *      decodificados mediante htmlspecialchars_decode().
+     *     - "usuario"? (array) : retorna un objeto de la clase Usuarios.
      */
     function seleccionar_usuario_id(PDO $conexion, int $id) : array {
         try {
@@ -168,96 +167,97 @@
             
             // Establecer el modo de recuperación de datos (por defecto, fetch as array)
             // Recuperar la primera fila de resultados
-            $datos_usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     
             // Verificar si se encontró un usuario con ese ID
-            if (!$datos_usuario) {
-                return ["success" => false, "mensaje" => "No se encontró ningún usuario con ID " . $id];
+            if (!$usuario) {
+                return ["success" => false, "mensaje" => "No se encontró ningún usuario con el ID " . $id];
             }
 
             // Si existe, devolver los datos del usuario
-            $datos_usuario = array_map("htmlspecialchars_decode", $datos_usuario);
-            return ["success" => true, "datos" => $datos_usuario];
+            $usuario_decodificado = array_map("htmlspecialchars_decode", $usuario);
+            $objeto_usuario = new Usuarios(
+                    $usuario_decodificado["username"],
+                    $usuario_decodificado["nombre"],
+                    $usuario_decodificado["apellidos"],
+                    $usuario_decodificado["rol"],
+                    $usuario_decodificado["contrasena"]
+                );
+            return ["success" => true, "usuario" => $objeto_usuario];
         } catch (PDOException $e) {
             // Si ocurre un error con la consulta, devolver el mensaje de error
             return ["success" => false, "mensaje" => "Error al obtener los datos del usuario: " . $e->getMessage()];
         }
     }
     
-/**
- *  TODO:
- *  - El problema es que todavía reconoce el espacio en blanco como válido, debería utilizar una expresión regular
- *  mediante las funciones del fichero utils.php para validar los parámetros.
- *  - Incluir el campo rol.
- * 
- * Actualiza los datos de un usuario en la base de datos.
- *
- * Si se pasa un valor no vacío para la contraseña, se actualiza la contraseña
- * (después de encriptarla); de lo contrario, se actualizan solo los demás campos.
- *
- * @param PDO         $conexion   Conexión PDO a la base de datos.
- * @param int         $id         ID del usuario a modificar.
- * @param string      $username   Nuevo username del usuario.
- * @param string      $nombre     Nuevo nombre del usuario.
- * @param string      $apellidos  Nuevos apellidos del usuario.
- * @param int         $rol        Nuevo rol del usuario.
- * @param string|null $contrasena (Opcional) Nueva contraseña del usuario. Si es null o está vacía, no se actualiza.
- *
- * @return array Retorna un array asociativo con:
- *               - "success" => true si la actualización se realizó, o false si no se hicieron cambios o ocurrió un error.
- *               - "mensaje" => Mensaje descriptivo del resultado.
- */
-function modificar_usuario(PDO $conexion, int $id, string $username, string $nombre, string $apellidos, int $rol, ?string $contrasena = null): array {
-    try {
-        // Verificar si se proporcionó una contraseña para actualizarla
-        if (!empty($contrasena)) {
-            // Si se actualiza la contraseña, incluirla en la consulta
-            $sql = "UPDATE usuarios 
-                    SET username = :username, 
-                        nombre = :nombre, 
-                        apellidos = :apellidos, 
-                        contrasena = :contrasena,
-                        rol = :rol
-                    WHERE id = :id";
-            $stmt = $conexion->prepare($sql);
-            
-            // Encriptar la contraseña
-            $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
-            $stmt->bindParam(':contrasena', $contrasena_hash, PDO::PARAM_STR);
-        } else {
-            // Si no se proporciona contraseña, no actualizar el campo 'contrasena'
-            $sql = "UPDATE usuarios 
-                    SET username = :username, 
-                        nombre = :nombre, 
-                        apellidos = :apellidos,
-                        rol = :rol
-                    WHERE id = :id";
-            $stmt = $conexion->prepare($sql);
-        }
-    
-        // Vincular los parámetros comunes
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-        $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
-        $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
-        $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
-    
-        // Ejecutar la consulta
-        $stmt->execute();
-    
-        // Verificar si alguna fila fue afectada
-        if ($stmt->rowCount() > 0) {
-            return ["success" => true, "mensaje" => "El usuario con ID $id se ha actualizado correctamente."];
-        }
+    /**
+     * Actualiza los datos de un usuario en la base de datos.
+     *
+     * Si se pasa un valor no vacío para la contraseña, se actualiza la contraseña
+     * (después de encriptarla); de lo contrario, se actualizan solo los demás campos.
+     *
+     * @param PDO         $conexion   Conexión PDO a la base de datos.
+     * @param Usuarios    $usuario    Objeto de la clase Usuarios.
+     *
+     * @return array Retorna un array asociativo con:
+     *               - "success" => true si la actualización se realizó, o false si no se hicieron cambios o ocurrió un error.
+     *               - "mensaje" => Mensaje descriptivo del resultado.
+     */
+    function modificar_usuario(PDO $conexion, Usuarios $usuario): array {
+        try {
+            // Verificar si se proporcionó una contraseña para actualizarla
+            if (!empty($contrasena)) {
+                // Si se actualiza la contraseña, incluirla en la consulta
+                $sql = "UPDATE usuarios 
+                        SET username = :username, 
+                            nombre = :nombre, 
+                            apellidos = :apellidos, 
+                            contrasena = :contrasena,
+                            rol = :rol
+                        WHERE id = :id";
+                $stmt = $conexion->prepare($sql);
                 
-        return ["success" => false, "mensaje" => "No se realizaron cambios en el usuario con ID $id."];
-            
-    } catch (PDOException $e) {
-        return ["success" => false, "mensaje" => "Error al actualizar el usuario: " . $e->getMessage()];
-    }     
-}
+                // Encriptar la contraseña
+                $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
+                $stmt->bindParam(':contrasena', $contrasena_hash, PDO::PARAM_STR);
+            } else {
+                // Si no se proporciona contraseña, no actualizar el campo 'contrasena'
+                $sql = "UPDATE usuarios 
+                        SET username = :username, 
+                            nombre = :nombre, 
+                            apellidos = :apellidos,
+                            rol = :rol
+                        WHERE id = :id";
+                $stmt = $conexion->prepare($sql);
+            }
+        
+            // Vincular los parámetros comunes
+            $stmt->bindParam(':id', $$usuario->getId(), PDO::PARAM_INT);
+            $stmt->bindParam(':username', $usuario->getUsername(), PDO::PARAM_STR);
+            $stmt->bindParam(':nombre', $usuario->getNombre(), PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos', $usuario->getApellidos(), PDO::PARAM_STR);
+            $stmt->bindParam(':rol', $usuario->getRol(), PDO::PARAM_INT);
+        
+            // Ejecutar la consulta
+            $stmt->execute();
+        
+            // Verificar si alguna fila fue afectada
+            if ($stmt->rowCount() > 0) {
+                return ["success" => true, "mensaje" => "El usuario {$usuario->getUsername()} con ID {$id->getId()} se ha actualizado correctamente."];
+            }
+                    
+            return ["success" => false, "mensaje" => "No se realizaron cambios en el usuario {$usuario->getUsername()} con ID $id."];
+                
+        } catch (PDOException $e) {
+            return ["success" => false, "mensaje" => "Error al actualizar el usuario: " . $e->getMessage()];
+        }     
+    }
 
     /**
+     *  TODO:
+     *  - Eliminar la parte en la que se comprueba si el usuario existe mediante una consulta
+     *  y comprobarlo mirando si la consulta DELETE devolvío algún resultado.
+     * 
      * Elimina un usuario de la base de datos.
      *
      * Esta función elimina un usuario de la base de datos mediante su ID. 
