@@ -1,0 +1,20 @@
+TODO:
+    - En lugar de crear tantas función para recoger información mediante 'username'
+    es muchísimo más fácil guardar el id en una sesion desde el fichero loginAuth.php 
+    y utilizar luego este en funciones que ya existen. Ahora ya está, pero cuando tenga
+    tiempo tengo que cabiarlo.
+        - Eliminiar aquellas funciones que no sean necesarias.
+        - Crear $_SESSION["id"].
+        - Modificar todos los ficheros para hacerlos de esta forma.
+    - Investigar como funcionan las cabeceras que manejan la descarga, las cabeceras
+    HTTP en general.
+    - Enviar los mensajes de error a través de la sesión.
+        - Mostar mensajes de error y éxito en usuario.php y tareas.php cuando estas se modifican y no 
+        en el formulario.
+        - Hay un montón de redundancia en muchas partes del código, echar un ojo.
+        - Cuando ocurra algún error a la hora de validar los campos de los formularios
+        tarea y usuario, mostrar estos debajo de cada campo.
+    - Cambiar los mensajes de error y éxito para que sean más coherentes entre
+    ellos y sen más intuitivos -> accesibilidad
+    - La función validaUsuario tiene que validar el rol, de momento lo pongo 
+    como required en el formulario pero hay que cambiarlo.
