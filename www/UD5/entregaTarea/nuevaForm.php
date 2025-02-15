@@ -98,7 +98,7 @@
                                             $usuario = new Usuarios($username);
                                             // Seleccionar el Id asociado a ese usuario
                                             $resultado_seleccionar_usuarios = seleccionar_id_username($conexion_PDO, $usuario);
-                                            $id_usuario = $resultado_seleccionar_usuarios["datos"]["id"];
+                                            $id_usuario = $usuario->getId();
                                             echo "<input type='hidden' name='usuario' id='usuario' value='$id_usuario'>";
                                         }
                                         // Cerrar conexión PDO

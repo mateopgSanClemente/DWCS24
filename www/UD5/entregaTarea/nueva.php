@@ -9,8 +9,7 @@
     $tarea_titulo = $_POST['titulo'];
     $tarea_descripcion = $_POST['descripcion'];
     $tarea_estado = isset($_POST['estado']) ? $_POST["estado"] : "";
-    // Convertir el valor del id a un tipo entero
-    $tarea_id_usuario = isset($_POST['usuario_id']) ? intval($_POST['usuario_id']) : "";
+    $tarea_id_usuario = isset($_POST['usuario_id']) ? ($_POST['usuario_id']) : "";
     //Comprobación de errores y validacion de resultads
     $resultado_validar = validar_tarea($tarea_titulo, $tarea_descripcion, $tarea_estado, $tarea_id_usuario);
     if (!$resultado_validar["success"]){
@@ -24,7 +23,7 @@
         $tarea_titulo = test_input($tarea_titulo);
         $tarea_descripcion = test_input($tarea_descripcion);
         $tarea_estado = test_input($tarea_estado);
-        $tarea_id_usuario = test_input($tarea_id_usuario);
+        $tarea_id_usuario = (int)test_input($tarea_id_usuario);
         //Insertar los resultados en la tabla tareas
         //Conexion mysqli
         $resultado_conexion_mysqli = conectar_mysqli();
