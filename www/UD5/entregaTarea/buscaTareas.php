@@ -39,7 +39,7 @@
                                         //Comprobar que los datos se seleccionaron correctamente
                                         if(!$resultado_seleccionar["success"])
                                         {
-                                            echo "<div class='alert alert-warning'>" . $resultado_seleccionar["datos"] . "</div>";
+                                            echo "<div class='alert alert-warning'>" . $resultado_seleccionar["mensaje"] . "</div>";
                                         }
                                         else
                                         {
@@ -47,7 +47,7 @@
                                             echo "<option value='' selected disabled>Selecciona un usuario</option>";
                                             foreach($resultado_seleccionar["datos"] as $usuario)
                                             {
-                                                echo "<option value='" . $usuario['id'] . "'>" . $usuario["username"] . "</option>";
+                                                echo "<option value='" . $usuario->getId() . "'>" . $usuario->getUsername() . "</option>";
                                             }
                                             echo "</select>";
                                         }
