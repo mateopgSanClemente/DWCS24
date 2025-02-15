@@ -280,7 +280,7 @@
     function eliminar_usuario(PDO $conexion, Usuarios $usuario) : array {
         try {
             // Verificar que el usuario existe
-            $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena FROM usuarios WHERE id = :id");
+            $stmt = $conexion->prepare("SELECT username FROM usuarios WHERE id = :id");
 
             // Enlazar los parametros, guardar primero los valores de las propiedades del objeto Usuarios en variables.
             $id = $usuario->getId();
@@ -305,7 +305,7 @@
             $stmt_tareas->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt_tareas->execute();
             */
-
+            $usuario->setUsername($usuario_eliminar["username"]);
             // Eliminar el usuario
             $sql = "DELETE FROM usuarios WHERE id = :id";
             $stmt = $conexion->prepare($sql);
