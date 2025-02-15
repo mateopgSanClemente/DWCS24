@@ -180,12 +180,9 @@ function validar_modificar_usuario(string $username, string $nombre, string $ape
     if (!isset($rol)) {
         $errores["rol"][] = "El campo 'rol' es obligatorio.";
     }
-    if (!is_int($rol)) {
-        $errores["rol"][] = "El campo 'rol' debe ser un entero.";
-    } else if (($rol !== 0) && ($rol !== 1)) {
-        $errores["rol"][] = "El campo 'rol' debe contener el valor 0 para 'usuario' y 1 para 'administrador'.";
+    if (!in_array($rol, [0, 1], true)) {
+        $errores["rol"][] = "El campo 'rol' no es válido.";
     }
-
     // Validar contraseña: Opcional, pero si se proporciona, no debe exceder 100 caracteres.
     if (!empty($contrasena) && strlen($contrasena) > 100) {
         $errores["contrasena"][] = "No puede exceder los 100 caracteres.";
