@@ -16,11 +16,9 @@
     $nombre = $_POST["nombre"];
     $apellidos = $_POST["apellidos"];
     $contrasena = $_POST["contrasena"];
-    // Convertir el tipo de dato a entero
-    $rol = intval($_POST["rol"]);
+    $rol = $_POST["rol"];
     //Comprobar errores
     $resultado_validar = validar_usuario($username, $nombre, $apellidos, $rol, $contrasena);
-    //Comprobar los resultados, aunque pienso que sería más conveniente hacerlo en la página del propio formulario
     if (!$resultado_validar["success"]){
         // Guardo los errores en una variable de sesión para mostrarlos dinamicamente en el formulario.
         $_SESSION["errorVal"] = $resultado_validar["errores"];
@@ -34,6 +32,7 @@
         $nombre = test_input($nombre);
         $apellidos = test_input($apellidos);
         $contrasena = test_input($contrasena);
+        $rol = (int)test_input($rol);
         //Crear conexión con la base de datos
         $resultado_conexion_PDO = conectar_PDO();
         // Variable que guarda la instancia PDO
@@ -41,8 +40,11 @@
         if(!$resultado_conexion_PDO["success"]) {
             $_SESSION["errorConPDO"] = $resultado_conexion_PDO["mensaje"];
         } else {
+            // Crear una instancia de la clase Usuarios.
+            require_once "clases/usuarios.php";
+            $usuario = new Usuarios($username, $nombre, $apellidos, $rol, $contrasena);
             // Insertar los datos en la tabla usuarios
-            $resultado_agregar_usuario = agregar_usuario($conexion_PDO, $username, $nombre, $apellidos, $contrasena, $rol);
+            $resultado_agregar_usuario = agregar_usuario($conexion_PDO, $usuario);
             // Comprobar que el usuario se agrego correctamente
             if(!$resultado_agregar_usuario["success"]) {
                 $_SESSION["errorInsUser"] = $resultado_agregar_usuario["mensaje"];
