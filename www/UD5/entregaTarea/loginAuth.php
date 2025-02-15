@@ -26,8 +26,10 @@
     } else {
         // Guardar usuario en la base de datos
         $conexion_PDO = $resultado_conectar_PDO["conexion"];
+        // Crear una instancia e la clase Usuario con la propiedad username.
+        $usuario = new Usuarios($username);
         // Buscar usuario en la base de datos
-        $resultado_buscar_usuario = seleccionar_usuario_pass_rol($conexion_PDO, $username);
+        $resultado_buscar_usuario = seleccionar_usuario_pass_rol($conexion_PDO, $usuario);
         // Comprobar el resultado
         if (!$resultado_buscar_usuario["success"]){
             // Cierro sesión
@@ -36,8 +38,9 @@
             exit;
         } else {
             // Recoger el valor de la contraseña
-            $password_usuario = $resultado_buscar_usuario["datos"]["contrasena"];
-            $rol_usuario = $resultado_buscar_usuario["datos"]["rol"];
+            $usuario = $resultado_buscar_usuario["usuario"];
+            $password_usuario = $usuario->getContrasena();
+            $rol_usuario = $usuario->getRol();
             // Comprobar que la contraseña coincide para el usuario
             if (!password_verify($password, $password_usuario)){
                 // Si no coincide, redirecciono a login y muestro el problema
