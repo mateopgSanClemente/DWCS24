@@ -62,26 +62,21 @@
                                 <tbody>";       
                             foreach($resultado_seleccionar_usuarios["datos"] as $usuario) {
                                 echo "<tr>";
-                                foreach($usuario as $columna => $dato_usuario) {
-                                    // En el caso del rol, se mostrara 'usuario' en caso de que guarde el valor 0 y 'administrador en caso de que guarde 1.
-                                    if ($columna === "rol") {
-                                        echo "<td>";
-                                            // Podría hacerlo de varias formas, pero quiero que imprima en concreto el nombre del rol que se asocia al número.
-                                            if ($dato_usuario === "0") {
-                                                echo "Usuario";
-                                            } else if ($dato_usuario === "1") {
-                                                echo "Administrador";
-                                            }
-                                        echo "</td>";
-                                    } else {
-                                        echo "<td>" . $dato_usuario . "</td>";
+                                    echo "<td>", $usuario->getId(), "</td>";
+                                    echo "<td>", $usuario->getUsername(), "</td>";
+                                    echo "<td>", $usuario->getNombre(), "</td>";
+                                    echo "<td>", $usuario->getApellidos(), "</td>";
+                                    // Para el rol, se mostrara 'usuario' en caso de que guarde el valor 0 y 'administrador en caso de que guarde 1.
+                                    if ($usuario->getRol() === 0) {
+                                        echo "<td>Usuario</td>";
+                                    } else if ($usuario->getRol() === 1) {
+                                        echo "<td>Administrador</td>";
                                     }
-                                }
-                                echo "<td>";
-                                echo "<a href='editaUsuarioForm.php?id=" . $usuario['id'] . "' class='btn btn-success btn-sm me-2'>Editar</a>";
-                                echo "<a href='borraUsuario.php?id=" . $usuario['id'] . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
-                                echo "</td>";
-                                echo "</tr>";
+                                    echo "<td>";
+                                    echo "<a href='editaUsuarioForm.php?id=" . $usuario->getId() . "' class='btn btn-success btn-sm me-2'>Editar</a>";
+                                    echo "<a href='borraUsuario.php?id=" . $usuario->getId() . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
+                                    echo "</td>";
+                                    echo "</tr>";
                             }
                             echo "</tbody></table>";
                         }

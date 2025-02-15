@@ -84,7 +84,7 @@
             
             // Decodificar los usuarios y convertir cada uno en un objeto de tipo Usuarios
             $conjunto_usuarios = array_map(function ($usuario){
-                $usuarios_decodificados = array_map("htmlspeceialchars_decode", $usuario);
+                $usuarios_decodificados = array_map("htmlspecialchars_decode", $usuario);
                     return new Usuarios (            
                         $usuarios_decodificados["username"],
                         $usuarios_decodificados["nombre"],
@@ -116,8 +116,9 @@
             // Comprobar que el usuario no existe, el username debe ser único
             $sql_check = "SELECT username FROM usuarios WHERE username = :username";
             // Preparar consulta
+            $username = $usuario->getUsername();
             $stmt = $conexion_PDO->prepare($sql_check);
-            $stmt->bindParam(":username", $usuario->getUsername(), PDO::PARAM_STR);
+            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
             $stmt->execute();
             // Recuperar los resultado -> no sería necesario.
             // $resultado_check = $stmt->fetch(PDO::FETCH_ASSOC); Tampoco sería necesario especificar el modo, al fin y al cabo solo voy a contar si me devuelve alguna fila, no a recuperar los datos.
@@ -127,12 +128,17 @@
             }
             // Encriptar contraseña
             $contrasena_hash = password_hash($usuario->getContrasena(), PASSWORD_DEFAULT);
+            
+            // Recoger los valores del objeto en variables, el método bindParam solo acepta que se le pasen variables por referencia.    
+            $nombre = $usuario->getNombre();
+            $apellidos = $usuario->getApellidos();
+            $rol = $usuario->getRol();
             $stmt = $conexion_PDO->prepare("INSERT INTO usuarios (username, nombre, apellidos, contrasena, rol) VALUES (:username, :nombre, :apellidos, :contrasena, :rol)");
-            $stmt->bindParam(':username', $usuario->getUsername(), PDO::PARAM_STR);
-            $stmt->bindParam(':nombre', $usuario->getNombre(), PDO::PARAM_STR);
-            $stmt->bindParam(':apellidos', $usuario->getApellidos(), PDO::PARAM_STR);
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
             $stmt->bindParam(':contrasena', $contrasena_hash, PDO::PARAM_STR);
-            $stmt->bindParam(':rol', $usuario->getRol(), PDO::PARAM_INT);
+            $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
 
             $stmt->execute();
 
@@ -159,9 +165,10 @@
         try {
             // Preparar la consulta para seleccionar datos del usuario
             $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena, rol FROM usuarios WHERE id = :id");
-            
+            // Recoger los valores de las propiedades del objeto en variables
+            $id = $usuario->getId();
             // Vincular el parámetro id y hacer que este sea tratado como un entero
-            $stmt->bindParam(":id", $usuario->getId(), PDO::PARAM_INT);
+            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
             // Ejecutar la consulta
             $stmt->execute();
             
@@ -171,7 +178,7 @@
     
             // Verificar si se encontró un usuario con ese ID
             if (!$usuario_resultado) {
-                return ["success" => false, "mensaje" => "No se encontró ningún usuario con el ID " . $usuario->getId()];
+                return ["success" => false, "mensaje" => "No se encontró ningún usuario con el ID " . $id];
             }
 
             // Si existe, devolver los datos del usuario
@@ -229,22 +236,27 @@
                 $stmt = $conexion->prepare($sql);
             }
         
-            // Vincular los parámetros comunes
-            $stmt->bindParam(':id', $$usuario->getId(), PDO::PARAM_INT);
-            $stmt->bindParam(':username', $usuario->getUsername(), PDO::PARAM_STR);
-            $stmt->bindParam(':nombre', $usuario->getNombre(), PDO::PARAM_STR);
-            $stmt->bindParam(':apellidos', $usuario->getApellidos(), PDO::PARAM_STR);
-            $stmt->bindParam(':rol', $usuario->getRol(), PDO::PARAM_INT);
+            // Vincular los parámetros comunes, guardar primero las propiedades del objeto Usuarios en variables.
+            $id = $usuario->getId();
+            $username = $usuario->getUsername();
+            $nombre = $usuario->getNombre();
+            $apellidos = $usuario->getApellidos();
+            $rol = $usuario->getRol();
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
+            $stmt->bindParam(':rol', $rol, PDO::PARAM_INT);
         
             // Ejecutar la consulta
             $stmt->execute();
         
             // Verificar si alguna fila fue afectada
             if ($stmt->rowCount() > 0) {
-                return ["success" => true, "mensaje" => "El usuario {$usuario->getUsername()} con ID {$id->getId()} se ha actualizado correctamente."];
+                return ["success" => true, "mensaje" => "El usuario $username con ID $id se ha actualizado correctamente."];
             }
                     
-            return ["success" => false, "mensaje" => "No se realizaron cambios en el usuario {$usuario->getUsername()} con ID $id."];
+            return ["success" => false, "mensaje" => "No se realizaron cambios en el usuario $username con ID $id."];
                 
         } catch (PDOException $e) {
             return ["success" => false, "mensaje" => "Error al actualizar el usuario: " . $e->getMessage()];
@@ -270,8 +282,9 @@
             // Verificar que el usuario existe
             $stmt = $conexion->prepare("SELECT username, nombre, apellidos, contrasena FROM usuarios WHERE id = :id");
 
-            // Enlazar los parametros
-            $stmt->bindParam(":id", $usuario->getId(), PDO::PARAM_INT);
+            // Enlazar los parametros, guardar primero los valores de las propiedades del objeto Usuarios en variables.
+            $id = $usuario->getId();
+            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
             // Usamos PDO::FETCH_ASSOC para obtener resultados como array asociativo.
             $stmt->execute();
     
@@ -281,7 +294,7 @@
     
             // Verificar si se encontró el usuario
             if ($usuario_eliminar === false) {
-                return ["success" => false, "mensaje" => "No se encontró ningún usuario con el ID " . $usuario->getId()];
+                return ["success" => false, "mensaje" => "No se encontró ningún usuario con el ID " . $id];
             }
 
             // Eliminar las tareas asociadas al usuario antes de eliminar al usuario
@@ -296,7 +309,7 @@
             // Eliminar el usuario
             $sql = "DELETE FROM usuarios WHERE id = :id";
             $stmt = $conexion->prepare($sql);
-            $stmt->bindParam(':id', $usuario->getId(), PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
 
             return ["success" => true, "mensaje" => "El usuario " . htmlspecialchars_decode($usuario->getUsername()) . " y todas sus tareas se eliminaron correctamente."];
@@ -387,8 +400,9 @@
             $sql = "SELECT contrasena, rol FROM usuarios WHERE username = :username";
             // Preparar consulta
             $stmt = $conexion_PDO->prepare($sql);
-            // Vincular parámetros
-            $stmt->bindParam(":username", $usuario->getUsername(), PDO::PARAM_STR);
+            // Vincular parámetrosm, guardar el valor de las propiedades del objeto Usuarios en una variable.
+            $username = $usuario->getUsername();
+            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
             // Ejecutar consulta
             $stmt->execute();
             // Si se encontró un usuario con ese username, retornarlo
@@ -571,7 +585,8 @@
             // Preparar consulta
             $stmt = $conexion_PDO->prepare($sql);
             // Vincular parámetros
-            $stmt->bindParam(":username", $usuario->getUsername(), PDO::PARAM_STR);
+            $username = $usuario->getUsername();
+            $stmt->bindParam(":username", $username, PDO::PARAM_STR);
             // Ejecutar consulta
             $stmt->execute();
             // Si se encontró un usuario con ese username, retornarlo
