@@ -87,19 +87,20 @@
                                                 echo "<select class='form-select' name='usuario_id' id='usuario'>";
                                                 echo "<option value='' selected disabled>Selecciona un usuario</option>";
                                                 foreach($resultado_seleccionar_usuarios["datos"] as $usuario) {
-                                                    echo "<option value='". $usuario['id'] . "'>" . $usuario['username'] . "</option>";                                             
+                                                    echo "<option value='". $usuario->getId() . "'>" . $usuario->getUsername() . "</option>";                                             
                                                 }
                                                 echo "</select>";
                                             }
                                         } else if ($_SESSION["rol"] == 0) {
                                             // Seleccionar el id de usuario asociado a un username
-                                            // Seleccionar el id de usuario asociado a un username
                                             $username = $_SESSION["usuario"];
-                                            $resultado_seleccionar_usuarios = seleccionar_id_username($conexion_PDO, $username);
+                                            // Crear nueva instancia de la clase Usuarios
+                                            $usuario = new Usuarios($username);
+                                            // Seleccionar el Id asociado a ese usuario
+                                            $resultado_seleccionar_usuarios = seleccionar_id_username($conexion_PDO, $usuario);
                                             $id_usuario = $resultado_seleccionar_usuarios["datos"]["id"];
                                             echo "<input type='hidden' name='usuario' id='usuario' value='$id_usuario'>";
                                         }
-
                                         // Cerrar conexión PDO
                                         $conexion_PDO = null;
                                     }
