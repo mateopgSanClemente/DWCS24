@@ -12,18 +12,17 @@
 
     require_once "utils.php";
     // Guardar ID usuario en una variable
-    $id_usuario = $_GET['id'];
+    $id_usuario = $_POST['id'];
     // Recuperar los datos enviados a través del formulario
     $usuario_username_nuevo = $_POST["username"];
     $usuario_nombre_nuevo = $_POST["nombre"];
     $usuario_apellidos_nuevo = $_POST["apellidos"];
+    $usuario_rol_nuevo = (int)($_POST["rol"]);
     // Comprobar que la contraseña está definida, en caso contraro devolver null
-    $usuario_contrasena_nuevo = isset($_POST["contrasena"]) ? $_POST["contrasena"] : null;
-    // Incluir el rol y convertirlo en entero.
-    $usuario_rol_nuevo = intval($_POST["rol"]);
+    $usuario_contrasena_nuevo = isset($_POST["contrasena"]) ? $_POST["contrasena"] : null;    
     // Validar los datos, si no son válidos, mostrar mensaje de error, todos son obligatorios menos la contraseña
     $resultado_validar_usuario = validar_modificar_usuario($usuario_username_nuevo, $usuario_nombre_nuevo, $usuario_apellidos_nuevo, $usuario_rol_nuevo, $usuario_contrasena_nuevo);
-    //Comprobar los resultados, aunque pienso que sería más conveniente hacerlo en la página del propio formulario
+    // Comprobar los resultados
     if (!$resultado_validar_usuario["success"]){
         // Crear una lista dinámica de mensajes con información sobre los errores asociados a un campo.
         $_SESSION["errorVal"] = $resultado_validar_usuario["errores"];
@@ -46,15 +45,17 @@
         } else {
             // Guardar conexión PDO en una variable
             $conexion_PDO = $resultado_conexión_PDO["conexion"];
+            // Crear un objeto Usuarios con los datos validados del fomrulario
+            $usuario = new Usuarios($usuario_username_nuevo, $usuario_nombre_nuevo, $usuario_apellidos_nuevo, $usuario_rol_nuevo, $usuario_contrasena_nuevo, $id_usuario);
             // Modificar usuario
-            $resultado_modificar_usuario = modificar_usuario($conexion_PDO, $id_usuario, $usuario_username_nuevo, $usuario_nombre_nuevo, $usuario_apellidos_nuevo, $usuario_rol_nuevo, $usuario_contrasena_nuevo);
+            $resultado_modificar_usuario = modificar_usuario($conexion_PDO, $usuario);
             //Mostrar mensaje con los resultados de la modificación
             if (!$resultado_modificar_usuario["success"]){
                 $_SESSION["errorInsUser"] = $resultado_modificar_usuario["mensaje"];
                 header("Location: " . $_SERVER["HTTP_REFERER"]);
             } else {
                 $_SESSION["success"] = $resultado_modificar_usuario["mensaje"];
-                header("Location: " . $_SERVER["HTTP_REFERER"]);
+                header("Location: usuarios.php");
             }
             // Cerrar conexión
             $conexion_PDO = null;

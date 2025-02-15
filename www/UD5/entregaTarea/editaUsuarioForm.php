@@ -54,25 +54,28 @@
                             $conexion_PDO = $resultado_conexion_PDO["conexion"];
                             //Guardar el id de usuario en una variable
                             $id_usuario = $_GET['id'];
+                            // Crear objeto Usuarios
+                            $usuario = new Usuarios(null, null, null, null, null, $id_usuario);
                             // Seleccionar usuario a editar
-                            $resultado_usuario = seleccionar_usuario_id($conexion_PDO, $id_usuario);
+                            $resultado_usuario = seleccionar_usuario_id($conexion_PDO, $usuario);
                             // Comprobar que se selecciono el usuario
                             if (!$resultado_usuario["success"]){
                                 echo "<div class='alert alert-warning' role='alert'>" . $resultado_usuario["mensaje"] . "</div>";
                             } else {
-                                //Recuperados los datos los guardo en variables, la función ya los descodifica.
-                                $datos_usuario = $resultado_usuario["datos"];
-                                $username = $datos_usuario["username"];
-                                $nombre = $datos_usuario["nombre"];
-                                $apellidos = $datos_usuario["apellidos"];
-                                $rol = intval($datos_usuario["rol"]);
+                                //Recuperados los datos y los guardo en variables, la función ya los descodifica.
+                                $usuario = $resultado_usuario["usuario"];
+                                $username = $usuario->getUsername();
+                                $nombre = $usuario->getNombre();
+                                $apellidos = $usuario->getApellidos();
+                                $rol = $usuario->getRol();
                             }
                             // Cerrar conexión
                             $conexion_PDO = null;
                         }
                     ?>
                     <section>
-                        <form class="mb-5" action="editaUsuario.php?id=<?php echo $id_usuario; ?>" method="post">
+                        <form class="mb-5" action="editaUsuario.php" method="post">
+                            <input type="hidden" name="id" id="id" value="<?php echo $id_usuario; ?>">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" name="username" id="username" value="<?php echo $username; ?>">
