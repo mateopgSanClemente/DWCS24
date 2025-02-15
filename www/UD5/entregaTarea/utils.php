@@ -67,7 +67,7 @@
      * @param string $username   Nombre de usuario (obligatorio, máx. 50 caracteres).
      * @param string $nombre     Nombre del usuario (obligatorio, máx. 50 caracteres).
      * @param string $apellidos  Apellidos del usuario (obligatorio, máx. 100 caracteres).
-     * @param int    $rol        Rol del usuario (obligatorio, 0 para usuario o 1 para administrador).
+     * @param string    $rol        Rol del usuario (obligatorio, 0 para usuario o 1 para administrador).
      * @param string $contrasena Contraseña del usuario (obligatorio, máx. 100 caracteres).
      *
      * @return array Retorna un array asociativo con la siguiente información:
@@ -75,7 +75,7 @@
      *                      - "errores"? (string): Si hay errores, incluyendo un array asociativo "errores".
      * 
      */
-    function validar_usuario (string $username, string $nombre, string $apellidos, int $rol, string $contrasena) : array {
+    function validar_usuario (string $username, string $nombre, string $apellidos, string $rol, string $contrasena) : array {
         $errores = [
             "username" => [],
             "nombre" => [],
@@ -113,7 +113,7 @@
         }
         // Validar rol: Obligatorio, debe ser un número entero y solo puede contener los valores 0 y 1.
         // ERROR: OJO! La función empty evalúa el valor 0 como 'vacio'. Es esta la foma correcta de corregir este error?
-        if (!in_array($rol, [0, 1], true)) {
+        if (!in_array($rol, [0, 1])) {
             $errores["rol"][] = "El campo 'rol' es obligatorio.";
         }
 
