@@ -253,6 +253,7 @@
             return ["success" => false, "mensaje" => $e->getMessage()];
         }
     }
+
     /**
      * Selecciona todas las tareas de la base de datos junto con el nombre de usuario del creador.
      *
@@ -260,8 +261,8 @@
      * 
      * @return array Devuelve un array asociativo con la siguiente información
      *     - "success" (bool) Indica si la operación fue exitosa.
-     *     - "datos" (array|null) Lista de tareas en caso de éxito.
-     *     - "mensaje" (string|null) Mensaje de error en caso de fallo.
+     *     - ?"datos" (array) Devuelve una lista de tareas de la clase Tareas en caso de éxito.
+     *     - ?"mensaje" (string|) Mensaje de error en caso de fallo.
      *
      * @throws mysqli_sql_exception Si ocurre un error en la consulta SQL.
      */
@@ -308,10 +309,7 @@
      * Agrega una nueva tarea a la base de datos.
      *
      * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
-     * @param string $titulo Título de la tarea.
-     * @param string $descripcion Descripción de la tarea.
-     * @param string $estado Estado de la tarea (Debe ser "Pendiente", "En proceso" o "Completada").
-     * @param int $id_usuario ID del usuario al que se asigna la tarea.
+     * @param Tareas $tarea           Tarea de la clase Tareas a añadir a la base de datos.
      *
      * @return array Retorna un array asociativo con la siguiente información:
      *      - 'success' (bool) : true si se agregó correctamente, false en caso de error.
@@ -319,15 +317,20 @@
      *
      * @throws mysqli_sql_exception Si ocurre un error al ejecutar la consulta.
      */
-    function agregar_tarea(mysqli $conexion_mysqli, string $titulo, string $descripcion, string $estado, int $id_usuario) {
+    function agregar_tarea(mysqli $conexion_mysqli, Tareas $tarea) {
         try {           
 
             // Validar que el estado sea correcto.
             $estados_validos = ["Pendiente", "En proceso", "Completada"];   
-            if (in_array($estado, $estados_validos, true)) {
+            if (in_array($tarea->getEstado(), $estados_validos, true)) {
 
                 //Preparar la consulta
                 $stmt = $conexion_mysqli->prepare("INSERT INTO tareas (titulo, descripcion, estado, id_usuario) VALUES (?,?,?,?)");
+                // Guardar las propiedades de la clase Tareas en variables
+                $titulo = $tarea->getTitulo();
+                $descripcion = $tarea->getDescripcion();
+                $estado = $tarea->getEstado();
+                $id_usuario = $tarea->getUsuario()->getId();
                 $stmt->bind_param("sssi", $titulo, $descripcion, $estado, $id_usuario);
                 $stmt->execute();  
 
