@@ -1,7 +1,12 @@
 <?php
+
+    require_once "clases/tareas.php";
+    require_once "clases/usuarios.php";
+
     /**
      *  TODO:
      *  - Podría eliminar la clave "success" y verificar si la función devuelve una conexión nula para comprobar que se realizó correctamente.
+     * 
      * Establece una conexión a la base de datos MySQL utilizando las credenciales de las variables de entorno.
      * 
      * Esta función intenta conectar con la base de datos usando las credenciales definidas en las
@@ -110,9 +115,6 @@
     }
 
     /**
-     *  TODO:
-     *  - Añadir el campo 'rol' a la tabla. x
-     * 
      * Crea una tabla llamada 'usuarios' si no existe.
      *
      * Esta función verifica si la tabla 'usuarios' ya existe en la base de datos mediante la instrucción
@@ -164,8 +166,6 @@
     }
 
     /**
-     *  TODO:
-     *  - Modificar sentencia SQL para la creación de la tabla para que sea más correcta.
      * Crea una tabla llamada 'tareas' si no existe.
      *
      * Esta función verifica si la tabla 'tareas' ya existe en la base de datos mediante la instrucción
@@ -217,9 +217,6 @@
     }
 
     /**
-     *  TODO:
-     *  - Revisar documentación.
-     * 
      * Crea la tabla 'ficheros' si no existe en la base de datos.
      *
      * La tabla 'ficheros' almacena información sobre archivos vinculados a tareas.
@@ -288,7 +285,16 @@
             // Decodificar caracteres especiales en los valores del array
             $conjunto_tareas = array_map(function($tareas){
                 // Las funciones nativas de PHP pueden pasarse como una cadena de caracteres a la función array_map
-                return array_map("htmlspecialchars_decode", $tareas);
+                array_map("htmlspecialchars_decode", $tareas);
+                // Crear objeto Usuarios
+                $usuario = new Usuarios ($tareas["username"]);
+                return new Tareas (
+                    $tareas["id"],
+                    $tareas["titulo"],
+                    $tareas["descripcion"],
+                    $tareas["estado"],
+                    $usuario
+                );
             }, $conjunto_tareas);
 
             return ["success" => true, "datos" => $conjunto_tareas];
