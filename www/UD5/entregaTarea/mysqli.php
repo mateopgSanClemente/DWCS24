@@ -401,14 +401,14 @@
      * Obtiene una tarea específica por su ID.
      * 
      * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
-     * @param int $id_tarea ID de la tarea a buscar.
+     * @param Tareas $tarea           Objeto de la clase Tareas.
      * @return array Retorna un array asociativo con la siguiente información:
      *      - "success" (bool): Resultado de la consulta.
      *      - "resultado" (string | array): Resultado de la consulta, si la consulta
-     *      fue exitosa devuelve un array con los datos de la tarea, en caso de que no,
+     *      fue exitosa devuelve un objeto de la clase Tarea, en caso de que no,
      *      devuelve un mensaje de error.
      */
-    function seleccionar_tarea_id(mysqli $conexion_mysqli, int $id_tarea) {
+    function seleccionar_tarea_id(mysqli $conexion_mysqli, Tareas $tarea) {
         try {
             //Consulta sql para selecionar una tarea por su id
             $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
@@ -417,29 +417,41 @@
             ON tareas.id_usuario = usuarios.id
             WHERE tareas.id = ?;";
 
-            //Consulta preparada
+            // Consulta preparada
             $stmt = $conexion_mysqli->prepare($sql);
 
-            //Vincular parámetro
+            // Guardar las propiedades de la clase Tareas en una variable
+            $id_tarea = $tarea->getId();
+
+            // Vincular parámetro
             $stmt->bind_param("i", $id_tarea);
             $stmt->execute();
 
-            //Obtener resultado
+            // Obtener resultado
             $resultado = $stmt->get_result();
 
-            //Verificar resultados
+            // Verificar resultados
             if($resultado->num_rows === 0) {
                 return ["success" => false, "resultado" => "No se encontró ninguna tarea con ID $id_tarea."];
             }
             
             // Covertir el resultado en un array asociativo
-            $tarea = $resultado->fetch_assoc();
+            $tarea_datos = $resultado->fetch_assoc();
 
             // Liberar memoria del resultado
             $resultado->free();
 
             // Decodificar la tarea
-            $tarea = array_map("htmlspecialchars_decode", $tarea);
+            $tarea_datos = array_map("htmlspecialchars_decode", $tarea_datos);
+
+            // Guardar los datos obtenidos en la base de datos en la clase Tareas
+            $tarea->setId($tarea_datos["id"]);
+            $tarea->setTitulo($tarea_datos["titulo"]);
+            $tarea->setDescripcion($tarea_datos["descripcion"]);
+            $tarea->setEstado($tarea_datos["estado"]);
+            // Crear instancia de la clase usuario
+            $usuario = new Usuarios($tarea_datos["username"]);
+            $tarea->setUsuario($usuario);
             
             return ["success" => true, "resultado" => $tarea];
         } catch (mysqli_sql_exception $e) {
