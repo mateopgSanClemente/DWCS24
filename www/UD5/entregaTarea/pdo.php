@@ -277,7 +277,7 @@
      *     - "success" (bool) : true si el usuario se eliminó con éxito, false en caso contrario.
      *     - "mensaje" (string) : mensaje informativo con el resultado de la ejecución de la función.
      */
-    function eliminar_usuario(PDO $conexion, Usuarios $usuario) : array {
+    function eliminar_usuario(PDO $conexion, Usuarios $usuario): array {
         try {
             // Verificar que el usuario existe
             $stmt = $conexion->prepare("SELECT username FROM usuarios WHERE id = :id");
@@ -322,16 +322,15 @@
      * Selecciona tareas de un usuario filtradas opcionalmente por estado.
      *
      * @param PDO         $conexion_PDO  Conexión PDO a la base de datos.
-     * @param int         $id_usuario    ID del usuario cuyas tareas se desean seleccionar.
-     * @param string|null $estado       (Opcional) Estado de las tareas a filtrar. Es `null` por defecto para no aplicar filtro.
+     * @param Tareas      $tarea         Objeto de la clase Tareas.
      *
      * @return array Devuelve un array con la estructura:
      *               - 'success' (bool): true si se encontraron tareas, false en caso contrario o si ocurrió un error.
-     *               - 'datos'? (array): Lista de tareas si `success` es `true`.
+     *               - 'datos'? (array): Lista de objetos de la clase Tareas si `success` es `true`.
      *               - 'mensaje'? (string): Mensaje descriptivo en caso de error o si no se encontraron tareas.
      *
      */
-     function tareas_usuario_estado (PDO $conexion_PDO, int $id_usuario, ?string $estado = null) : array {
+     function tareas_usuario_estado (PDO $conexion_PDO, Tareas $tarea) : array {
         try {
 
             // Consulta dinámica
@@ -342,16 +341,19 @@
                     WHERE tareas.id_usuario = :id_usuario";
 
             // Agregar condición concatenandola a la sentencia anterior en caso de que el estado esté seleccionado
-            if(!empty($estado)) {
+            if(!empty($tarea->getEstado())) {
                 $sql .= " AND tareas.estado = :estado";
             }
 
             // Preparar la consulta
             $stmt = $conexion_PDO->prepare($sql);
+            // Guardar los valores de las propiedades del objeto Tareas en variables.
+            $id_usuario = $tarea->getUsuario()->getId();
             $stmt->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
 
             // Si se especifica el estado, se enlaza a la consulta preparada
-            if(!empty($estado)) {
+            if(!empty($tarea->getEstado())) {
+                $estado = $tarea->getEstado();
                 $stmt->bindParam(":estado", $estado, PDO::PARAM_STR);
             }
 
@@ -362,19 +364,26 @@
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
 
             //Recuperar resultado
-            $tareas = $stmt->fetchAll();
+            $tareas_coleccion = $stmt->fetchAll();
 
             //Comprobar que se encontró alguna tarea
-            if(empty($tareas)) {
+            if(empty($tareas_coleccion)) {
 
                 // Generar mensaje en función de si se definió o no el estado
-                $mensaje = empty($estado)
+                $mensaje = empty($tarea->getEstado())
                     ? "No se encontraron tareas para el usuario con ID $id_usuario."
                     : "No se encontraron tareas para el usuario con ID $id_usuario y con estado '$estado'.";
                 return ["success" => false, "mensaje" => $mensaje];
             }
             
-            return ["success" => true, "datos" => $tareas];
+            foreach($tareas_coleccion as $tarea_datos){
+                $tarea->setId($tarea_datos["id"]);
+                $tarea->setTitulo($tarea_datos["titulo"]);
+                $tarea->setDescripcion($tarea_datos["descripcion"]);
+                $tarea->setEstado($tarea_datos["estado"]);
+                $tarea->getUsuario()->setUsername($tarea_datos["username"]);
+            }
+            return ["success" => true, "datos" => $tarea];
             
         }
         catch (PDOException $e) {
@@ -427,14 +436,14 @@
      * `tareas` y `usuarios`.
      *
      * @param PDO $conexion_PDO Conexión PDO activa a la base de datos.
-     * @param int $id_tarea     ID de la tarea a seleccionar.
+     * @param Tareas $tarea     Objeto de la clase Tarea.
      *
      * @return array Devuelve un array asociativo con la siguiente estructura:
      *               - "success" (bool): Indica si la operación fue exitosa.
-     *               - "datos" (array): Contiene los datos de la tarea (titulo, descripcion, estado, username) en caso de éxito.
+     *               - "tarea"   (array): Contiene un objeto de la clase Tareas con datos de la tarea en la base de datos (titulo, descripcion, estado, username) en caso de éxito.
      *               - "mensaje" (string): Mensaje de error en caso de que no se encuentre la tarea.
      */
-    function seleccionar_tarea_id_PDO (PDO $conexion_PDO, int $id_tarea) : array {
+    function seleccionar_tarea_id_PDO (PDO $conexion_PDO, Tareas $tarea) : array {
         // Comprobar que la tarea existe
         $sql = "SELECT `tareas`.`titulo`, `tareas`.`descripcion`, `tareas`.`estado`, `usuarios`.`username`
                 FROM `tareas`
@@ -442,13 +451,20 @@
                 ON `tareas`.`id_usuario` = `usuarios`.`id`
                 WHERE `tareas`.`id` = :id_tarea";
         $stmt = $conexion_PDO->prepare($sql);
+        $id_tarea = $tarea->getId();
         $stmt->bindParam(":id_tarea", $id_tarea, PDO::PARAM_INT);
         $stmt->execute();
         // Comprobar que la tarea existe
         if ($stmt->rowCount() > 0) {
             // Si existe se retornan los datos después de recoger el resultado
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            return ["success" => true, "datos" => $resultado];
+            // Guardar los datos en el objeto Tareas
+            $tarea->setTitulo($resultado["titulo"]);
+            $tarea->setDescripcion($resultado["descripcion"]);
+            $tarea->setEstado($resultado["estado"]);
+            $usuario = new Usuarios ($resultado["username"]);
+            $tarea->setUsuario($usuario);
+            return ["success" => true, "tarea" => $tarea];
         } else {
             // Si no existe, se retorn un mensaje de error
             return ["success" => false, "mensaje" => "La tarea con ID $id_tarea no existe en la base de datos."];
