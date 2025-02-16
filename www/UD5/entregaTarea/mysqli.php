@@ -529,17 +529,18 @@
      * Elimina una tarea de la base de datos por su ID.
      *
      * @param mysqli $conexion_mysqli Conexión activa a la base de datos.
-     * @param int $id_tarea ID de la tarea a eliminar.
+     * @param Tareas $tarea           Objeto de la clase Tareas.
      * @return array Retorna un array asociativo con la siguiente información:
      *      - "success" (bool): Exito en la eliminación de la tarea.
      *      - "mensaje" (string): Mensaje informativo sobre la eliminación de la tarea.
      */
-    function eliminar_tarea (mysqli $conexion_mysqli, int $id_tarea) {
+    function eliminar_tarea (mysqli $conexion_mysqli, Tareas $tarea) {
         try {
             //Preparar la sentencia sql para eliminar la tarea
             $sql = "DELETE FROM tareas WHERE id = ?";
             $stmt = $conexion_mysqli->prepare($sql);
-        
+            
+            $id_tarea = $tarea->getId();
             //Vincular parámetros
             $stmt->bind_param("i", $id_tarea);
     
