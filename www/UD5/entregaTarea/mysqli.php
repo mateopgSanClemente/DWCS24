@@ -350,11 +350,7 @@
      * Modifica una tarea existente en la base de datos.
      *
      * @param mysqli $conexion Conexión a la base de datos.
-     * @param int $id_tarea ID de la tarea a modificar.
-     * @param string $titulo Nuevo título de la tarea.
-     * @param string $descripcion Nueva descripción de la tarea.
-     * @param string $estado Nuevo estado de la tarea (Pendiente, En proceso, Completada).
-     * @param int $id_usuario ID del usuario asignado a la tarea.
+     * @param Tareas $tareas   Objeto de la clase Tareas.
      * 
      * @return array Retorna un array asociativo con la siguiente información:
      *      - "success" (bool): Indica si la operación fue exitosa.
@@ -362,12 +358,12 @@
      * 
      * @throws mysqli_sql_exception Si ocurre un error al ejecutar la consulta
      */
-    function modificar_tarea(mysqli $conexion_mysqli, int $id_tarea, string $titulo, string $descripcion, string $estado, int $id_usuario) {
+    function modificar_tarea(mysqli $conexion_mysqli, Tareas $tarea) {
         try {   
             // Validar estado
             $estados_validos = ["Pendiente", "En proceso", "Completada"];
-            if(!in_array($estado, $estados_validos, true)){
-                return ["success" => false, "mensaje" => "El estado recibido por parámetro no es correcto."];
+            if(!in_array($tarea->getEstado(), $estados_validos, true)){
+                return ["success" => false, "mensaje" => "El estado de la tarea no es correcto."];
             }
 
             //Crear consulta preparada
@@ -375,6 +371,12 @@
             SET titulo = ?, descripcion = ?, estado = ?, id_usuario = ?
             WHERE id = ?";
             $stmt = $conexion_mysqli->prepare($sql);
+            // Guardar las propiedades del objeto Tareas en variables
+            $titulo = $tarea->getTitulo();
+            $descripcion = $tarea->getDescripcion();
+            $estado = $tarea->getEstado();
+            $id_tarea = $tarea->getId();
+            $id_usuario = $tarea->getUsuario()->getId();
             $stmt->bind_param("sssii", $titulo, $descripcion, $estado, $id_usuario, $id_tarea);
             $stmt->execute();
 
