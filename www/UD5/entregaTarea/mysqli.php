@@ -467,9 +467,8 @@
      * Seleciconar las tareas asociadas a un username
      *  TODO:
      *  - Documentar
-     */
-    
-    function seleccionar_tarea_username (mysqli $conexion_mysqli, string $username) {
+     */ 
+    function seleccionar_tarea_username (mysqli $conexion_mysqli, Tareas $tarea) {
         try {
             //Consulta sql para selecionar una tarea por su id
             $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
@@ -481,6 +480,8 @@
             //Consulta preparada
             $stmt = $conexion_mysqli->prepare($sql);
 
+            // Guardar el valor de las propiedades del objeto $tarea en variables.
+            $username = $tarea->getUsuario()->getUsername();
             //Vincular parámetro
             $stmt->bind_param("s", $username);
             $stmt->execute();
@@ -504,7 +505,12 @@
                 return array_map ("htmlspecialchars_decode", $tareas);
             }, $conjunto_tareas);
             
-            return ["success" => true, "datos" => $conjunto_tareas];
+            // Guardar los datos obtenidos de la consulta en el objeto de la clase Tareas.
+            $tarea->setId($conjunto_tareas["id"]);
+            $tarea->setTitulo($conjunto_tareas["titulo"]);
+            $tarea->setDescripcion($conjunto_tareas["descripcion"]);
+            $tarea->setEstado($conjunto_tareas["estado"]);
+            return ["success" => true, "tareas" => $tarea];
         } catch (mysqli_sql_exception $e) {
             return ["success" => false, "mensaje" => "Error al obtener la tarea: " . $e->getMessage()];
         } finally {
