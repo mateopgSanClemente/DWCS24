@@ -464,9 +464,14 @@
     }
 
     /**
-     * Seleciconar las tareas asociadas a un username
-     *  TODO:
-     *  - Documentar
+     * Seleciconar las tareas asociadas a un username.
+     * 
+     * @param mysqli $conexion_mysqli Conexión activa mysqli.
+     * @param Tareas $tarea           Objeto de la clase Tareas.
+     * @return array Devuelve un array asociativo con la siguiente información.
+     *      -"success"  (bool):     Devuelve true en caso de que la operación tuviese éxito, false en caso contrario.
+     *      -?"mensaje" (string):   Mensaje informativo con información sobre el error.
+     *      -?"tareas"  (array):    Array con datos de tipo Tareas donde se guardan los datos obtenidos de la consulta.
      */ 
     function seleccionar_tarea_username (mysqli $conexion_mysqli, Tareas $tarea) {
         try {
