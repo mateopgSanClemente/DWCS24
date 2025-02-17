@@ -505,17 +505,20 @@
             // Liberar memoria del resultado
             $resultado->free();
 
-            // Decodificar la tarea
-            $conjunto_tareas = array_map(function ($tareas){
-                return array_map ("htmlspecialchars_decode", $tareas);
+            // Decodificar la tarea y guardar los datos obtenidos de la consulta en el objeto de la clase Tareas.
+
+            $conjunto_tareas = array_map(function ($tarea){
+                array_map ("htmlspecialchars_decode", $tarea);
+                return new Tareas(
+                    $tarea["id"],
+                    $tarea["titulo"],
+                    $tarea["descripcion"],
+                    $tarea["estado"],
+                    new Usuarios($tarea["username"])
+                );
             }, $conjunto_tareas);
             
-            // Guardar los datos obtenidos de la consulta en el objeto de la clase Tareas.
-            $tarea->setId($conjunto_tareas["id"]);
-            $tarea->setTitulo($conjunto_tareas["titulo"]);
-            $tarea->setDescripcion($conjunto_tareas["descripcion"]);
-            $tarea->setEstado($conjunto_tareas["estado"]);
-            return ["success" => true, "tareas" => $tarea];
+            return ["success" => true, "tareas" => $conjunto_tareas];
         } catch (mysqli_sql_exception $e) {
             return ["success" => false, "mensaje" => "Error al obtener la tarea: " . $e->getMessage()];
         } finally {
