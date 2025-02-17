@@ -298,7 +298,7 @@
                 );
             }, $conjunto_tareas);
 
-            return ["success" => true, "datos" => $conjunto_tareas];
+            return ["success" => true, "tareas" => $conjunto_tareas];
         } catch (mysqli_sql_exception $e) {
             // Capturar errores y retornar un mensaje claro
             return ["success" => false, "mensaje" => "Error al obtener las tareas: " . $e->getMessage()];
