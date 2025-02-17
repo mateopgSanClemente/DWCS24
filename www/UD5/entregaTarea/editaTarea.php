@@ -37,7 +37,11 @@
             exit;
         } else {
             $conexion_mysqli = $resultado_conexion_mysqli["conexion"];
-            $resultado_modificar = modificar_tarea($conexion_mysqli, $tarea_id, $tarea_titulo, $tarea_descripcion, $tarea_estado, $tarea_id_usuario);
+            // Crear objeto de la clase Usuario
+            $usuario = new Usuarios (null, null, null, null, null, $tarea_id_usuario);
+            // Crear objeto de la clase Tareas
+            $tareas = new Tareas ($tarea_id, $tarea_titulo, $tarea_descripcion, $tarea_estado, $usuario);
+            $resultado_modificar = modificar_tarea($conexion_mysqli, $tareas);
             if (!$resultado_modificar["success"]){
                 // Guardar el mensaje en una variable de sesión
                 $_SESSION["errorInsTask"] = $resultado_modificar["mensaje"];

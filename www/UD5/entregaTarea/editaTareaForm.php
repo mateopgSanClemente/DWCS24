@@ -50,13 +50,16 @@
                     } else {
                         // Guardar conexión en variable
                         $conexion_mysqli = $resultado_conexion_mysqli["conexion"];
+                        // Crear instancia de la clase Tareas
+                        $tarea = new Tareas ($id_tarea);
                         //Seleccionar tarea a modificar
-                        $resultado_seleccionar_tarea = seleccionar_tarea_id($conexion_mysqli, $id_tarea);
-                        $datos_tarea = $resultado_seleccionar_tarea["resultado"];
-                        $tarea_titulo = htmlspecialchars_decode($datos_tarea['titulo']);
-                        $tarea_descripcion = htmlspecialchars_decode($datos_tarea['descripcion']);
-                        $tarea_estado = htmlspecialchars_decode($datos_tarea['estado']);
-                        $tarea_username_usuario = htmlspecialchars_decode($datos_tarea['username']);
+                        $resultado_seleccionar_tarea = seleccionar_tarea_id($conexion_mysqli, $tarea);
+                        $tarea = $resultado_seleccionar_tarea["resultado"];
+                        $tarea_titulo = $tarea->getTitulo();
+                        $tarea_descripcion = $tarea->getDescripcion();
+                        $tarea_estado = $tarea->getEstado();
+                        $tarea_username_usuario = $tarea->getUsuario()->getUsername();
+                        $tarea_id_usuario = $tarea->getUsuario()->getId();
                         // Cerrar conexión
                         cerrar_conexion($conexion_mysqli);
                     }
@@ -81,37 +84,40 @@
                                 <option value="Completada" <?php echo $tarea_estado === "Completada" ? "selected" : "";?>>Completada</option>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="usuario">Seleccionar usuario</label>
-                                <!-- Generar las opciones de select de forma dinámica -->
-                                <?php
-                                //Generar conexión
+                        <!-- Mostrar esta opción solo a los usuario administradores -->
+                        <?php
+                            //Generar conexión
+                            if ($_SESSION["rol"] === 1){
                                 require_once "pdo.php";
-
                                 $resultado_conexion_PDO = conectar_PDO();
                                 if(!$resultado_conexion_PDO["success"]){
                                     echo "<div class='alert alert-danger'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
-                                } else {   
-                                    //Sería más eficiente usar una función que sólo selecciones el campo 'username' de la tabla usuarios.
+                                } else {
+                                    // Sería más eficiente usar una función que sólo selecciones el campo 'username' de la tabla usuarios.                    
                                     $conexion_PDO = $resultado_conexion_PDO["conexion"];
-                                    // Seleccionar usuario
                                     $resultado_seleccionar_usuarios = seleccionar_usuarios($conexion_PDO);
                                     if(!$resultado_seleccionar_usuarios["success"]){
                                         echo "<div class='alert alert-warning'>" . $resultado_seleccionar_usuarios["mensaje"] . "</div>"; 
-                                    } else {   
+                                    } else {
+                                        // Seleccionar usuario
+                                        echo "<div class='mb-3'>";
+                                        echo "<label class='form-label' for='usuario'>Seleccionar usuario</label>";
                                         echo "<select class='form-select' name='usuario' id='usuario'>";
                                         foreach ($resultado_seleccionar_usuarios["datos"] as $usuario) {
-                                            $selected = ($tarea_username_usuario === $usuario['username']) ? "selected='selected'" : "";
+                                            $selected = ($tarea_username_usuario === $usuario->getUsername()) ? "selected='selected'" : "";
                                             //TODO: Conseguir que imprima selected en lugar de 'selected=""'.
-                                            echo "<option value='" . $usuario['id'] . "' $selected>" . $usuario['username'] . "</option>";
+                                            echo "<option value='" . $usuario->getId() . "' $selected>" . $usuario->getUsername() . "</option>";
                                         }                                        
                                         echo "</select>";
-                                    }
-                                    // Cerrar conexión PDO
-                                    $conexion_PDO = null;
+                                        echo "</div>";
+                                    } 
                                 }
-                            ?>
-                        </div>
+                                // Cerrar conexión PDO
+                                $conexion_PDO = null;
+                            } else if ($_SESSION["rol"] === 0){
+                                echo "<input type='hidden' name='usuario' value='$tarea_id_usuario'>";
+                            }
+                        ?>
                         <button type="submit" class="btn btn-success mb-3">Modificar</button>
                     </form>
                 </section>
