@@ -23,19 +23,19 @@ class Tareas {
     }
 
     // Getters
-    public function getId(): int {
+    public function getId(): ?int {
         return $this->id;
     }
-    public function getTitulo(): string {
+    public function getTitulo(): ?string {
         return $this->titulo;
     }
-    public function getDescripcion(): string {
+    public function getDescripcion(): ?string {
         return $this->descripcion;
     }
-    public function getEstado(): string {
+    public function getEstado(): ?string {
         return $this->estado;
     }
-    public function getUsuario(): Usuarios {
+    public function getUsuario(): ?Usuarios {
         return $this->usuario;
     }
 
