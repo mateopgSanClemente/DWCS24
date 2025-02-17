@@ -411,7 +411,7 @@
     function seleccionar_tarea_id(mysqli $conexion_mysqli, Tareas $tarea) {
         try {
             //Consulta sql para selecionar una tarea por su id
-            $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, usuarios.username
+            $sql = "SELECT tareas.id, tareas.titulo, tareas.descripcion, tareas.estado, tareas.id_usuario, usuarios.username
             FROM tareas
             INNER JOIN usuarios
             ON tareas.id_usuario = usuarios.id
@@ -450,7 +450,7 @@
             $tarea->setDescripcion($tarea_datos["descripcion"]);
             $tarea->setEstado($tarea_datos["estado"]);
             // Crear instancia de la clase usuario
-            $usuario = new Usuarios($tarea_datos["username"]);
+            $usuario = new Usuarios($tarea_datos["username"], null, null, null, null, $tarea_datos["id_usuario"]);
             $tarea->setUsuario($usuario);
             
             return ["success" => true, "resultado" => $tarea];
