@@ -1,5 +1,6 @@
 <?php
     require_once "clases/usuarios.php";
+    require_once "clases/tareas.php";
     /**
      * Establece una conexión con MySQL utilizando PDO.
      * 
@@ -376,14 +377,18 @@
                 return ["success" => false, "mensaje" => $mensaje];
             }
             
-            foreach($tareas_coleccion as $tarea_datos){
-                $tarea->setId($tarea_datos["id"]);
-                $tarea->setTitulo($tarea_datos["titulo"]);
-                $tarea->setDescripcion($tarea_datos["descripcion"]);
-                $tarea->setEstado($tarea_datos["estado"]);
-                $tarea->getUsuario()->setUsername($tarea_datos["username"]);
-            }
-            return ["success" => true, "datos" => $tarea];
+            // Decodificar la información asociada a las tareas
+            $tareas_coleccion = array_map(function($tarea){
+                array_map("htmlspecialchars_decode", $tarea);
+                return new Tareas (
+                    $tarea["id"],
+                    $tarea["titulo"],
+                    $tarea["descripcion"],
+                    $tarea["estado"],
+                    new Usuarios ($tarea["username"])
+                );
+            }, $tareas_coleccion);
+            return ["success" => true, "datos" => $tareas_coleccion];
             
         }
         catch (PDOException $e) {
