@@ -19,7 +19,8 @@
         $conexion_mysqli = $resultado_conexion_mysqli["conexion"];
         $id_tarea = $_GET['id'];
         // Eliminar tarea
-        $resultado_eliminar_tarea = eliminar_tarea($conexion_mysqli, $id_tarea);
+        $tarea = new Tareas($id_tarea);
+        $resultado_eliminar_tarea = eliminar_tarea($conexion_mysqli, $tarea);
         // Mostrar el resultado de eliminar la tarea
         if(!$resultado_eliminar_tarea["success"]){
             $_SESSION["errorDel"] = $resultado_eliminar_tarea["mensaje"];
