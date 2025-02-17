@@ -45,7 +45,9 @@
                         if ($_SESSION["rol"] == 0) {
                             // NECESITO EL USERNAME DEL USUARIO
                             $username = $_SESSION["usuario"];
-                            $resultado_seleccionar_tareas = seleccionar_tarea_username($conexion_mysqli, $username);
+                            $usuario = new Usuarios($username);
+                            $tarea = new Tareas(null, null, null, null, $usuario);
+                            $resultado_seleccionar_tareas = seleccionar_tarea_username($conexion_mysqli, $tarea);
                         }
                         //Comprobar que las tareas se seleccionaron correctamente
                         if (!$resultado_seleccionar_tareas["success"]){
@@ -73,14 +75,15 @@
                                     foreach($tareas as $tarea)
                                     {
                                         echo "<tr>";
-                                        foreach($tarea as $datos_tarea)
-                                        {
-                                            echo "<td>" . $datos_tarea . "</td>";
-                                        }
+                                        echo "<td>{$tarea->getId()}</td>";
+                                        echo "<td>{$tarea->getTitulo()}</td>";
+                                        echo "<td>{$tarea->getDescripcion()}</td>";
+                                        echo "<td>{$tarea->getEstado()}</td>";
+                                        echo "<td>{$tarea->getUsuario()->getUsername()}</td>";
                                         echo "<td>";
-                                        echo "<a href='tarea.php?id=" . $tarea['id'] . "' class='btn btn-primary btn-sm me-2'>Mostrar</a>";
-                                        echo "<a href='editaTareaForm.php?id=" . $tarea['id'] . "' class='btn btn-success btn-sm me-2'>Editar</a>";
-                                        echo "<a href='borraTarea.php?id=" . $tarea['id'] . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
+                                        echo "<a href='tarea.php?id=" . $tarea->getId() . "' class='btn btn-primary btn-sm me-2'>Mostrar</a>";
+                                        echo "<a href='editaTareaForm.php?id=" . $tarea->getId() . "' class='btn btn-success btn-sm me-2'>Editar</a>";
+                                        echo "<a href='borraTarea.php?id=" . $tarea->getId() . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
                                         echo "</td>";
                                         echo "</tr>";
                                     }
@@ -101,44 +104,48 @@
                         $conexion_PDO = $resultado_conexion_PDO["conexion"];
                         // ID usuario para mostrar tareas asociada.
                         $id_usuario = intval($_POST["username"]);
-                        // En caso de que se especifique el estado de la tarea
-                        
-                            $estado_tarea = isset($_POST["estado"]) ? $_POST["estado"] : null;
-                            // Seleccionar las tareas por su id_usuario y estado
-                            $resultado_seleccionar_tareas = tareas_usuario_estado($conexion_PDO, $id_usuario, $estado_tarea);
-                            // Comprobar que se seleccionaron correctamente
-                            if (!$resultado_seleccionar_tareas["success"]){
-                                // Mostar mensaje
-                                echo "<div class='alert alert-warning' role='alert'>" . $resultado_seleccionar_tareas["mensaje"] . "</div>";
-                            } else {
-                                // Crear una tabla dinámica
-                                echo "<table class='table table-striped table-hover'>
-                                <thead class='table-dark'>
-                                    <tr>
-                                        <th scope='col'>ID Tarea</th>
-                                        <th scope='col'>Titulo</th>
-                                        <th scope='col'>Descripción</th>
-                                        <th scope='col'>Estado</th>
-                                        <th scope='col'>Username</th>
-                                        <th scope='col'>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>";
-                                foreach($resultado_seleccionar_tareas["datos"] as $tarea) {
-                                    echo "<tr>";
-                                    foreach($tarea as $datos_tarea)
-                                    {
-                                        echo "<td>" . $datos_tarea . "</td>";
-                                    }
-                                    echo "<td>";
-                                    echo "<a href='tarea.php?id=" . $tarea['id'] . "' class='btn btn-primary btn-sm me-2'>Mostrar</a>";
-                                    echo "<a href='editaTareaForm.php?id=" . $tarea['id'] . "' class='btn btn-success btn-sm me-2'>Editar</a>";
-                                    echo "<a href='borraTarea.php?id=" . $tarea['id'] . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
-                                    echo "</td>";
-                                    echo "</tr>";
-                                }
-                                echo "</tbody></table>";
+                        // En caso de que se especifique el estado de la tarea                    
+                        $estado_tarea = isset($_POST["estado"]) ? $_POST["estado"] : null;
+                        // Crear objeto Usuarios
+                        $usuario = new Usuarios(null, null, null, null, null, $id_usuario);
+                        // Crear objeto Tareas
+                        $tarea = new Tareas(null, null, null, $estado_tarea, $usuario);
+                        // Seleccionar las tareas por su id_usuario y estado
+                        $resultado_seleccionar_tareas = tareas_usuario_estado($conexion_PDO, $tarea);
+                        // Comprobar que se seleccionaron correctamente
+                        if (!$resultado_seleccionar_tareas["success"]){
+                            // Mostar mensaje
+                            echo "<div class='alert alert-warning' role='alert'>" . $resultado_seleccionar_tareas["mensaje"] . "</div>";
+                        } else {
+                            // Crear una tabla dinámica
+                            echo "<table class='table table-striped table-hover'>
+                            <thead class='table-dark'>
+                                <tr>
+                                    <th scope='col'>ID Tarea</th>
+                                    <th scope='col'>Titulo</th>
+                                    <th scope='col'>Descripción</th>
+                                    <th scope='col'>Estado</th>
+                                    <th scope='col'>Username</th>
+                                    <th scope='col'>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
+                            foreach($resultado_seleccionar_tareas["datos"] as $tarea) {
+                                echo "<tr>";
+                                echo "<td>{$tarea->getId()}</td>";
+                                echo "<td>{$tarea->getTitulo()}</td>";
+                                echo "<td>{$tarea->getDescripcion()}</td>";
+                                echo "<td>{$tarea->getEstado()}</td>";
+                                echo "<td>{$tarea->getUsuario()->getUsername()}</td>";
+                                echo "<td>";
+                                echo "<a href='tarea.php?id=" . $tarea->getId() . "' class='btn btn-primary btn-sm me-2'>Mostrar</a>";
+                                echo "<a href='editaTareaForm.php?id=" . $tarea->getId() . "' class='btn btn-success btn-sm me-2'>Editar</a>";
+                                echo "<a href='borraTarea.php?id=" . $tarea->getId() . "' class='btn btn-danger btn-sm me-2'>Eliminar</a>";
+                                echo "</td>";
+                                echo "</tr>";
                             }
+                            echo "</tbody></table>";
+                        }
 
                         // Cerrar conexión
                         $conexion_PDO = null;
