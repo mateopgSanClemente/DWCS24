@@ -36,8 +36,12 @@
             exit;
         } else {
             $mysqli_conn = $resultado_conexion_mysqli["conexion"];
+            // Crear objeto de la clase Usuarios.
+            $usuario = new Usuarios(null, null, null, null, null, $tarea_id_usuario);
+            // Crear objeto de la clase Tareas
+            $tarea = new Tareas (null, $tarea_titulo, $tarea_descripcion, $tarea_estado, $usuario);
             // Insertar datos
-            $resultado_agregar_tarea = agregar_tarea($mysqli_conn, $tarea_titulo, $tarea_descripcion, $tarea_estado, $tarea_id_usuario);
+            $resultado_agregar_tarea = agregar_tarea($mysqli_conn, $tarea);
             // Mostrar mensaje de error o éxito
             if (!$resultado_agregar_tarea["success"]){
                 $_SESSION["errorInsTask"] = $resultado_agregar_tarea["mensaje"];
