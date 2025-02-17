@@ -59,7 +59,7 @@
                              * TODO:
                              *  - Hacer todavía más dinámica la tabla utilizando un bucle para procesar los valores de las claves y crear los encabezados de cada columna
                              */
-                            $tareas = $resultado_seleccionar_tareas["datos"];
+                            $tareas = $resultado_seleccionar_tareas["tareas"];
                             echo "<table class='table table-striped table-hover'>
                                     <thead class='table-dark'>
                                         <tr>
