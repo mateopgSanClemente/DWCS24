@@ -526,9 +526,15 @@
     }
 
     /**
-     *  TODO:
-     *  - Documentar.
-     * Seleccionar información ficheros
+     * Seleccion las columnas id, nombre, file y descripcion de todas las filas de la tabla ficheros
+     * mediante una conexión PDO. La información se decodifica mediante htmlspecialchars_decode
+     * antes de convertirla a un objeto de tipo Ficheros.
+     * 
+     * @param PDO $conexion_PDO Conexión PDO activa.
+     * @return array retorna un array asociativo con la siguiente información:
+     *      -'success'  (bool):   true si la operación fie exitosa, false en caso contrario.
+     *      -'mensaje'? (string): mensaje informativo en caso de que la operación no fuese exitosa.
+     *      -'datos'?   (array):  colección de objetos de tipo Ficheros.
      */
     function seleccionar_archivos (PDO $conexion_PDO) : array {
         try {
@@ -539,6 +545,16 @@
             if ($stmt->rowCount()== 0)  {
                 return ["success" => false, "mensaje" => "No hay ficheros en la base de datos."];
             }
+            $resultado = array_map(function($fichero){
+                array_map("htmlspecialchars_decode", $fichero);
+                return new Ficheros (
+                    $fichero["id"],
+                    $fichero["nombre"],
+                    $fichero["file"],
+                    $fichero["descripcion"],
+                    new Tareas ($fichero["id_tarea"])
+                );
+            }, $resultado);
             return ["success" => true, "datos" => $resultado];
             
         } catch (PDOException $e) {
