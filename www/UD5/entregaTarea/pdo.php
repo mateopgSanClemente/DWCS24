@@ -1,6 +1,7 @@
 <?php
     require_once "clases/usuarios.php";
     require_once "clases/tareas.php";
+    require_once "clases/ficheros.php";
     /**
      * Establece una conexión con MySQL utilizando PDO.
      * 
@@ -488,29 +489,32 @@
      * - descripcion (VARCHAR), que debe permitir valores nulos.
      *
      * @param PDO         $conexion_PDO Conexión PDO activa a la base de datos.
-     * @param string      $nombre       El nombre del archivo.
-     * @param string      $archivo      Representa la ruta del fichero.
-     * @param string|null $descripcion  Descripción del archivo (opcional). Si es null, no se incluirá en la consulta.
+     * @param Ficheros    $fichero      Objeto de la clase Ficheros.
      *
      * @return array Devuelve un array asociativo con dos claves:
      *               - 'success' => true si la inserción se realizó correctamente, false en caso de error.
      *               - 'mensaje' => Mensaje informativo o de error.
      */
-    function insertar_archivo(PDO $conexion_PDO, string $nombre, string $archivo, int $id_tarea, ?string $descripcion = null) {
+    function insertar_archivo(PDO $conexion_PDO, Ficheros $fichero) {
         try {
-            if ($descripcion !== null) {
+            if ($fichero->getDescripcion() !== null) {
                 $sql = "INSERT INTO ficheros (nombre, `file`, descripcion, id_tarea) 
                         VALUES (:nombre, :file, :descripcion, :id_tarea)";
             } else {
-                $sql = "INSERT INTO ficheros (nombre, `file`) 
+                $sql = "INSERT INTO ficheros (nombre, `file`, id_tarea) 
                         VALUES (:nombre, :file)";
             }
             
             $stmt = $conexion_PDO->prepare($sql);
+            // Guardar el valor de las propiedades del objeto Ficheros en variables
+            $nombre = $fichero->getNombre();
+            $archivo = $fichero->getFile();
+            $id_tarea = $fichero->getTareas()->getId();
             $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
             $stmt->bindParam(':file', $archivo, PDO::PARAM_STR);
             $stmt->bindParam('id_tarea', $id_tarea, PDO::PARAM_INT);
-            if ($descripcion !== null) {
+            if ($fichero->getDescripcion() !== null) {
+                $descripcion = $fichero->getDescripcion();
                 $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
             }
             $stmt->execute();
