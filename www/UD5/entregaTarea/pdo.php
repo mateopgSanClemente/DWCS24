@@ -623,15 +623,38 @@
     }
 
     /**
-     * Seleccionar ficheros or su id_tarea
+     * Selecciona todos los datos de las filas que se correspondan con el id de la tarea asociada.
+     * Guarda tdos estos datos en una colección de datos de tipo Ficheros.
+     * 
+     * @param PDO $conexion_PDO Conexión PDO activa.
+     * @param Ficheros $fichero Objeto de la clase Ficheros con el valor del id de la tarea asociada.
+     * 
+     * @return array Retorna un array asociativo con la siguiente información:
+     *      -'success' (bool): resultado de la operación, true en caso de que no ocurran errores y false en caso contrario.
+     *      -'datos'?  (array): en caso de que la operación se de sin errores,
+     *      devuelve una colección de objetos de tipo Ficheros que guarda información de la tabla.
+     *      -'mensaje' (string): en caso de que ocurra una excepción de tipo PDOException devuelve un mensaje informativo.
+     *      
      */
-    function seleccionar_fichero_tarea (PDO $conexion_PDO, int $id_tarea) {
+    function seleccionar_fichero_tarea (PDO $conexion_PDO, Ficheros $fichero) {
         try {
             $sql = ("SELECT * FROM ficheros WHERE id_tarea = :id_tarea");
-            $stmt = $conexion_PDO->prepare($sql);            
+            $stmt = $conexion_PDO->prepare($sql); 
+            $id_tarea = $fichero->getTareas()->getId();           
             $stmt->bindParam(':id_tarea', $id_tarea, PDO::PARAM_INT);
             $stmt->execute();
             $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Decodificar los resultados y guardarlos en objetos de tipo Ficheros
+            $resultado = array_map(function($fichero){
+                array_map("htmlspecialchars_decode", $fichero);
+                return new Ficheros(
+                    $fichero["id"],
+                    $fichero["nombre"],
+                    $fichero["file"],
+                    $fichero["descripcion"],
+                    new Tareas ($fichero["id_tarea"])
+                );
+            }, $resultado);
             return ["success" => true, "datos" => $resultado];
         } catch (PDOException $e) {
             return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
