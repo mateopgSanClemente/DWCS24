@@ -587,15 +587,35 @@
     }
 
     /**
-     * Selecciona una fila de la tabla ficheros por su id
+     * Selecciona la columna 'file' fila que corresponda con el id en la tabla ficheros.
+     * 
+     * @param PDO $conexion_PDO: Conexión pdo activa.
+     * @param Ficheros $fichero: Objeto de la clase Ficheros que guardará la información seleccionada de la tabla.
+     * 
+     * @return array: Array asociativo con la siguient información.
+     *      -'success' (bool): true en caso de que la operación sea exitosa, false en caso contrario.
+     *      -'datos'? (array): Colección de objetos de tipo Ficheros.
+     *      -'mensaje'? (string): mensaje con información del error en caso de que la operación no se de correctamente.
      */
-    function seleccionar_fichero_ruta (PDO $conexion_PDO, int $id_fichero) {
+    function seleccionar_fichero_ruta (PDO $conexion_PDO, Ficheros $fichero) {
         try {
             $sql = ("SELECT `file` FROM ficheros WHERE id = :id");
-            $stmt = $conexion_PDO->prepare($sql);            
+            $stmt = $conexion_PDO->prepare($sql); 
+            $id_fichero = $fichero->getId();           
             $stmt->bindParam(':id', $id_fichero, PDO::PARAM_INT);
             $stmt->execute();
             $resultado = $stmt->fetch();
+            // Decodificar los datos de las tablas y guardarlos en un objeto de tipo Fichers
+            $resultado = array_map(function($fichero){
+                array_map("htmlspecialchars_decode", $fichero);
+                return new Ficheros(
+                    null,
+                    null,
+                    $fichero["file"],
+                    null,
+                    null
+                );
+            }, $resultado);
             return ["success" => true, "datos" => $resultado];
         } catch (PDOException $e) {
             return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
