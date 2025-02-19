@@ -20,9 +20,9 @@ class Ficheros {
     private ?Tareas $tarea;
 
     // Constantes
-    static public const FORMATOS = ["jpg", "png", "pdf"];
+    public const FORMATOS = ["jpg", "png", "pdf"];
     // Tamaño máximo: 20MB
-    static public const MAX_SIZE = 20000000;
+    public const MAX_SIZE = 20000000;
 
     // Constructor
     function __construct(?int $id, ?string $nombre, ?string $file, ?string $descripcion, ?Tareas $tarea)
