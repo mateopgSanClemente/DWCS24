@@ -563,15 +563,24 @@
     }
 
     /**
-     * Eliminar un fichero según su id
+     * Eliminar un fichero según su id.
+     * 
+     * @param PDO $conexion_PDO Conexión activa PDO.
+     * @param Ficheros $fichero Objeto de la clase Ficheros con la propiedad id establecida.
+     * 
+     * @return array Devuelve un array asociativo con los siguiente valores:
+     *      -'success' (bool): true si la operación fue exitosa, false en caso contrario.
+     *      -
      * 
      */
-    function eliminar_fichero (PDO $conexion_PDO, int $id_fichero) {
+    function eliminar_fichero (PDO $conexion_PDO, Ficheros $fichero) {
         try {
             $sql = ("DELETE FROM ficheros WHERE id = :id");
-            $stmt = $conexion_PDO->prepare($sql);            
+            $stmt = $conexion_PDO->prepare($sql);    
+            $id_fichero = $fichero->getId();
             $stmt->bindParam(':id', $id_fichero, PDO::PARAM_INT);
             $stmt->execute();
+            return ["success" => true, "mensaje" => "El fichero con id $id_fichero."];
         } catch (PDOException $e) {
             return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
         }
