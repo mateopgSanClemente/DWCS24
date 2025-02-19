@@ -17,12 +17,6 @@
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Detalles tarea</h2>
                 <?php
                 /**
-                 *  TODO:
-                 *  - Mostrar un página con la infomación detallada sobre la tarea cuando el fichero 
-                 *  recive un id y este se corresponde con alguno de las tareas existentes. x
-                 *  - Mostar un elemento que contenga la información sobre el fichero subido y dos 
-                 *  botones con las opciones 'descargar' y 'borrar'
-                 *  - Mostrar mensajes de error mediante sesiones.
                  */
                 // En caso de que el arrat $_GET no esté vacío
                 // Mostrar mensaje informativo en caso de que el fichero se subiera correctamente o no
@@ -31,12 +25,12 @@
                 } else if (!empty($_GET["eliminar"]) && $_GET["eliminar"] == true){
                     echo "<div class='alert alert-danger' role='alert'>Fichero eliminado</div>";
                 }
-                if (!empty($_GET)){
+                if (isset($_GET)){
                     // Convertir el tipo de dato en un entero
                     // Validar el contenido del array GET: El valor de la clave deber ser 'id' y el valor ser de tipo entero
-                    if (isset($_GET["id"]) && is_numeric($_GET["id"]) && $_GET["id"] > 0){
+                    if (!empty($_GET["id"]) && is_numeric($_GET["id"]) && $_GET["id"] > 0){
                         // Convertir el valor del id a tipo entero
-                        $id_tarea = intval($_GET["id"]);
+                        $id_tarea = (int)($_GET["id"]);
                         require_once "pdo.php";
                         // Conexión PDO
                         $resultado_conexion_PDO = conectar_PDO();
@@ -46,18 +40,19 @@
                             echo "<div class='alert alert-danger' role='alert'>" . $resultado_conexion_PDO["mensaje"] . "</div>";
                         } else {
                             $conexion_PDO = $resultado_conexion_PDO["conexion"];
-                            $resultado_tarea_id = seleccionar_tarea_id_PDO($conexion_PDO, $id_tarea);
+                            // Crear objeto de la clase Tareas
+                            $tarea = new Tareas ($id_tarea);
+                            $resultado_tarea_id = seleccionar_tarea_id_PDO($conexion_PDO, $tarea);
                             // Comprobar que los id que se pasan a través de un método GET coinciden con el id de alguna tarea de la base de datos
                             if (!$resultado_tarea_id["success"]) {
                                 echo "<div class='alert alert-warning' role='alert'>" . $resultado_tarea_id["mensaje"] . "</div>";
-                                $conexion_PDO = null;
                             } else {
                                 // Recoger los datos de la tarea en variables
-                                $tarea = $resultado_tarea_id["datos"];
-                                $titulo_tarea = $tarea["titulo"];
-                                $descripcion_tarea = $tarea["descripcion"];
-                                $estado_tarea = $tarea["estado"];
-                                $tarea_username = $tarea["username"];
+                                $tarea = $resultado_tarea_id["tarea"];
+                                $titulo_tarea = $tarea->getTitulo();
+                                $descripcion_tarea = $tarea->getDescripcion();
+                                $estado_tarea = $tarea->getEstado();
+                                $tarea_username = $tarea->getUsuario()->getUsername();
                                 // Mostrar la información detallada de la tarea
                                 echo "<div class='container mt-5'>
                                         <table class='table table-bordered'>
@@ -126,7 +121,6 @@
                                     </div>
                                 </div>
                                 </div>";
-                                $conexion_PDO = null;
                             }
                             $conexion_PDO = null;
                         }
