@@ -25,7 +25,7 @@ class Ficheros {
     public const MAX_SIZE = 20000000;
 
     // Constructor
-    function __construct(?int $id, ?string $nombre, ?string $file, ?string $descripcion, ?Tareas $tarea)
+    function __construct(?int $id = null, ?string $nombre = null, ?string $file = null, ?string $descripcion = null, ?Tareas $tarea = null)
     {
         $this->id = $id;
         $this->nombre = $nombre;
