@@ -587,7 +587,7 @@
     }
 
     /**
-     * Selecciona la columna 'file' fila que corresponda con el id en la tabla ficheros.
+     * Selecciona la fila de la columna 'file' que corresponda con el id en la tabla ficheros.
      * 
      * @param PDO $conexion_PDO: Conexión pdo activa.
      * @param Ficheros $fichero: Objeto de la clase Ficheros que guardará la información seleccionada de la tabla.
@@ -606,12 +606,12 @@
             $stmt->execute();
             $resultado = $stmt->fetch();
             // Decodificar los datos de las tablas y guardarlos en un objeto de tipo Fichers
-            $resultado = array_map(function($fichero){
-                array_map("htmlspecialchars_decode", $fichero);
+            $resultado = array_map(function($ruta_fichero){
+                $ruta_fichero = htmlspecialchars_decode($ruta_fichero);
                 return new Ficheros(
                     null,
                     null,
-                    $fichero["file"],
+                    $ruta_fichero,
                     null,
                     null
                 );
