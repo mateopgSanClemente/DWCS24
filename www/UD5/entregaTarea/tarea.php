@@ -16,15 +16,40 @@
             <main class="col-md-9 main-content">
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Detalles tarea</h2>
                 <?php
-                /**
-                 */
-                // En caso de que el arrat $_GET no esté vacío
+                // En caso de que el array $_GET no esté vacío
                 // Mostrar mensaje informativo en caso de que el fichero se subiera correctamente o no
-                if (!empty($_GET["success"]) && $_GET["success"] == true){
-                    echo "<div class='alert alert-success' role='alert'>Fichero subido correctamente</div>";
-                } else if (!empty($_GET["eliminar"]) && $_GET["eliminar"] == true){
-                    echo "<div class='alert alert-danger' role='alert'>Fichero eliminado</div>";
+                if(isset($_SESSION["err_upload"])){
+                    echo "<div class='alert alert-danger' role='alert'>{$_SESSION["err_upload"]}</div>";
+                    unset($_SESSION["err_upload"]);
+                } else if (isset($_SESSION["succ_upload"])){
+                    echo "<div class='alert alert-success' role='alert'>{$_SESSION["succ_upload"]}</div>";
+                    unset($_SESSION["succ_upload"]);
                 }
+
+                // Mostrar mensaje informativo para las descargas
+                if(isset($_SESSION["err_descarga"])){
+                    echo "<div class='alert alert-danger' role='alert'>{$_SESSION["err_descarga"]}</div>";
+                    unset($_SESSION["err_descarga"]);
+                }
+                /**
+                 *  TODO:
+                 *  - Por algún motivo, no se muestra en la página el mensaje con el aviso
+                 *  en caso de que el fichero se descargase sin problemas.
+                 */
+                //else if (isset($_SESSION["succ_descarga"])){
+                  //  echo "<div class='alert alert-success' role='alert'>{$_SESSION["succ_descarga"]}</div>";
+                  //  unset($_SESSION["succ_descarga"]);
+                //}
+
+                // Mostrar mensaje informativo para eliminación de ficheros
+                if(isset($_SESSION["err_eliminar"])){
+                    echo "<div class='alert alert-danger' role='alert'>{$_SESSION["err_eliminar"]}</div>";
+                    unset($_SESSION["err_eliminar"]);
+                } else if (isset($_SESSION["succ_eliminar"])){
+                    echo "<div class='alert alert-success' role='alert'>{$_SESSION["succ_eliminar"]}</div>";
+                    unset($_SESSION["succ_eliminar"]);
+                }
+
                 if (isset($_GET)){
                     // Convertir el tipo de dato en un entero
                     // Validar el contenido del array GET: El valor de la clave deber ser 'id' y el valor ser de tipo entero

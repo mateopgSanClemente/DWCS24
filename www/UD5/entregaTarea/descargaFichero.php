@@ -14,25 +14,41 @@ if (!empty($_GET["id_fichero"])){
     $resultado_conexion_PDO = conectar_PDO();
     if ($resultado_conexion_PDO["success"]){
         $conexion_PDO = $resultado_conexion_PDO["conexion"];
-        $resultado_seleccionar_ruta = seleccionar_fichero_ruta($conexion_PDO, $id_fichero);
+        // Objeto de la clase Ficheros
+        $fichero = new Ficheros ($id_fichero, null, null, null, new Tareas($id_tarea));
+        $resultado_seleccionar_ruta = seleccionar_fichero_ruta($conexion_PDO, $fichero);
         if ($resultado_seleccionar_ruta["success"]){
             // Compruebo que el fichero existe
-            $ruta_fichero = $resultado_seleccionar_ruta["datos"][0];
-            if (file_exists($ruta_fichero));
-            // Configurar las cabeceras para forzar la descarga
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($ruta_fichero) . '"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($ruta_fichero));
-            flush(); // Vacía el búfer de salida del sistema
-            readfile($ruta_fichero);
-            header("Location: tarea.php?id=$id_tarea");
+            $ruta_fichero = $resultado_seleccionar_ruta["datos"][0]->getFile();
+            if (file_exists($ruta_fichero)){
+                // Guardar mensaje de éxito en una variable de sesion
+                // $_SESSION["succ_descarga"] = "El fichero se descargó correctamente.";
+                // Configurar las cabeceras para forzar la descarga
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename($ruta_fichero) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($ruta_fichero));
+                flush(); // Vacía el búfer de salida del sistema
+                readfile($ruta_fichero);
+                header("Location: tarea.php?id=$id_tarea");
+                exit;
+            } else {
+                $_SESSION["err_descarga"] = "El fichero no existe.";
+                header ("Location: tarea.php?id=$id_tarea");
+                exit;
+            }
+        } else {
+            $_SESSION["err_descarga"] = $resultado_seleccionar_ruta["mensaje"];
+            header ("Location: tarea.php?id=$id_tarea");
             exit;
         }
+    } else {
+        $_SESSION["err_descarga"] = "No se pudo realizar la conexíon con la base de datos.";
+        header ("Location: tarea.php?id=$id_tarea");
+        exit;
     }
-
 }
 ?>

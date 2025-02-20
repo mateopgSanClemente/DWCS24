@@ -56,9 +56,18 @@
                 // Cerrar conexión
                 $conexion_PDO = null;
                 // Redirigir
-                header ("Location: tarea.php?id=" . $_GET["id"] . "&success=true");
+                $_SESSION["succ_upload"] = "Fichero subido correctamente.";
+                header ("Location: tarea.php?id=" . $_GET["id"]);
+                exit;
+            } else {
+                $_SESSION["err_upload"] = "No se pudo conectar con la base de datos.";
+                header ("Location: tarea.php?id=" . $_GET["id"]);
                 exit;
             }
+        } else {
+            $_SESSION["err_upload"] = "No se pudo mover el fichero a la carpeta de destino.";
+            header ("Location: tarea.php?id=" . $_GET["id"]);
+            exit;
         }
     }
 ?>
