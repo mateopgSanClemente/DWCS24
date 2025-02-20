@@ -20,7 +20,7 @@ class Ficheros {
     private ?Tareas $tarea;
 
     // Constantes
-    public const FORMATOS = ["jpg", "png", "pdf"];
+    public const FORMATOS = ["image/jpeg", "image/png", "application/pdf"];
     // Tamaño máximo: 20MB
     public const MAX_SIZE = 20000000;
 
@@ -79,7 +79,7 @@ class Ficheros {
         ];
 
         // Validar nombre
-        if(!isset($nombre) || empty($nombre)){
+        if(empty($nombre)){
             $errores ["nombre"][] = "El campo 'nombre' es obligatorio."; 
         } else if (is_string($nombre) && strlen($nombre) < 3) {
             $errores ["nombre"][] = "El campo 'nombre' debe contener al menos 3 caracteres.";
@@ -88,24 +88,33 @@ class Ficheros {
         }
 
         // Validar descripcion
-        if(!isset($descripcion)){
-            $errores ["descripcion"][] = "El campo 'descripción' es obligatorio."; 
-        } else if (is_string($descripcion) && strlen($descripcion) < 3) {
-            $errores ["descripcion"][] = "El campo 'descripción' debe contener al menos 3 caracteres.";
-        } else if (is_string($descripcion) && strlen($descripcion) > 250) {
+        if (!empty($descripcion) && strlen($descripcion) < 3){
+            $errores ["descripcion"][] = "El campo 'descripción' no debe contener menos de 3 caracteres.";
+        } else if (strlen($descripcion) > 250) {
             $errores ["descripcion"][] = "El campo 'descripción' no debe contener más de 250 caracteres.";
         }
 
         // Validar fichero
 
         // 1. Comprobar que el fichero se subió correctamente
-        if (!isset($fichero) && $fichero["error"] === UPLOAD_ERR_OK){
-            $errores["file"][] = "Error al subir el archivo";
+        if (empty($fichero["name"])){
+            $errores["file"][] = "El campo fichero es obligatorio";
         } else {
 
             // 2. Recuperar la extensión del fichero para comprobar que está dentro de las permitidas (constante FORMATOS)
+            /**
+             *  Uso de FileInfo para obtener el tipo MIME del fichero.
+             */
+            // 2.1. Obtener la ruta del archivo subido temporalmente
+            $archivo_tmp = $fichero["tmp_name"];
+            // 2.2. Crear un recurso FileInfo
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            // 2.3. Obtener el tipo MIME del fichero.
+            $tipo_mime_fichero = finfo_file($finfo, $archivo_tmp);
+            // 2.4. Cerrar el recurso FileInfo
+            finfo_close($finfo);
             $type_file = strtolower(pathinfo(basename($fichero["name"]), PATHINFO_EXTENSION));
-            if (!in_array($type_file, self::FORMATOS)){
+            if (!in_array($tipo_mime_fichero, self::FORMATOS)){
                 $errores["file"][] = "Sólo se admiten extensiones 'jpg', 'png', 'pdf'.";
             }
 
@@ -119,7 +128,7 @@ class Ficheros {
         if (!empty($errores)){
             return $errores;
         }
-        return false;
+        return true;
     }
 }
 ?>
