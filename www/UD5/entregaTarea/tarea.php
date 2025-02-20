@@ -81,9 +81,11 @@
                                         </tbody>
                                         </table>
                                     </div>";
-                                // Mostrar ficheros
+                                // MOSTRAR FICHEROS
+                                // Instanciar clase Ficheros
+                                $fichero = new Ficheros (null, null, null, null, $tarea);
                                 // Recoger información sobre los ficheros
-                                $resultado_seleccionar_archivos = seleccionar_fichero_tarea($conexion_PDO, $id_tarea);
+                                $resultado_seleccionar_archivos = seleccionar_fichero_tarea($conexion_PDO, $fichero);
                                 echo "<div class='container mt-4 mb-4'>
                                 <div class='card'>
                                     <div class='card-header'>
@@ -99,10 +101,10 @@
                                                 echo "<div class='col-md-4 my-2'>
                                                 <div class='card h-100'>
                                                     <div class='card-body'>
-                                                        <h5 class='card-title'>" . $fichero["nombre"] . "</h5>
-                                                        <p class='card-text'>" . $fichero["descripcion"] . "</p>
-                                                        <a href='descargaFichero.php?id=$id_tarea&id_fichero=" . $fichero["id"] . "' class='btn btn-success'>Descargar</a>
-                                                        <a href='borraFichero.php?id=$id_tarea&id_fichero=" . $fichero["id"] . "' class='btn btn-danger' blank>Eliminar</a>
+                                                        <h5 class='card-title'>" . $fichero->getNombre() . "</h5>
+                                                        <p class='card-text'>" . $fichero->getDescripcion() . "</p>
+                                                        <a href='descargaFichero.php?id=$id_tarea&id_fichero=" . $fichero->getId() . "' class='btn btn-success'>Descargar</a>
+                                                        <a href='borraFichero.php?id=$id_tarea&id_fichero=" . $fichero->getId() . "' class='btn btn-danger' blank>Eliminar</a>
                                                     </div>        
                                                 </div>
                                                 </div>";
