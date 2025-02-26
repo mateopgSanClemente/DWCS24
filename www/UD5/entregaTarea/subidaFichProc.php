@@ -52,7 +52,14 @@
                 $conexion_PDO = $resultado_conexion_PDO["conexion"];
                 // Instancia de la clase Ficheros
                 $fichero = new Ficheros(null, $fichero_nombre, $target_file, $fichero_descripcion, new Tareas($id_tarea));
+
+                // Capturar errores de conexión
+                try {
                 $resultado_producto = insertar_archivo($conexion_PDO, $fichero);
+                } catch (DataBaseException $e) {
+                    $_SESSION["errCon"] = $e;
+                    header ("Location: tarea.php?id=" . $_GET["id"]);
+                }
                 // Cerrar conexión
                 $conexion_PDO = null;
                 // Redirigir

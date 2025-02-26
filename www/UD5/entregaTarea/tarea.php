@@ -50,6 +50,11 @@
                     unset($_SESSION["succ_eliminar"]);
                 }
 
+                // Mostrar mensaje de error de conexión
+                if(isset($_SESSION["errCon"])){
+                    echo "<div class='alert alert-warning' role='alert'>{$_SESSION["errCon"]}</div>";
+                    unset($_SESSION["errCon"]);
+                }
                 if (isset($_GET)){
                     // Convertir el tipo de dato en un entero
                     // Validar el contenido del array GET: El valor de la clave deber ser 'id' y el valor ser de tipo entero

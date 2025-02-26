@@ -2,6 +2,7 @@
     require_once "clases/usuarios.php";
     require_once "clases/tareas.php";
     require_once "clases/ficheros.php";
+    require_once "clases/dataBaseException.php";
     /**
      * Establece una conexión con MySQL utilizando PDO.
      * 
@@ -521,7 +522,7 @@
     
             return ["success" => true, "mensaje" => "Archivo insertado correctamente"];
         } catch(PDOException $e) {
-            return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
+            throw new DataBaseException(__FUNCTION__, $sql, $e->getMessage());
         }
     }
 
@@ -558,7 +559,7 @@
             return ["success" => true, "datos" => $resultado];
             
         } catch (PDOException $e) {
-            return ["success" => false, "mensaje" => $e->getMessage()];
+            throw new DataBaseException(__FUNCTION__, $sql, $e->getMessage());
         }
     }
 
@@ -582,7 +583,7 @@
             $stmt->execute();
             return ["success" => true, "mensaje" => "El fichero con id $id_fichero."];
         } catch (PDOException $e) {
-            return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
+            throw new DataBaseException(__FUNCTION__, $sql, $e->getMessage());
         }
     }
 
@@ -618,7 +619,7 @@
             }, $resultado);
             return ["success" => true, "datos" => $resultado];
         } catch (PDOException $e) {
-            return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
+            throw new DataBaseException(__FUNCTION__, $sql, $e->getMessage());
         }
     }
 
@@ -657,7 +658,7 @@
             }, $resultado);
             return ["success" => true, "datos" => $resultado];
         } catch (PDOException $e) {
-            return ["success" => false, "mensaje" => "Error: " . $e->getMessage()];
+            throw new DataBaseException(__FUNCTION__, $sql, $e->getMessage());
         }
     }
 
