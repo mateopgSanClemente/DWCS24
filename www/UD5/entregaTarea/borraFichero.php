@@ -16,7 +16,15 @@
         // Eliminar fichero
         // Eliminar de la carpeta 'files': necesito la ruta.
         $fichero = new Ficheros($id_fichero);
-        $resultado_seleccionar_fichero = seleccionar_fichero_ruta($conexion_PDO, $fichero);
+
+        // Capturar excepcion dataBaseException
+        try {
+            $resultado_seleccionar_fichero = seleccionar_fichero_ruta($conexion_PDO, $fichero);
+        } catch (DataBaseException $e){
+            $_SESSION["errCon"] = $e;
+            header("Location: tarea.php?id=" . $id_tarea);
+        }
+
         if($resultado_seleccionar_fichero["success"]){
             $ruta_fichero = $resultado_seleccionar_fichero["datos"][0]->getFile();
             // La función unlink elimina un fichero cuando se le pasa la ruta y mientras tenga los permisos necesarios.

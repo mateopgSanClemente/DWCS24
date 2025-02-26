@@ -55,6 +55,7 @@
                     echo "<div class='alert alert-warning' role='alert'>{$_SESSION["errCon"]}</div>";
                     unset($_SESSION["errCon"]);
                 }
+                
                 if (isset($_GET)){
                     // Convertir el tipo de dato en un entero
                     // Validar el contenido del array GET: El valor de la clave deber ser 'id' y el valor ser de tipo entero
@@ -114,8 +115,15 @@
                                 // MOSTRAR FICHEROS
                                 // Instanciar clase Ficheros
                                 $fichero = new Ficheros (null, null, null, null, $tarea);
-                                // Recoger información sobre los ficheros
-                                $resultado_seleccionar_archivos = seleccionar_fichero_tarea($conexion_PDO, $fichero);
+
+                                // Capturar excepciones DataBaseException
+                                try{
+                                    // Recoger información sobre los ficheros
+                                    $resultado_seleccionar_archivos = seleccionar_fichero_tarea($conexion_PDO, $fichero);
+                                } catch (DataBaseException $e) {
+                                    $_SESSION["errCon"] = $e;
+                                    header("Location: tarea.php?id=" . $id_tarea);
+                                }
                                 echo "<div class='container mt-4 mb-4'>
                                 <div class='card'>
                                     <div class='card-header'>
