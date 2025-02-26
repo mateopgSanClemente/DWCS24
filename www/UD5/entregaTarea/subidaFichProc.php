@@ -8,6 +8,13 @@
     // Validar los campos mediante el método estático de la clase Ficheros
     include_once "clases/ficheros.php";
     require_once "utils.php";
+
+    // El tamaño de los ficheros para formularios POST está limitado a 8MB, por lo que el formulario nunca se llega a enviar cuando este se supera.
+    if (empty($_POST)){
+        $_SESSION["errPost"] = "No se pudo enviar el formulario";
+        header ("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+    }
     $fichero_nombre = test_input($_POST["nombre"]);
     if (isset($_POST["descripcion"])){
         $fichero_descripcion = test_input($_POST["descripcion"]);

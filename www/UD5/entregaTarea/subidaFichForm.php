@@ -16,6 +16,12 @@
             <main class="col-md-9 main-content">
                 <h2 class="border-bottom pt-4 pb-2 mb-3">Adjuntar archivo</h2>
 
+                <?php
+                    if (isset($_SESSION["errPost"])){
+                        echo "<div class='alert alert-warning' role='alert'>{$_SESSION["errPost"]}</div>";
+                        unset($_SESSION["errPost"]);
+                    }
+                ?>
                 <form class="mb-5" action="subidaFichProc.php?id=<?php echo $_GET["id"];?>" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label" for="nombre">Nombre</label>
