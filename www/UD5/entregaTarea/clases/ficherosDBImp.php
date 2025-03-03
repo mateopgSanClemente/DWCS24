@@ -1,6 +1,5 @@
 <?php
-    require_once "../pdo.php";
-    
+    require_once "ficheroDBInt.php";    
     class FicherosDBImp implements FicherosDBInt {
         // Atributos
         private PDO $conexion_PDO;
@@ -12,11 +11,6 @@
 
 
         // Métodos
-        /**
-         *  NOTAS:
-         *      - Por como está definido el método en la interfaz no es posible recoger una conexión
-         *      por parámetros, por lo que tengo que tengo que crearla dentro del propio método.
-         */
         public function listaFicheros($id_tarea): array {
             try {
                 $sql = "SELECT * FROM ficheros WHERE id_tarea = :id_tarea";
