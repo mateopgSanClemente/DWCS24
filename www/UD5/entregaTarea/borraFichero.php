@@ -19,42 +19,24 @@
 
         // Capturar excepcion dataBaseException
         try {
-            $resultado_seleccionar_fichero = seleccionar_fichero_ruta($conexion_PDO, $fichero);
-        } catch (DataBaseException $e){
-            $_SESSION["errCon"] = $e;
-            header("Location: tarea.php?id=" . $id_tarea);
-        }
-
-        if($resultado_seleccionar_fichero["success"]){
-            $ruta_fichero = $resultado_seleccionar_fichero["datos"][0]->getFile();
+            // Crear objetos FicherosDBimp
+            require_once "clases/ficherosDBImp.php";
+            $fihceroDB = new FicherosDBImp($conexion_PDO);
+            $resultado_seleccionar_fichero = $fihceroDB->buscaFichero($fichero->getId());
+            $ruta_fichero = $resultado_seleccionar_fichero->getFile();
             // La función unlink elimina un fichero cuando se le pasa la ruta y mientras tenga los permisos necesarios.
             unlink($ruta_fichero);
-
-            // Capturar excepcion dataBaseException
-            try {
-                // Eliminar de la base de datos
-                $resultado_eliminar = eliminar_fichero($conexion_PDO, $fichero);
-            } catch (DataBaseException $e) {
-                $_SESSION["errCon"] = $e;
-                header("Location: tarea.php?id=" . $id_tarea);
-            }
-            if($resultado_eliminar["success"]){
-                $conexion_PDO = null;
-                $_SESSION["succ_eliminar"] = "El fichero se eliminó correctamente.";
-                header("Location: tarea.php?id=" . $id_tarea);
-                exit;
-            } else {
-                $conexion_PDO = null;
-                $_SESSION["err_eliminar"] = $resultado_eliminar["mensaje"];
-                header("Location: tarea.php?id=" . $id_tarea);
-                exit;
-            }
-        } else {
+            // Eliminar de la base de datos
+            $resultado_eliminar = $fihceroDB->borraFichero($id_fichero);
             $conexion_PDO = null;
-            $_SESSION["err_eliminar"] = $fichero["mensaje"];
+            $_SESSION["succ_eliminar"] = "El fichero se eliminó correctamente.";
             header("Location: tarea.php?id=" . $id_tarea);
             exit;
-        }
+        } catch (DataBaseException $e){
+            $conexion_PDO = null;
+            $_SESSION["errCon"] = $e;
+            header("Location: tarea.php?id=" . $id_tarea);
+        }   
     } else {
         $_SESSION["err_eliminar"] = "No se pudo conectar con la base de datos.";
         header("Location: tarea.php?id=" . $id_tarea);
