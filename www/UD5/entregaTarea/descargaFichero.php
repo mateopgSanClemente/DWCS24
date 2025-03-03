@@ -16,10 +16,15 @@ if (!empty($_GET["id_fichero"])){
         $conexion_PDO = $resultado_conexion_PDO["conexion"];
         // Objeto de la clase Ficheros
         $fichero = new Ficheros ($id_fichero, null, null, null, new Tareas($id_tarea));
-        $resultado_seleccionar_ruta = seleccionar_fichero_ruta($conexion_PDO, $fichero);
-        if ($resultado_seleccionar_ruta["success"]){
+        // Objeto de la clase FicheroDBImp
+        require_once "clases/ficherosDBImp.php";
+        $ficheroDB = new FicherosDBImp($conexion_PDO);
+        try {
+            $resultado_seleccionar_ruta = $ficheroDB->buscaFichero($id_fichero);
+        
+        
             // Compruebo que el fichero existe
-            $ruta_fichero = $resultado_seleccionar_ruta["datos"][0]->getFile();
+            $ruta_fichero = $resultado_seleccionar_ruta->getFile();
             if (file_exists($ruta_fichero)){
                 // Guardar mensaje de éxito en una variable de sesion
                 // $_SESSION["succ_descarga"] = "El fichero se descargó correctamente.";
@@ -40,8 +45,8 @@ if (!empty($_GET["id_fichero"])){
                 header ("Location: tarea.php?id=$id_tarea");
                 exit;
             }
-        } else {
-            $_SESSION["err_descarga"] = $resultado_seleccionar_ruta["mensaje"];
+        } catch (DataBaseException $e) {
+            $_SESSION["err_descarga"] = $e->getMessage();
             header ("Location: tarea.php?id=$id_tarea");
             exit;
         }
