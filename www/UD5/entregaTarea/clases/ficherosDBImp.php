@@ -47,7 +47,7 @@
                     return new Ficheros (
                         null,
                         null,
-                        html_entity_decode($fichero["file"])
+                        htmlspecialchars_decode($fichero)
                     );
                 }, $resultado);
                 return $resultado[0];
