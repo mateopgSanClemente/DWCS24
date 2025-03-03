@@ -63,6 +63,7 @@
                         // Convertir el valor del id a tipo entero
                         $id_tarea = (int)($_GET["id"]);
                         require_once "pdo.php";
+
                         // Conexión PDO
                         $resultado_conexion_PDO = conectar_PDO();
                         // Comprobar conexión
@@ -118,8 +119,11 @@
 
                                 // Capturar excepciones DataBaseException
                                 try{
+                                    // Crear clase FicherosDBImp
+                                    require_once "clases/ficherosDBImp.php";
+                                    $ficherosDB = new FicherosDBImp($conexion_PDO);
                                     // Recoger información sobre los ficheros
-                                    $resultado_seleccionar_archivos = seleccionar_fichero_tarea($conexion_PDO, $fichero);
+                                    $resultado_seleccionar_archivos = $ficherosDB->listaFicheros($tarea->getId());
                                 } catch (DataBaseException $e) {
                                     $_SESSION["errCon"] = $e;
                                     header("Location: tarea.php?id=" . $id_tarea);
@@ -132,10 +136,7 @@
                                     <div class='card-body'>
                                     <div class='row d-flex align-items-stretc'>";
                                         
-                                        if ($resultado_seleccionar_archivos["success"]){
-                                            $array_ficheros = $resultado_seleccionar_archivos["datos"];
-                                            // Mostrar ficheros de forma dinámica
-                                            foreach ($array_ficheros as $fichero){
+                                            foreach ($resultado_seleccionar_archivos as $fichero){
                                                 echo "<div class='col-md-4 my-2'>
                                                 <div class='card h-100'>
                                                     <div class='card-body'>
@@ -147,7 +148,7 @@
                                                 </div>
                                                 </div>";
                                             }
-                                        }
+    
                                         echo "<!-- Columna para añadir archivo -->
                                         <div class='col-md-4  my-2'>
                                         <div class='card h-100'>
