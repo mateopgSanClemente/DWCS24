@@ -77,11 +77,15 @@
                             VALUES (:nombre, :file, :id_tarea)";
                 }
                 $stmt = $this->conexion_PDO->prepare($sql);
-                $stmt->bindParam(":nombre", $fichero->getNombre(), PDO::PARAM_STR);
-                $stmt->bindParam(":file", $fichero->getFile(), PDO::PARAM_STR);
-                $stmt->bindParam(":id_tarea", $fichero->getTareas()->getId(), PDO::PARAM_STR);
+                $nombreFichero = $fichero->getNombre();
+                $rutaFichero = $fichero->getFile();
+                $idTareaFichero = $fichero->getTareas()->getId();
+                $stmt->bindParam(":nombre", $nombreFichero, PDO::PARAM_STR);
+                $stmt->bindParam(":file", $rutaFichero, PDO::PARAM_STR);
+                $stmt->bindParam(":id_tarea", $idTareaFichero, PDO::PARAM_STR);
                 if ($fichero->getDescripcion() !== null) {
-                    $stmt->bindParam(":descripcion", $fichero->getDescripcion(), PDO::PARAM_STR);
+                    $descripcionFichero = $fichero->getDescripcion();
+                    $stmt->bindParam(":descripcion", $descripcionFichero, PDO::PARAM_STR);
                 }
                 return $stmt->execute();
             } catch (PDOException $e) {

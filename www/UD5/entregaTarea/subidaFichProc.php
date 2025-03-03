@@ -62,17 +62,23 @@
 
                 // Capturar errores de conexión
                 try {
-                $resultado_producto = insertar_archivo($conexion_PDO, $fichero);
+                    // Crear Objeto de FicheroDBImp
+                    require_once "clases/ficherosDBImp.php";
+                    $ficheroDB = new FicherosDBImp($conexion_PDO);
+
+                    $resultado_fichero = $ficheroDB->nuevoFichero($fichero);
+                    if ($resultado_fichero) {
+                        // Cerrar conexión
+                        $conexion_PDO = null;
+                        // Redirigir
+                        $_SESSION["succ_upload"] = "Fichero subido correctamente.";
+                        header ("Location: tarea.php?id=" . $_GET["id"]);
+                        exit;
+                    }
                 } catch (DataBaseException $e) {
                     $_SESSION["errCon"] = $e;
                     header ("Location: tarea.php?id=" . $_GET["id"]);
                 }
-                // Cerrar conexión
-                $conexion_PDO = null;
-                // Redirigir
-                $_SESSION["succ_upload"] = "Fichero subido correctamente.";
-                header ("Location: tarea.php?id=" . $_GET["id"]);
-                exit;
             } else {
                 $_SESSION["err_upload"] = "No se pudo conectar con la base de datos.";
                 header ("Location: tarea.php?id=" . $_GET["id"]);
