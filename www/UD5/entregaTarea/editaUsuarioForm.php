@@ -90,7 +90,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
-                                <input type="text" class="form-control" name="contrasena" id="apellidos" placeholder="Nueva contraseña del usuario">
+                                <input type="password" class="form-control" name="contrasena" id="apellidos" placeholder="Nueva contraseña del usuario">
                             </div>
                             <div class="mb-3">
                                 <label for="rol" class="form-label">Rol</label>

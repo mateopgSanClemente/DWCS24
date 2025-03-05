@@ -214,7 +214,7 @@
     function modificar_usuario(PDO $conexion, Usuarios $usuario): array {
         try {
             // Verificar si se proporcionó una contraseña para actualizarla
-            if (!empty($contrasena)) {
+            if (!empty($usuario->getContrasena())) {
                 // Si se actualiza la contraseña, incluirla en la consulta
                 $sql = "UPDATE usuarios 
                         SET username = :username, 
@@ -226,7 +226,7 @@
                 $stmt = $conexion->prepare($sql);
                 
                 // Encriptar la contraseña
-                $contrasena_hash = password_hash($contrasena, PASSWORD_DEFAULT);
+                $contrasena_hash = password_hash($usuario->getContrasena(), PASSWORD_DEFAULT);
                 $stmt->bindParam(':contrasena', $contrasena_hash, PDO::PARAM_STR);
             } else {
                 // Si no se proporciona contraseña, no actualizar el campo 'contrasena'
