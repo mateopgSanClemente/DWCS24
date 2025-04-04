@@ -43,10 +43,16 @@
                     require_once "pdo.php";
                     $resultado_conexion_PDO = conectar_PDO();
                     if ($resultado_conexion_PDO["success"]){
+
                         // ID tarea
                         $id_tarea = intval($_GET["id"]);
                         $conexion_PDO = $resultado_conexion_PDO["conexion"];
-                        $resultado_producto = insertar_archivo($conexion_PDO, $fichero_nombre, $target_file, $id_tarea, $fichero_descripcion);
+                        try {
+                            $resultado_producto = insertar_archivo($conexion_PDO, $fichero_nombre, $target_file, $id_tarea, $fichero_descripcion);
+                        } catch (DataBaseException $e) {
+                            $_SESSION["errCon"] = $e;
+                            header ("Location: tarea.php?id=" . $_GET["id"]);
+                        }
                         // Cerrar conexión
                         $conexion_PDO = null;
                         // Redirigir

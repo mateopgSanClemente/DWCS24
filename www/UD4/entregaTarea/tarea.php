@@ -25,11 +25,16 @@
                  *  - Mostrar mensajes de error mediante sesiones.
                  */
                 // En caso de que el arrat $_GET no esté vacío
-                // Mostrar mensaje informativo en caso de que el fichero se subiera correctamente o no
+                // Mostrar mensaje informativo en caso de que el fichero se subiera correctamente
                 if (!empty($_GET["success"]) && $_GET["success"] == true){
                     echo "<div class='alert alert-success' role='alert'>Fichero subido correctamente</div>";
                 } else if (!empty($_GET["eliminar"]) && $_GET["eliminar"] == true){
                     echo "<div class='alert alert-danger' role='alert'>Fichero eliminado</div>";
+                }
+                // Mostrar mensaje informativo en caso de que ocurra un error de conexón con la base de datos
+                if(isset($_SESSION["errCon"])){
+                    echo "<div class='alert alert-warning' role='alert'>{$_SESSION["errCon"]}</div>";
+                    unset($_SESSION["errCon"]);
                 }
                 if (!empty($_GET)){
                     // Convertir el tipo de dato en un entero
