@@ -137,8 +137,15 @@ Flight::route("GET /contactos(/@id_contacto)", function($id_contacto = null){
                     $sentencia->bindParam(":id_contacto", $id_contacto);
                 }
 
-                // Devolver los contactos
                 $sentencia->execute();
+                
+                // Mensaje de error en caso de que el contacto no exista
+                if($sentencia->rowCount() == 0) {
+                    Flight::json(["error" => "Contacto inexistente"], 404);
+                    exit;
+                }
+
+                // Devolver los contactos
                 $resultado = $sentencia->fetchAll(PDO::FETCH_ASSOC);
                 Flight::json(["contactos" => $resultado]);
             } else {
@@ -232,12 +239,70 @@ Flight::route("PUT /contactos/@id_contacto", function($id_contacto){
         $sentencia->bindParam(":id_usuario", $id_usuario);
 
         if ($sentencia->execute()) {
+            // Mensaje de error en caso de que el contacto no exista
+            if($sentencia->rowCount() == 0) {
+                Flight::json(["error" => "Contacto inexistente"], 404);
+                exit;
+            }
             Flight::json(["mensaje" => "Contacto actualizado correctamente."], 200);
         } else {
             Flight::json(["error" => "No se pudo actualizar el contacto."], 500);
         }
 
     } catch (PDOException $e){
+        Flight::json(["error" => "Error en la base de datos: " .$e->getMessage()], 500);
+    }
+});
+
+// 2.4. Borrar contacto (/contactos): elimina un contacto a partir de su ID siempre que sea del usuario autenticado.
+Flight::route("DELETE /contactos/@id_contacto", function($id_contacto){
+    try{
+        // Recuperar el token
+        $token = Flight::request()->getHeader("X-Token");
+
+        // Buscar el usuario por token
+        $sql = "SELECT id FROM usuarios WHERE token = :token";
+        $sentencia = Flight::db()->prepare($sql);
+        $sentencia->bindParam(":token", $token);
+        $sentencia->execute();
+
+        if ($sentencia->rowCount() == 0) {
+            Flight::json(["mensaje" => "Usuario no autenticado."], 401);
+            return;
+        }
+
+        $id_usuario = $sentencia->fetch(PDO::FETCH_ASSOC)["id"];
+
+        // Comprobar que el contacto pertenece al usuario
+        $sql = "SELECT * FROM contactos WHERE id = :id_contacto AND usuario_id = :id_usuario";
+        $sentencia = Flight::db()->prepare($sql);
+        $sentencia->bindParam(":id_contacto", $id_contacto);
+        $sentencia->bindParam(":id_usuario", $id_usuario);
+        $sentencia->execute();
+
+        if ($sentencia->rowCount() == 0) {
+            Flight::json(["mensaje" => "No tienes permiso para eliminar este contacto."], 403);
+            return;
+        }
+
+        // Eliminar contacto
+        $sql = "DELETE FROM contactos WHERE id = :id_contacto AND usuario_id = :id_usuario;";
+        $sentencia = Flight::db()->prepare($sql);
+        $sentencia->bindParam(":id_contacto", $id_contacto);
+        $sentencia->bindParam(":id_usuario", $id_usuario);
+        if ($sentencia->execute()) {
+
+            // Mensaje de error en caso de que el contacto no exista
+            if($sentencia->rowCount() == 0) {
+                Flight::json(["error" => "Contacto inexistente"], 404);
+                exit;
+            }
+            
+            Flight::json(["mensaje" => "Contacto borrado correctamente."], 200);
+        } else {
+            Flight::json(["error" => "No se pudo borrar el contacto."], 500);
+        }
+    } catch (PDOException $e) {
         Flight::json(["error" => "Error en la base de datos: " .$e->getMessage()], 500);
     }
 });
