@@ -111,12 +111,10 @@ Flight::route("POST /login", function(){
 
 // 2.1. Listar contactos (/contactos): devuelve todos los contactos del usuario autenticado. Además, opcionalmente, tendrá que devolver solo un contacto obtenido a partir de su ID, teniendo en cuenta que debe pertenecer al usuario autenticado.
 
-
 Flight::route("GET /contactos(/@id_contacto)", function($id_contacto = null){
     try {
         // Recupero el valor del token
         $token = Flight::request()->getHeader("X-Token");
-        // 2.1. Devolver todos los contactos del usuario autenticado
         $sql = "SELECT id FROM usuarios WHERE token = :token;";
         $sentencia = Flight::db()->prepare($sql);
         $sentencia->bindParam(":token", $token);
@@ -148,6 +146,50 @@ Flight::route("GET /contactos(/@id_contacto)", function($id_contacto = null){
             }
             $resultado = $sentencia->fetch(PDO::FETCH_ASSOC);
             Flight::json($resultado);
+        } else {
+            Flight::json(["error" => "No se pudo realizar la consulta.", 500]);
+        }
+    } catch (PDOException $e) {
+        Flight::json(["error" => "Error en la base de datos: " .$e->getMessage()], 500);
+    }
+});
+
+// 2.2. Añadir contacto (/contactos): recibe nombre, telefono, email, y lo guarda, devolviendo la confirmación.
+Flight::route("POST /contactos", function(){
+    try {
+        // Recuperar la información del body de la petición HTTP
+        $nombre = Flight::request()->data->nombre;
+        $telefono = Flight::request()->data->telefono;
+        $email = Flight::request()->data->email;
+
+        // Recuperar el token
+        $token = Flight::request()->getHeader("X-Token");
+
+        // Buscar el usuario por token
+        $sql = "SELECT id FROM usuarios WHERE token = :token";
+        $sentencia = Flight::db()->prepare($sql);
+        $sentencia->bindParam(":token", $token);
+        $sentencia->execute();
+
+        if ($sentencia->rowCount() == 0) {
+            Flight::json(["mensaje" => "Usuario no autenticado."], 401);
+            return;
+        }
+
+        $id_usuario = $sentencia->fetch(PDO::FETCH_ASSOC)["id"];
+
+        // Sentencia SQL para insertar un nuevo contacto
+        $sql = "INSERT INTO contactos (nombre, telefono, email, usuario_id) VALUES (:nombre, :telefono, :email, :id_usuario);";
+        $sentencia = Flight::db()->prepare($sql);
+
+        // Vincular parámetros
+        $sentencia->bindParam(":nombre", $nombre);
+        $sentencia->bindParam(":telefono", $telefono);
+        $sentencia->bindParam(":email", $email);
+        $sentencia->bindParam(":id_usuario", $id_usuario);
+
+        if ($sentencia->execute()){
+            Flight::json(["mensaje" => "Contacto guardado correctamente.", 201]);
         } else {
             Flight::json(["error" => "No se pudo realizar la consulta.", 500]);
         }
