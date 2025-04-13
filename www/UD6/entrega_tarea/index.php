@@ -122,6 +122,19 @@ Flight::route("GET /contactos(/@id_contacto)", function($id_contacto = null){
         if($sentencia->execute()) {
             // Comprobar que existe alguna coincidencia
             if($sentencia->rowCount() > 0) {
+
+                // Comprobar que el contacto pertenece al usuario
+                $id_usuario = $sentencia->fetch(PDO::FETCH_ASSOC)["id"];
+                $sql = "SELECT * FROM contactos WHERE id = :id_contacto AND usuario_id = :id_usuario";
+                $sentencia = Flight::db()->prepare($sql);
+                $sentencia->bindParam(":id_contacto", $id_contacto);
+                $sentencia->bindParam(":id_usuario", $id_usuario);
+                $sentencia->execute();
+
+                if ($sentencia->rowCount() == 0) {
+                    Flight::json(["mensaje" => "No tienes permiso para ver este contacto."], 403);
+                    exit;
+                }
                 // Si el usuario está autenticado, recuperar sus contactos o un contacto determinado si se le pasa un id a la ruta
                 $id_usuario = $sentencia->fetch(PDO::FETCH_ASSOC)["id"];
                 $sql = "SELECT * FROM contactos WHERE usuario_id = :id_usuario";
@@ -224,10 +237,22 @@ Flight::route("PUT /contactos/@id_contacto", function($id_contacto){
 
         if ($sentencia->rowCount() == 0) {
             Flight::json(["mensaje" => "Usuario no autenticado."], 401);
-            return;
+            exit;
         }
 
         $id_usuario = $sentencia->fetch(PDO::FETCH_ASSOC)["id"];
+
+        // Comprobar que el contacto pertenece al usuario
+        $sql = "SELECT * FROM contactos WHERE id = :id_contacto AND usuario_id = :id_usuario";
+        $sentencia = Flight::db()->prepare($sql);
+        $sentencia->bindParam(":id_contacto", $id_contacto);
+        $sentencia->bindParam(":id_usuario", $id_usuario);
+        $sentencia->execute();
+
+        if ($sentencia->rowCount() == 0) {
+            Flight::json(["mensaje" => "No tienes permiso para actualizar este contacto."], 403);
+            exit;
+        }
 
         // Actualizar el contacto
         $sql = "UPDATE contactos SET nombre = :nombre, telefono = :telefono, email = :email WHERE id = :id_contacto AND usuario_id = :id_usuario";
@@ -268,7 +293,7 @@ Flight::route("DELETE /contactos/@id_contacto", function($id_contacto){
 
         if ($sentencia->rowCount() == 0) {
             Flight::json(["mensaje" => "Usuario no autenticado."], 401);
-            return;
+            exit;
         }
 
         $id_usuario = $sentencia->fetch(PDO::FETCH_ASSOC)["id"];
@@ -282,7 +307,7 @@ Flight::route("DELETE /contactos/@id_contacto", function($id_contacto){
 
         if ($sentencia->rowCount() == 0) {
             Flight::json(["mensaje" => "No tienes permiso para eliminar este contacto."], 403);
-            return;
+            exit;
         }
 
         // Eliminar contacto
@@ -297,7 +322,7 @@ Flight::route("DELETE /contactos/@id_contacto", function($id_contacto){
                 Flight::json(["error" => "Contacto inexistente"], 404);
                 exit;
             }
-            
+
             Flight::json(["mensaje" => "Contacto borrado correctamente."], 200);
         } else {
             Flight::json(["error" => "No se pudo borrar el contacto."], 500);

@@ -2,7 +2,7 @@
 
 // Recuerda descargar el framework Flight
 
-require_once 'flight/Flight.php';
+require_once '../flight/core-master/flight/Flight.php';
 
 $host = $_ENV['DATABASE_HOST'];
 $name = $_ENV['DATABASE_TEST'];
