@@ -198,4 +198,48 @@ Flight::route("POST /contactos", function(){
     }
 });
 
+// 2.3. Editar contacto (/contactos): permite modificar un contacto, asegurando que sea del usuario autenticado.
+Flight::route("PUT /contactos/@id_contacto", function($id_contacto){
+    try {
+        // Recuperar la información del body de la petición HTTP
+        $nombre = Flight::request()->data->nombre;
+        $telefono = Flight::request()->data->telefono;
+        $email = Flight::request()->data->email;
+
+        // Recuperar el token
+        $token = Flight::request()->getHeader("X-Token");
+
+        // Buscar el usuario por token
+        $sql = "SELECT id FROM usuarios WHERE token = :token";
+        $sentencia = Flight::db()->prepare($sql);
+        $sentencia->bindParam(":token", $token);
+        $sentencia->execute();
+
+        if ($sentencia->rowCount() == 0) {
+            Flight::json(["mensaje" => "Usuario no autenticado."], 401);
+            return;
+        }
+
+        $id_usuario = $sentencia->fetch(PDO::FETCH_ASSOC)["id"];
+
+        // Actualizar el contacto
+        $sql = "UPDATE contactos SET nombre = :nombre, telefono = :telefono, email = :email WHERE id = :id_contacto AND usuario_id = :id_usuario";
+        $sentencia = Flight::db()->prepare($sql);
+        $sentencia->bindParam(":nombre", $nombre);
+        $sentencia->bindParam(":telefono", $telefono);
+        $sentencia->bindParam(":email", $email);
+        $sentencia->bindParam(":id_contacto", $id_contacto);
+        $sentencia->bindParam(":id_usuario", $id_usuario);
+
+        if ($sentencia->execute()) {
+            Flight::json(["mensaje" => "Contacto actualizado correctamente."], 200);
+        } else {
+            Flight::json(["error" => "No se pudo actualizar el contacto."], 500);
+        }
+
+    } catch (PDOException $e){
+        Flight::json(["error" => "Error en la base de datos: " .$e->getMessage()], 500);
+    }
+});
+
 Flight::start();
