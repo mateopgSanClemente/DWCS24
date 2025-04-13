@@ -47,7 +47,7 @@ Flight::route("POST /register", function(){
         if ($sentencia->execute()){
             Flight::json(["mensaje" => "Usuario registrado correctamente", 201]);
         } else {
-            Flight::json(["erro" => "No se pudo realizar el registro.", 500]);
+            Flight::json(["error" => "No se pudo realizar el registro.", 500]);
         }
     } catch (PDOException $e) {
         Flight::json(["error" => "Error en la base de datos: $e"], 500);
@@ -108,21 +108,48 @@ Flight::route("POST /login", function(){
 });
 
 // 2. Agenda
-/**
- * TODO: Incluir autenticación mediante token
- */
-Flight::route("GET|PUT|DELETE|POST /contactos(/@id)", function($id = null){
+
+// 2.1. Listar contactos (/contactos): devuelve todos los contactos del usuario autenticado. Además, opcionalmente, tendrá que devolver solo un contacto obtenido a partir de su ID, teniendo en cuenta que debe pertenecer al usuario autenticado.
+
+
+Flight::route("GET /contactos(/@id_contacto)", function($id_contacto = null){
     try {
         // Recupero el valor del token
         $token = Flight::request()->getHeader("X-Token");
         // 2.1. Devolver todos los contactos del usuario autenticado
-        $sql = "SELECT * FROM contactos WHERE token = :token;";
+        $sql = "SELECT id FROM usuarios WHERE token = :token;";
         $sentencia = Flight::db()->prepare($sql);
         $sentencia->bindParam(":token", $token);
 
         if($sentencia->execute()) {
-            $resultado = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+            // Comprobar que existe alguna coincidencia
+            if($sentencia->rowCount() > 0) {
+                // Si el usuario está autenticado, recuperar sus contactos o un contacto determinado si se le pasa un id a la ruta
+                $id_usuario = $sentencia->fetch(PDO::FETCH_ASSOC)["id"];
+                $sql = "SELECT * FROM contactos WHERE usuario_id = :id_usuario";
+
+                // En caso de que se reciba también un id de contacto
+                if(!empty($id_contacto)){
+                    $sql .= " AND id = :id_contacto;";
+                }
+                $sentencia = Flight::db()->prepare($sql);
+                $sentencia->bindParam(":id_usuario", $id_usuario);
+
+                if(!empty($id_contacto)){
+                    $sentencia->bindParam(":id_contacto", $id_contacto);
+                }
+
+                // Devolver los contactos
+                $sentencia->execute();
+                $resultado = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+                Flight::json(["contactos" => $resultado]);
+            } else {
+                Flight::json(["mensaje" => "El usuario no está autenticado.", 401]);
+            }
+            $resultado = $sentencia->fetch(PDO::FETCH_ASSOC);
             Flight::json($resultado);
+        } else {
+            Flight::json(["error" => "No se pudo realizar la consulta.", 500]);
         }
     } catch (PDOException $e) {
         Flight::json(["error" => "Error en la base de datos: " .$e->getMessage()], 500);
